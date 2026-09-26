@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f6f7f5;
+  --surface: #ffffff;
+  --surface-muted: #eef0ee;
+  --foreground: #14171a;
+  --muted: #5b6169;
+  --border: #dfe2e0;
+
+  --color-html: #e4572e;
+  --color-css: #2f6fed;
+  --color-js: #b8901f;
+  --color-sql: #1f9c7a;
+}
+
+.dark {
+  --background: #0e1013;
+  --surface: #16191d;
+  --surface-muted: #1c2024;
+  --foreground: #e8eaec;
+  --muted: #9aa1a9;
+  --border: #2a2e33;
+
+  --color-js: #d4ac2b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-html: var(--color-html);
+  --color-css: var(--color-css);
+  --color-js: var(--color-js);
+  --color-sql: var(--color-sql);
+
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-html) 25%, transparent);
+}
+
+/* Shiki code blocks: let our own background/typography win */
+pre.shiki {
+  background: transparent !important;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+pre.shiki span {
+  color: var(--shiki-light);
+}
+
+.dark pre.shiki span {
+  color: var(--shiki-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
