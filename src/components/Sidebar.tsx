@@ -69,16 +69,20 @@ function CategoryGroup({
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between text-xs font-medium uppercase tracking-wide text-muted hover:text-foreground"
-      >
-        <Link href={categoryHref} className="hover:underline">
+      <div className="flex w-full items-center justify-between gap-1 text-xs font-medium uppercase tracking-wide text-muted">
+        <Link href={categoryHref} className="truncate hover:text-foreground hover:underline">
           {title}
         </Link>
-        <span className={`transition-transform ${open ? "rotate-90" : ""}`}>›</span>
-      </button>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? "Recolher categoria" : "Expandir categoria"}
+          aria-expanded={open}
+          className="shrink-0 rounded p-1 hover:text-foreground"
+        >
+          <span className={`block transition-transform ${open ? "rotate-90" : ""}`}>›</span>
+        </button>
+      </div>
       {open && (
         <ul className="mt-1.5 flex flex-col gap-1">
           {entries.map((entry) => {
@@ -88,7 +92,7 @@ function CategoryGroup({
               <li key={entry.slug}>
                 <Link
                   href={href}
-                  className={`block truncate rounded-md px-2 py-1 font-mono text-[13px] transition-colors ${
+                  className={`block rounded-md px-2 py-1 font-mono text-[13px] leading-snug break-words transition-colors ${
                     isActive
                       ? `${activeColorClass} bg-surface-muted`
                       : "text-muted hover:text-foreground"

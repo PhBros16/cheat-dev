@@ -264,6 +264,241 @@ const html: Language = {
         },
       ],
     },
+    {
+      slug: "tabelas",
+      title: "Tabelas",
+      description:
+        "As tags certas pra exibir dados tabulares — sem abusar de tabela pra fazer layout, coisa do passado.",
+      entries: [
+        {
+          slug: "table",
+          title: "<table>",
+          summary: "Envolve uma tabela de dados completa.",
+          syntax: "<table>\n  <thead>...</thead>\n  <tbody>...</tbody>\n</table>",
+          description: [
+            "Marca o início de uma tabela. Hoje em dia serve só para dados tabulares de verdade (planilhas, comparativos, relatórios) — layout de página é trabalho do CSS (flex/grid).",
+          ],
+          examples: [
+            {
+              code: `<table>
+  <caption>Preços por plano</caption>
+  <thead>
+    <tr><th>Plano</th><th>Preço</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Básico</td><td>R$ 19</td></tr>
+  </tbody>
+</table>`,
+            },
+          ],
+          useWhen: ["Exibir dados que fazem sentido em linhas e colunas (preços, comparativos, planilhas)"],
+          avoidWhen: ["Montar o layout visual da página — isso é papel do CSS"],
+          related: ["html/tabelas/tr-td", "html/tabelas/thead-tbody"],
+        },
+        {
+          slug: "tr-td",
+          title: "<tr> / <td> / <th>",
+          summary: "Linha, célula de dado e célula de cabeçalho.",
+          syntax: "<tr>\n  <th>Cabeçalho</th>\n  <td>Dado</td>\n</tr>",
+          description: [
+            "<tr> é uma linha da tabela. <td> é uma célula comum de dado. <th> é uma célula de cabeçalho (linha ou coluna) — navegadores a exibem em negrito/centralizada por padrão, e leitores de tela usam <th> para anunciar a que coluna/linha um <td> pertence.",
+          ],
+          examples: [
+            {
+              code: `<tr>
+  <th>Nome</th>
+  <th>Idade</th>
+</tr>
+<tr>
+  <td>Ana</td>
+  <td>28</td>
+</tr>`,
+            },
+          ],
+          useWhen: ["<th> para os cabeçalhos de linha/coluna, <td> para os dados"],
+          avoidWhen: ["Usar <td> em negrito via CSS no lugar de <th> — perde a semântica para acessibilidade"],
+          related: ["html/tabelas/table", "html/tabelas/th-scope"],
+        },
+        {
+          slug: "thead-tbody",
+          title: "<thead> / <tbody> / <tfoot>",
+          summary: "Agrupam as linhas de cabeçalho, corpo e rodapé da tabela.",
+          syntax: "<table>\n  <thead>...</thead>\n  <tbody>...</tbody>\n  <tfoot>...</tfoot>\n</table>",
+          description: [
+            "Organizam a tabela em três blocos semânticos. Não são obrigatórios para a tabela funcionar visualmente, mas ajudam leitores de tela e permitem estilizar cada bloco separadamente com CSS (ex: fixar o thead ao rolar).",
+          ],
+          examples: [
+            {
+              code: `<table>
+  <thead>
+    <tr><th>Produto</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Mouse</td><td>R$ 80</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td>Total</td><td>R$ 80</td></tr>
+  </tfoot>
+</table>`,
+            },
+          ],
+          useWhen: ["Tabelas com mais de uma linha de dados — organiza e melhora acessibilidade"],
+          avoidWhen: ["Tabelas de uma linha só, onde a estrutura extra não ajuda muito"],
+          related: ["html/tabelas/table"],
+        },
+        {
+          slug: "th-scope",
+          title: "th[scope]",
+          summary: "Diz se um cabeçalho se refere à linha ou à coluna.",
+          syntax: `<th scope="col">...</th>\n<th scope="row">...</th>`,
+          description: [
+            "O atributo 'scope' remove a ambiguidade para leitores de tela: 'col' indica que aquele <th> é cabeçalho de uma coluna inteira, 'row' que é cabeçalho daquela linha. Essencial em tabelas com cabeçalhos nos dois eixos.",
+          ],
+          examples: [
+            {
+              code: `<tr>
+  <th scope="row">Janeiro</th>
+  <td>120</td>
+  <td>80</td>
+</tr>`,
+            },
+          ],
+          useWhen: ["Tabelas com cabeçalho de linha E de coluna ao mesmo tempo"],
+          avoidWhen: ["Tabelas simples com cabeçalho só no topo — ainda assim não faz mal usar 'col'"],
+          related: ["html/tabelas/tr-td"],
+        },
+        {
+          slug: "colspan-rowspan",
+          title: "colspan / rowspan",
+          summary: "Faz uma célula ocupar mais de uma coluna ou linha.",
+          syntax: `<td colspan="2">...</td>\n<td rowspan="3">...</td>`,
+          description: [
+            "'colspan' estica a célula por N colunas; 'rowspan' estica por N linhas. Útil para células de totais, agrupamentos e cabeçalhos que abrangem várias colunas.",
+          ],
+          examples: [
+            {
+              code: `<tr>
+  <td colspan="2">Total geral</td>
+  <td>R$ 500</td>
+</tr>`,
+              caption: "A primeira célula ocupa o espaço de duas colunas",
+            },
+          ],
+          useWhen: ["Células de totais/resumo que abrangem múltiplas colunas ou linhas"],
+          avoidWhen: ["Excesso de spans deixa a tabela difícil de ler por leitores de tela — use com moderação"],
+        },
+      ],
+    },
+    {
+      slug: "midia",
+      title: "Mídia",
+      description:
+        "Como colocar imagens, vídeo e áudio na página de forma responsiva e acessível.",
+      entries: [
+        {
+          slug: "img",
+          title: "<img>",
+          summary: "Exibe uma imagem — o atributo alt é obrigatório de verdade.",
+          syntax: `<img src="caminho.jpg" alt="Descrição" width="800" height="600" />`,
+          description: [
+            "'alt' descreve a imagem para quem usa leitor de tela ou quando a imagem falha ao carregar — deixe vazio (alt=\"\") só se a imagem for puramente decorativa.",
+            "Sempre defina 'width' e 'height' (ou aspect-ratio via CSS): isso evita que a página 'pule' enquanto a imagem carrega (Cumulative Layout Shift).",
+          ],
+          examples: [
+            {
+              code: `<img
+  src="/gato.jpg"
+  alt="Gato laranja dormindo em um sofá"
+  width="800"
+  height="600"
+  loading="lazy"
+/>`,
+            },
+          ],
+          useWhen: ["Toda imagem de conteúdo — sempre com alt descritivo"],
+          avoidWhen: ["alt genérico tipo 'imagem' ou 'foto1.jpg' — não ajuda ninguém"],
+          related: ["html/midia/picture"],
+        },
+        {
+          slug: "picture",
+          title: "<picture>",
+          summary: "Serve imagens diferentes conforme a tela ou formato suportado.",
+          syntax: `<picture>\n  <source srcset="img.webp" type="image/webp" />\n  <img src="img.jpg" alt="..." />\n</picture>`,
+          description: [
+            "Permite oferecer várias fontes de imagem (formatos modernos como WebP/AVIF, ou tamanhos diferentes por breakpoint) e o navegador escolhe a melhor. O <img> dentro é obrigatório como fallback final.",
+          ],
+          examples: [
+            {
+              code: `<picture>
+  <source srcset="banner.avif" type="image/avif" />
+  <source srcset="banner.webp" type="image/webp" />
+  <img src="banner.jpg" alt="Banner promocional" />
+</picture>`,
+            },
+          ],
+          useWhen: ["Servir formatos modernos (WebP/AVIF) com fallback, ou imagens diferentes por tamanho de tela"],
+          avoidWhen: ["Um único formato/tamanho de imagem já resolve — <img> sozinho basta"],
+          related: ["html/midia/img"],
+        },
+        {
+          slug: "video",
+          title: "<video>",
+          summary: "Player de vídeo nativo do navegador.",
+          syntax: `<video controls width="640" poster="capa.jpg">\n  <source src="video.mp4" type="video/mp4" />\n</video>`,
+          description: [
+            "'controls' mostra os controles nativos (play, volume, tela cheia). 'poster' é a imagem exibida antes do play. 'autoplay' só funciona de fato combinado com 'muted' na maioria dos navegadores.",
+          ],
+          examples: [
+            {
+              code: `<video controls width="640" poster="/capa.jpg">
+  <source src="/demo.mp4" type="video/mp4" />
+  Seu navegador não suporta vídeo HTML5.
+</video>`,
+            },
+          ],
+          useWhen: ["Vídeo próprio, sem precisar de player de terceiros (YouTube, Vimeo)"],
+          avoidWhen: ["autoplay com som — a maioria dos navegadores bloqueia e irrita o usuário"],
+        },
+        {
+          slug: "audio",
+          title: "<audio>",
+          summary: "Player de áudio nativo do navegador.",
+          syntax: `<audio controls>\n  <source src="musica.mp3" type="audio/mpeg" />\n</audio>`,
+          description: [
+            "Mesma lógica do <video>, mas para áudio: 'controls' exibe os controles nativos, pode ter múltiplos <source> como fallback de formato.",
+          ],
+          examples: [
+            {
+              code: `<audio controls>
+  <source src="/podcast.mp3" type="audio/mpeg" />
+  <source src="/podcast.ogg" type="audio/ogg" />
+</audio>`,
+            },
+          ],
+          useWhen: ["Player de áudio simples (podcast, efeito sonoro, trilha)"],
+          avoidWhen: ["Precisa de recursos avançados (playlist, visualizador) — aí vale um player em JS"],
+        },
+        {
+          slug: "figure-figcaption",
+          title: "<figure> / <figcaption>",
+          summary: "Agrupa uma mídia com sua legenda.",
+          syntax: `<figure>\n  <img src="..." alt="..." />\n  <figcaption>Legenda</figcaption>\n</figure>`,
+          description: [
+            "<figure> marca um conteúdo autocontido (imagem, gráfico, código, vídeo) que poderia ser movido para outro lugar do documento sem quebrar o fluxo do texto — normalmente citado a partir do texto principal. <figcaption> é a legenda associada.",
+          ],
+          examples: [
+            {
+              code: `<figure>
+  <img src="/grafico.png" alt="Gráfico de vendas por mês" />
+  <figcaption>Fig. 1 — Vendas cresceram 20% no trimestre</figcaption>
+</figure>`,
+            },
+          ],
+          useWhen: ["Imagens/gráficos com legenda explicativa"],
+          avoidWhen: ["Só para estilizar uma imagem sem legenda nenhuma — <div> já resolve"],
+        },
+      ],
+    },
   ],
 };
 

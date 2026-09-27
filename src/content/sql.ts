@@ -218,6 +218,228 @@ WHERE expirada_em < NOW();`,
         },
       ],
     },
+    {
+      slug: "transacoes",
+      title: "Transações & Integridade",
+      description:
+        "Como garantir que operações aconteçam por completo (ou não aconteçam) e que os dados fiquem consistentes.",
+      entries: [
+        {
+          slug: "begin-commit-rollback",
+          title: "BEGIN / COMMIT / ROLLBACK",
+          summary: "Agrupa várias operações para acontecerem todas juntas, ou nenhuma.",
+          syntax: `BEGIN;\nUPDATE ...;\nINSERT ...;\nCOMMIT; -- ou ROLLBACK;`,
+          description: [
+            "Uma transação garante atomicidade: se algo der errado no meio (queda de conexão, erro de constraint), ROLLBACK desfaz tudo que já rodou. COMMIT confirma as mudanças de forma definitiva. Essencial em operações que envolvem múltiplas tabelas relacionadas (ex: transferência bancária).",
+          ],
+          examples: [
+            {
+              code: `BEGIN;
+
+UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+UPDATE contas SET saldo = saldo + 100 WHERE id = 2;
+
+COMMIT;`,
+              caption: "Transferência: as duas atualizações acontecem juntas, ou nenhuma acontece",
+            },
+          ],
+          useWhen: ["Operações que precisam ser tudo-ou-nada em múltiplas tabelas/linhas"],
+          avoidWhen: ["Uma única instrução simples — bancos já tratam cada comando isolado como transação implícita"],
+        },
+        {
+          slug: "primary-key",
+          title: "PRIMARY KEY",
+          summary: "Identifica de forma única cada linha de uma tabela.",
+          syntax: `CREATE TABLE usuarios (\n  id SERIAL PRIMARY KEY,\n  nome TEXT\n);`,
+          description: [
+            "Toda tabela deveria ter uma chave primária: um valor (ou combinação de valores) que nunca se repete e nunca é nulo, usado para identificar e referenciar aquela linha especificamente — inclusive em relacionamentos (FOREIGN KEY).",
+          ],
+          examples: [
+            {
+              code: `CREATE TABLE produtos (
+  id SERIAL PRIMARY KEY,
+  nome TEXT NOT NULL,
+  preco NUMERIC(10,2)
+);`,
+            },
+          ],
+          useWhen: ["Sempre — toda tabela deveria ter uma"],
+          avoidWhen: ["Escolher uma coluna que pode mudar de valor (como email) — prefira um ID interno"],
+          related: ["sql/transacoes/foreign-key"],
+        },
+        {
+          slug: "foreign-key",
+          title: "FOREIGN KEY",
+          summary: "Garante que um valor só existe se apontar para uma linha real de outra tabela.",
+          syntax: `CREATE TABLE pedidos (\n  id SERIAL PRIMARY KEY,\n  cliente_id INT REFERENCES clientes(id)\n);`,
+          description: [
+            "Impede 'dados órfãos': não deixa inserir um pedido com cliente_id que não existe na tabela clientes, nem apagar um cliente que ainda tem pedidos vinculados (a menos que configure ON DELETE CASCADE ou similar).",
+          ],
+          examples: [
+            {
+              code: `CREATE TABLE pedidos (
+  id SERIAL PRIMARY KEY,
+  cliente_id INT NOT NULL REFERENCES clientes(id) ON DELETE CASCADE
+);`,
+              caption: "ON DELETE CASCADE: apagar o cliente apaga os pedidos dele também",
+            },
+          ],
+          useWhen: ["Sempre que uma tabela referencia outra (pedido → cliente, comentário → post)"],
+          avoidWhen: ["ON DELETE CASCADE sem pensar — pode apagar dados em cadeia sem querer"],
+          related: ["sql/transacoes/primary-key", "sql/avancado/inner-join"],
+        },
+        {
+          slug: "unique-not-null",
+          title: "UNIQUE / NOT NULL",
+          summary: "Impede valores duplicados ou vazios numa coluna.",
+          syntax: `email TEXT UNIQUE NOT NULL`,
+          description: [
+            "NOT NULL obriga que a coluna sempre tenha um valor. UNIQUE garante que nenhum outro registro tenha o mesmo valor naquela coluna (ex: dois usuários não podem ter o mesmo e-mail). Podem ser combinados na mesma coluna.",
+          ],
+          examples: [
+            {
+              code: `CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  cpf TEXT UNIQUE
+);`,
+            },
+          ],
+          useWhen: ["Campos que não fazem sentido duplicados (e-mail, CPF, username) ou nunca vazios"],
+          avoidWhen: ["Colunas que legitimamente podem repetir ou ficar em branco às vezes"],
+        },
+        {
+          slug: "check-constraint",
+          title: "CHECK",
+          summary: "Valida uma condição antes de aceitar o valor numa coluna.",
+          syntax: `preco NUMERIC CHECK (preco >= 0)`,
+          description: [
+            "Rejeita a inserção/atualização se a condição for falsa. Garante regras de negócio diretamente no banco, como uma segunda linha de defesa além da validação na aplicação.",
+          ],
+          examples: [
+            {
+              code: `CREATE TABLE produtos (
+  id SERIAL PRIMARY KEY,
+  preco NUMERIC CHECK (preco >= 0),
+  estoque INT CHECK (estoque >= 0)
+);`,
+            },
+          ],
+          useWhen: ["Regras simples de validação de valor (preço não-negativo, status dentro de uma lista)"],
+          avoidWhen: ["Regras complexas que dependem de outras tabelas — isso é papel de trigger ou da aplicação"],
+        },
+      ],
+    },
+    {
+      slug: "funcoes",
+      title: "Funções & Subconsultas",
+      description:
+        "Recursos para calcular, transformar e combinar valores dentro da própria consulta.",
+      entries: [
+        {
+          slug: "case-when",
+          title: "CASE WHEN",
+          summary: "Um if/else dentro do SQL.",
+          syntax: `CASE\n  WHEN condicao THEN valor\n  ELSE outroValor\nEND`,
+          description: [
+            "Avalia condições em ordem e retorna o valor do primeiro WHEN verdadeiro; ELSE é o padrão se nenhum bater (opcional — sem ele, retorna NULL). Pode ser usado no SELECT, WHERE ou ORDER BY.",
+          ],
+          examples: [
+            {
+              code: `SELECT
+  nome,
+  CASE
+    WHEN idade < 18 THEN 'menor'
+    WHEN idade < 65 THEN 'adulto'
+    ELSE 'idoso'
+  END AS faixa_etaria
+FROM pessoas;`,
+            },
+          ],
+          useWhen: ["Categorizar valores, criar colunas calculadas condicionais em relatórios"],
+          avoidWhen: ["Muitos WHEN encadeados podem ficar difíceis de ler — considere resolver na aplicação"],
+        },
+        {
+          slug: "coalesce",
+          title: "COALESCE",
+          summary: "Retorna o primeiro valor não-nulo de uma lista.",
+          syntax: `COALESCE(valor1, valor2, valorPadrao)`,
+          description: [
+            "Percorre os argumentos em ordem e retorna o primeiro que não for NULL. Muito usado para substituir NULL por um valor padrão de exibição, ou para 'preencher' com uma alternativa quando o principal falta.",
+          ],
+          examples: [
+            {
+              code: `SELECT nome, COALESCE(apelido, nome, 'Sem nome') AS exibicao
+FROM usuarios;`,
+              caption: "Usa o apelido se existir, senão o nome, senão um texto padrão",
+            },
+          ],
+          useWhen: ["Exibir um valor alternativo quando a coluna principal pode ser NULL"],
+          avoidWhen: ["Mascarar um NULL que deveria ser investigado/corrigido na origem"],
+        },
+        {
+          slug: "cast",
+          title: "CAST",
+          summary: "Converte um valor de um tipo para outro.",
+          syntax: `CAST(valor AS tipo)\n-- ou: valor::tipo (atalho do Postgres)`,
+          description: [
+            "Converte explicitamente entre tipos — texto para número, número para texto, string para data, etc. Necessário quando o banco não converte automaticamente ou quando você quer garantir o tipo do resultado.",
+          ],
+          examples: [
+            {
+              code: `SELECT CAST('42' AS INTEGER) + 8;
+-- 50
+
+SELECT preco::TEXT || ' reais' FROM produtos;
+-- atalho do Postgres com ::`,
+            },
+          ],
+          useWhen: ["Comparar/combinar colunas de tipos diferentes, formatar saída"],
+          avoidWhen: ["Conversões que podem falhar silenciosamente ou perder precisão (ex: texto não numérico para INTEGER)"],
+        },
+        {
+          slug: "subquery",
+          title: "Subconsulta (WHERE ... IN)",
+          summary: "Uma consulta SELECT usada dentro de outra.",
+          syntax: `SELECT * FROM tabela\nWHERE coluna IN (SELECT coluna FROM outraTabela WHERE condicao);`,
+          description: [
+            "Permite filtrar uma consulta com base no resultado de outra, sem precisar de duas idas ao banco. A subconsulta roda primeiro (ou por linha, dependendo do caso) e o resultado alimenta a consulta externa.",
+          ],
+          examples: [
+            {
+              code: `SELECT nome FROM produtos
+WHERE id IN (
+  SELECT produto_id FROM pedidos WHERE quantidade > 10
+);`,
+              caption: "Produtos que já tiveram algum pedido com mais de 10 unidades",
+            },
+          ],
+          useWhen: ["Filtrar com base em um critério calculado a partir de outra tabela"],
+          avoidWhen: ["Quando um JOIN resolve de forma mais direta e geralmente mais performática"],
+          related: ["sql/avancado/inner-join"],
+        },
+        {
+          slug: "funcoes-data",
+          title: "Funções de data (NOW, DATE_TRUNC)",
+          summary: "Manipulam e formatam valores de data/hora.",
+          syntax: `NOW();\nDATE_TRUNC('month', data);\nEXTRACT(YEAR FROM data);`,
+          description: [
+            "NOW() retorna o timestamp atual. DATE_TRUNC arredonda uma data para uma unidade (dia, mês, ano), ótimo para agrupar registros por mês. EXTRACT pega uma parte específica (ano, mês, dia da semana) de uma data.",
+          ],
+          examples: [
+            {
+              code: `SELECT DATE_TRUNC('month', criado_em) AS mes, COUNT(*)
+FROM pedidos
+GROUP BY mes
+ORDER BY mes;`,
+              caption: "Total de pedidos agrupados por mês",
+            },
+          ],
+          useWhen: ["Relatórios agrupados por período (dia, mês, ano)"],
+          avoidWhen: ["Nomes de função variam entre bancos (MySQL usa DATE_FORMAT, por exemplo) — confira a documentação do seu SGBD"],
+        },
+      ],
+    },
   ],
 };
 

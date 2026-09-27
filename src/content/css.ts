@@ -269,6 +269,245 @@ tr:nth-child(even) {
         },
       ],
     },
+    {
+      slug: "tipografia",
+      title: "Tipografia",
+      description:
+        "Como controlar a aparência do texto — fonte, espaçamento, quebras de linha e truncamento.",
+      entries: [
+        {
+          slug: "font-family-weight",
+          title: "font-family / font-weight",
+          summary: "Define a fonte usada e sua espessura.",
+          syntax: `.el {\n  font-family: "Inter", sans-serif;\n  font-weight: 600;\n}`,
+          description: [
+            "font-family aceita uma lista de fontes em ordem de preferência — o navegador usa a primeira disponível, com a última sendo um fallback genérico (sans-serif, serif, monospace). font-weight vai de 100 (fino) a 900 (muito negrito); 400 é o normal e 700 o negrito padrão.",
+          ],
+          examples: [
+            {
+              code: `body {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+}
+
+h1 {
+  font-weight: 700;
+}`,
+            },
+          ],
+          useWhen: ["Definir a identidade tipográfica do site e hierarquia de pesos"],
+          avoidWhen: ["Usar um peso que a fonte carregada não tem — o navegador simula e fica feio"],
+          related: ["css/tipografia/font-face"],
+        },
+        {
+          slug: "line-height",
+          title: "line-height",
+          summary: "Controla o espaçamento vertical entre linhas de texto.",
+          syntax: `.el {\n  line-height: 1.5;\n}`,
+          description: [
+            "Um número sem unidade (ex: 1.5) é multiplicado pelo tamanho da fonte do próprio elemento — é a forma recomendada, porque escala corretamente se o font-size mudar. Textos de leitura longa costumam ficar melhores entre 1.4 e 1.7.",
+          ],
+          examples: [
+            {
+              code: `p {
+  font-size: 16px;
+  line-height: 1.6;
+}`,
+              caption: "Altura de linha de 25.6px, escalável",
+            },
+          ],
+          useWhen: ["Parágrafos de leitura — melhora legibilidade"],
+          avoidWhen: ["Valores fixos em px — não escalam bem se o font-size mudar depois"],
+        },
+        {
+          slug: "text-overflow",
+          title: "text-overflow + white-space",
+          summary: "Corta um texto longo com reticências (...).",
+          syntax: `.el {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}`,
+          description: [
+            "As três propriedades precisam vir juntas: white-space:nowrap impede a quebra de linha, overflow:hidden esconde o que passar do limite, e text-overflow:ellipsis troca o excesso por '...'. Só funciona em texto de uma linha só.",
+          ],
+          examples: [
+            {
+              code: `.titulo-card {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}`,
+              caption: "Título longo vira 'Como aprender program...'",
+            },
+          ],
+          useWhen: ["Títulos de card, nomes de arquivo, qualquer texto de uma linha com largura fixa"],
+          avoidWhen: ["Texto de múltiplas linhas — para isso use -webkit-line-clamp"],
+        },
+        {
+          slug: "letter-spacing",
+          title: "letter-spacing",
+          summary: "Aumenta ou diminui o espaço entre letras.",
+          syntax: `.el {\n  letter-spacing: 0.05em;\n}`,
+          description: [
+            "Valores positivos afastam as letras, negativos aproximam. 'em' é a unidade mais comum aqui, porque escala com o tamanho da fonte. Muito usado em textos pequenos em maiúsculas (labels, badges) para melhorar a leitura.",
+          ],
+          examples: [
+            {
+              code: `.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}`,
+            },
+          ],
+          useWhen: ["Textos pequenos em caixa alta (labels, badges, eyebrows)"],
+          avoidWhen: ["Parágrafos longos — espaçamento extra prejudica a leitura em textos grandes"],
+        },
+        {
+          slug: "font-face",
+          title: "@font-face",
+          summary: "Carrega uma fonte customizada (própria ou de terceiros).",
+          syntax: `@font-face {\n  font-family: "MinhaFonte";\n  src: url("/fonte.woff2") format("woff2");\n  font-display: swap;\n}`,
+          description: [
+            "Define uma fonte a partir de um arquivo, dando um nome que depois é usado normalmente em font-family. 'font-display: swap' mostra uma fonte de fallback imediatamente e troca quando a customizada carregar, evitando texto invisível.",
+          ],
+          examples: [
+            {
+              code: `@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+body {
+  font-family: "Satoshi", sans-serif;
+}`,
+            },
+          ],
+          useWhen: ["Usar uma fonte que não vem instalada no sistema do usuário nem via Google Fonts"],
+          avoidWhen: ["Sempre defina font-display, senão o texto pode ficar invisível até a fonte carregar"],
+          related: ["css/tipografia/font-family-weight"],
+        },
+      ],
+    },
+    {
+      slug: "efeitos",
+      title: "Efeitos Visuais",
+      description:
+        "Sombras, transições, transformações e filtros — o polimento visual que dá vida à interface.",
+      entries: [
+        {
+          slug: "box-shadow",
+          title: "box-shadow",
+          summary: "Adiciona uma sombra ao redor de um elemento.",
+          syntax: `.el {\n  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);\n}`,
+          description: [
+            "Os valores são: deslocamento horizontal, deslocamento vertical, desfoque (blur), e opcionalmente espalhamento (spread) e cor. Pode empilhar várias sombras separadas por vírgula para efeitos em camadas.",
+          ],
+          examples: [
+            {
+              code: `.card {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.06),
+    0 4px 12px rgb(0 0 0 / 0.12);
+}`,
+              caption: "Duas sombras empilhadas para um efeito mais suave",
+            },
+          ],
+          useWhen: ["Dar profundidade a cards, modais, dropdowns"],
+          avoidWhen: ["Sombras muito escuras/grandes em excesso — poluem a interface"],
+        },
+        {
+          slug: "transition",
+          title: "transition",
+          summary: "Anima suavemente a mudança de uma propriedade CSS.",
+          syntax: `.el {\n  transition: propriedade duração timing-function;\n}`,
+          description: [
+            "Faz o navegador interpolar automaticamente entre o valor antigo e o novo de uma propriedade (cor, tamanho, posição...) quando ela muda — por hover, foco, ou classe adicionada via JS. 'all' anima qualquer propriedade que mudar, mas é mais previsível listar as propriedades específicas.",
+          ],
+          examples: [
+            {
+              code: `.botao {
+  background: #2563eb;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.botao:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}`,
+            },
+          ],
+          useWhen: ["Suavizar hover, foco, abertura/fechamento de elementos"],
+          avoidWhen: ["transition: all em componentes complexos — pode animar coisas indesejadas e pesar performance"],
+          related: ["css/efeitos/transform"],
+        },
+        {
+          slug: "transform",
+          title: "transform",
+          summary: "Move, rotaciona, escala ou inclina um elemento sem afetar o layout.",
+          syntax: `.el {\n  transform: translateX(10px) rotate(5deg) scale(1.1);\n}`,
+          description: [
+            "Diferente de mudar 'top/left' ou 'width/height', transform não recalcula o layout da página (é só uma transformação visual), o que o torna muito mais performático para animações. Pode combinar várias funções na mesma declaração.",
+          ],
+          examples: [
+            {
+              code: `.card:hover {
+  transform: translateY(-4px) scale(1.02);
+}`,
+              caption: "Efeito clássico de 'levantar' um card no hover",
+            },
+          ],
+          useWhen: ["Animações de hover, drag, carrosséis — qualquer movimento visual"],
+          avoidWhen: ["Precisa que o elemento realmente ocupe outro espaço no layout — use position/margin"],
+          related: ["css/efeitos/transition"],
+        },
+        {
+          slug: "filter",
+          title: "filter",
+          summary: "Aplica efeitos visuais tipo blur, brilho e escala de cinza.",
+          syntax: `.el {\n  filter: blur(4px) brightness(0.9) grayscale(1);\n}`,
+          description: [
+            "Funções comuns: blur() desfoca, brightness()/contrast() ajustam luz, grayscale()/sepia() mudam a cor, drop-shadow() é uma sombra que respeita a forma real do conteúdo (diferente de box-shadow, que é sempre retangular).",
+          ],
+          examples: [
+            {
+              code: `.imagem-fundo {
+  filter: brightness(0.6) blur(2px);
+}
+
+.icone {
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.3));
+}`,
+            },
+          ],
+          useWhen: ["Escurecer imagens de fundo, efeitos de hover em fotos, sombra em ícones com transparência"],
+          avoidWhen: ["blur() pesado em muitos elementos — pode pesar a renderização em telas fracas"],
+        },
+        {
+          slug: "clamp-min-max",
+          title: "clamp() / min() / max()",
+          summary: "Valores CSS que se ajustam dentro de limites, sem media query.",
+          syntax: `.el {\n  font-size: clamp(1rem, 2vw + 1rem, 2rem);\n}`,
+          description: [
+            "clamp(mínimo, preferido, máximo) escolhe o valor preferido, mas nunca deixa passar do mínimo nem do máximo — ótimo para tipografia e espaçamentos fluidos sem precisar de várias @media. min()/max() escolhem o menor/maior entre os valores dados.",
+          ],
+          examples: [
+            {
+              code: `h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+.container {
+  width: min(90%, 1200px);
+}`,
+              caption: "Título fluido e um container que nunca passa de 1200px",
+            },
+          ],
+          useWhen: ["Tipografia e espaçamentos responsivos sem escrever várias media queries"],
+          avoidWhen: ["Casos onde você precisa de saltos bruscos em breakpoints específicos — aí @media é mais previsível"],
+          related: ["css/layout/media-query"],
+        },
+      ],
+    },
   ],
 };
 

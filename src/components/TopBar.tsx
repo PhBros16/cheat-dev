@@ -29,6 +29,13 @@ export default function TopBar() {
           </span>
         </Link>
 
+        <Link
+          href="/todos"
+          className="hidden shrink-0 text-sm font-medium text-muted hover:text-foreground sm:block"
+        >
+          Todos os comandos
+        </Link>
+
         <div className="ml-2 flex-1">
           <SearchBox variant="compact" />
         </div>

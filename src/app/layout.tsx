@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
+import PwaRegister from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
   title: {
@@ -10,6 +11,31 @@ export const metadata: Metadata = {
   },
   description:
     "Referência rápida e explicativa de HTML, CSS, JavaScript e SQL: sintaxe, exemplos e quando usar cada comando.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "cheat/dev",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "cheat/dev — consulta rápida de HTML, CSS, JS e SQL",
+    description:
+      "Sintaxe, exemplos e o \"quando usar\" de HTML, CSS, JavaScript e SQL — sem enrolação.",
+    url: "https://cheat-dev.vercel.app",
+    siteName: "cheat/dev",
+    locale: "pt_BR",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0e1013",
+  width: "device-width",
+  initialScale: 1,
 };
 
 const themeInitScript = `
@@ -42,11 +68,12 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <TopBar />
         <div className="mx-auto flex max-w-[1400px]">
-          <aside className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-64 shrink-0 border-r border-border lg:block">
+          <aside className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-72 shrink-0 border-r border-border lg:block">
             <Sidebar />
           </aside>
           <main className="min-w-0 flex-1">{children}</main>
         </div>
+        <PwaRegister />
       </body>
     </html>
   );
