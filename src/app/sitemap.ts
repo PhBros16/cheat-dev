@@ -1,12 +1,23 @@
 import type { MetadataRoute } from "next";
 import { languages, entryHref } from "@/lib/content";
+import { guides } from "@/content/guides";
+import { snippets } from "@/content/snippets";
+import { templates } from "@/content/templates";
 
 const BASE_URL = "https://cheat-dev.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes: MetadataRoute.Sitemap = [
     { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
+    { url: `${BASE_URL}/todos`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE_URL}/guias`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/snippets`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/templates`, changeFrequency: "weekly", priority: 0.8 },
   ];
+
+  for (const g of guides) routes.push({ url: `${BASE_URL}/guias/${g.slug}`, changeFrequency: "monthly", priority: 0.6 });
+  for (const s of snippets) routes.push({ url: `${BASE_URL}/snippets/${s.slug}`, changeFrequency: "monthly", priority: 0.6 });
+  for (const t of templates) routes.push({ url: `${BASE_URL}/templates/${t.slug}`, changeFrequency: "monthly", priority: 0.6 });
 
   for (const language of languages) {
     routes.push({

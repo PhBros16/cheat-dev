@@ -1,110 +1,79 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { languages, entryHref } from "@/lib/content";
+import { languages, entryHref, countEntries } from "@/lib/content";
 import { langStyles } from "@/lib/langStyles";
-import { LangSlug } from "@/lib/types";
+import SidebarActive from "@/components/SidebarActive";
+
+const chevron = (
+  <svg className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none">
+    <path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const SECTIONS = [
+  { href: "/guias", label: "Guias e tutoriais" },
+  { href: "/snippets", label: "Snippets prontos" },
+  { href: "/templates", label: "Templates de site" },
+  { href: "/todos", label: "Todos os comandos" },
+];
 
 export default function Sidebar() {
-  const pathname = usePathname();
-  const currentLang = pathname.split("/")[1];
-
   return (
-    <nav className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6 text-sm">
-      {languages.map((language) => {
-        const style = langStyles[language.slug];
-        const isCurrentLang = currentLang === language.slug;
-        return (
-          <div key={language.slug}>
-            <Link
-              href={`/${language.slug}`}
-              className={`flex items-center gap-2 rounded-lg px-2 py-1.5 font-display font-semibold transition-colors ${
-                isCurrentLang ? "text-foreground" : "text-muted hover:text-foreground"
-              }`}
-            >
-              <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-              {language.title}
-            </Link>
+    <nav aria-label="Navegação" data-sidebar className="px-3 py-5 text-sm">
+      <SidebarActive />
 
-            <div className="ml-3.5 mt-1 flex flex-col gap-3 border-l border-border pl-3.5">
-              {language.categories.map((category) => (
-                <CategoryGroup
-                  key={category.slug}
-                  langSlug={language.slug}
-                  categorySlug={category.slug}
-                  title={category.title}
-                  entries={category.entries}
-                  pathname={pathname}
-                  activeColorClass={style.text}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </nav>
-  );
-}
-
-function CategoryGroup({
-  langSlug,
-  categorySlug,
-  title,
-  entries,
-  pathname,
-  activeColorClass,
-}: {
-  langSlug: string;
-  categorySlug: string;
-  title: string;
-  entries: { slug: string; title: string }[];
-  pathname: string;
-  activeColorClass: string;
-}) {
-  const categoryHref = `/${langSlug}/${categorySlug}`;
-  const isOpenByDefault = pathname.startsWith(categoryHref);
-  const [open, setOpen] = useState(isOpenByDefault);
-
-  return (
-    <div>
-      <div className="flex w-full items-center justify-between gap-1 text-xs font-medium uppercase tracking-wide text-muted">
-        <Link href={categoryHref} className="truncate hover:text-foreground hover:underline">
-          {title}
-        </Link>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-label={open ? "Recolher categoria" : "Expandir categoria"}
-          aria-expanded={open}
-          className="shrink-0 rounded p-1 hover:text-foreground"
-        >
-          <span className={`block transition-transform ${open ? "rotate-90" : ""}`}>›</span>
-        </button>
+      <div className="mb-4 flex flex-col gap-0.5 border-b border-border pb-4">
+        {SECTIONS.map((s) => (
+          <Link
+            key={s.href}
+            href={s.href}
+            className="rounded-lg px-2 py-1.5 font-medium text-foreground hover:bg-surface-muted"
+          >
+            {s.label}
+          </Link>
+        ))}
       </div>
-      {open && (
-        <ul className="mt-1.5 flex flex-col gap-1">
-          {entries.map((entry) => {
-            const href = entryHref(langSlug as LangSlug, categorySlug, entry.slug);
-            const isActive = pathname === href;
-            return (
-              <li key={entry.slug}>
-                <Link
-                  href={href}
-                  className={`block rounded-md px-2 py-1 font-mono text-[13px] leading-snug break-words transition-colors ${
-                    isActive
-                      ? `${activeColorClass} bg-surface-muted`
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  {entry.title}
+
+      <div className="flex flex-col gap-1">
+        {languages.map((lang) => {
+          const st = langStyles[lang.slug];
+          return (
+            <details key={lang.slug} data-lang={lang.slug} className="group">
+              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1.5 font-display font-semibold text-foreground hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
+                <span className={`h-2 w-2 rounded-full ${st.dot}`} />
+                {lang.title}
+                <span className="ml-auto text-xs font-normal text-muted">{countEntries(lang)}</span>
+                {chevron}
+              </summary>
+              <div className="ml-3.5 mt-1 flex flex-col gap-0.5 border-l border-border pl-3">
+                <Link href={`/${lang.slug}`} className="nav-link rounded-md px-2 py-1 text-[13px] text-muted hover:text-foreground">
+                  Visão geral
                 </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+                {lang.categories.map((c) => (
+                  <details key={c.slug} data-cat={`${lang.slug}/${c.slug}`} className="group">
+                    <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1 text-xs font-medium uppercase tracking-wide text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+                      <span className="flex-1">{c.title}</span>
+                      <span className="text-[10px] font-normal">{c.entries.length}</span>
+                      {chevron}
+                    </summary>
+                    <ul className="mb-1 flex flex-col gap-0.5">
+                      {c.entries.map((e) => (
+                        <li key={e.slug}>
+                          <Link
+                            href={entryHref(lang.slug, c.slug, e.slug)}
+                            className="nav-link block rounded-md px-2 py-1 font-mono text-[13px] leading-snug break-words text-muted hover:text-foreground"
+                          >
+                            {e.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))}
+              </div>
+            </details>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

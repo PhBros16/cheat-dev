@@ -50,7 +50,7 @@ export default function PwaRegister() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-xl sm:inset-x-auto sm:right-4">
+    <div className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-xl sm:left-auto sm:w-96">
       <span className="text-xl">📲</span>
       <div className="flex-1 text-sm">
         <p className="font-semibold text-foreground">Instalar o cheat/dev</p>

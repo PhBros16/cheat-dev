@@ -56,7 +56,7 @@ export default async function LanguagePage({
             </Link>
             <p className="mt-1 text-sm text-muted">{category.description}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {category.entries.map((entry) => (
+              {category.entries.slice(0, 12).map((entry) => (
                 <Link
                   key={entry.slug}
                   href={`/${language.slug}/${category.slug}/${entry.slug}`}
@@ -65,6 +65,11 @@ export default async function LanguagePage({
                   {entry.title}
                 </Link>
               ))}
+              {category.entries.length > 12 && (
+                <Link href={`/${language.slug}/${category.slug}`} className="rounded-full px-3 py-1 text-xs font-medium text-muted hover:text-foreground">
+                  +{category.entries.length - 12} comandos
+                </Link>
+              )}
             </div>
           </div>
         ))}

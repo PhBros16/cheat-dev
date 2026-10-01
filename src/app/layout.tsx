@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
+import SidebarShell from "@/components/SidebarShell";
 import PwaRegister from "@/components/PwaRegister";
 
 export const metadata: Metadata = {
@@ -68,9 +69,9 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <TopBar />
         <div className="mx-auto flex max-w-[1400px]">
-          <aside className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-72 shrink-0 border-r border-border lg:block">
+          <SidebarShell>
             <Sidebar />
-          </aside>
+          </SidebarShell>
           <main className="min-w-0 flex-1">{children}</main>
         </div>
         <PwaRegister />

@@ -2,9 +2,35 @@ import html from "@/content/html";
 import css from "@/content/css";
 import js from "@/content/js";
 import sql from "@/content/sql";
+import { EXTRA } from "@/content/extra";
+import { OLD_KEYWORDS } from "@/content/extra/keywords";
 import { Language, LangSlug, SearchItem, Entry, Category } from "@/lib/types";
 
-export const languages: Language[] = [html, css, js, sql];
+const splitKw = (v?: string) => (v ? v.split("|").map((x) => x.trim()).filter(Boolean) : []);
+
+function build(): Language[] {
+  return [html, css, js, sql].map((lang) => {
+    const cats: Category[] = lang.categories.map((c) => ({
+      ...c,
+      entries: c.entries.map((e) => ({
+        ...e,
+        keywords: [...(e.keywords ?? []), ...splitKw(OLD_KEYWORDS[`${lang.slug}/${c.slug}/${e.slug}`])],
+      })),
+    }));
+    for (const ex of EXTRA[lang.slug]) {
+      const found = cats.find((c) => c.slug === ex.slug);
+      if (found) {
+        const have = new Set(found.entries.map((e) => e.slug));
+        found.entries.push(...ex.entries.filter((e) => !have.has(e.slug)));
+      } else {
+        cats.push({ ...ex, entries: [...ex.entries] });
+      }
+    }
+    return { ...lang, categories: cats };
+  });
+}
+
+export const languages: Language[] = build();
 
 export function getLanguage(slug: string): Language | undefined {
   return languages.find((l) => l.slug === slug);
@@ -69,6 +95,7 @@ export function buildSearchIndex(): SearchItem[] {
           title: entry.title,
           summary: entry.summary,
           href: entryHref(language.slug, category.slug, entry.slug),
+          keywords: entry.keywords ?? [],
         });
       }
     }
@@ -84,7 +111,7 @@ export function totalEntries() {
   return languages.reduce((sum, l) => sum + countEntries(l), 0);
 }
 
-/** A curated slice of entries to feature on the home page. */
+/** Recorte curado para a home. */
 export function popularEntries(): SearchItem[] {
   const picks: [string, string, string][] = [
     ["css", "layout", "display-flex"],

@@ -88,3 +88,14 @@ pre.shiki span {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Sidebar: link ativo com a cor da linguagem */
+nav[data-sidebar] a[data-active="true"] {
+  background: var(--surface-muted);
+  color: var(--foreground);
+  font-weight: 500;
+}
+nav[data-sidebar] details[data-lang="html"] a[data-active="true"] { color: var(--color-html); }
+nav[data-sidebar] details[data-lang="css"] a[data-active="true"] { color: var(--color-css); }
+nav[data-sidebar] details[data-lang="js"] a[data-active="true"] { color: var(--color-js); }
+nav[data-sidebar] details[data-lang="sql"] a[data-active="true"] { color: var(--color-sql); }

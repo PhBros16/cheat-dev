@@ -1,4 +1,4 @@
-const CACHE_VERSION = "cheatdev-v1";
+const CACHE_VERSION = "cheatdev-v2";
 const OFFLINE_URL = "/offline";
 const APP_SHELL = ["/", OFFLINE_URL, "/manifest.json"];
 
@@ -54,7 +54,8 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/manifest.json"
+    url.pathname === "/manifest.json" ||
+    url.pathname === "/search-index.json"
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
