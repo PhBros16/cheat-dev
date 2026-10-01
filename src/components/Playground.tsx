@@ -38,6 +38,7 @@ export function cssDoc(mode: string, css: string) {
     gi: `.wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.target{${css}}</style><div class="wrap">${boxes(6)}</div>`,
     p: `.target{${css}}</style><p class="target">${lorem}</p>`,
     h: `.target{${css}}.target:hover{transform:translateX(90px);background:#f87171;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.3);width:150px}</style><p style="font-size:12px;color:#6b7280;margin:0 0 8px">Passe o mouse sobre a caixa</p><div class="box target" style="display:inline-block">Hover</div>`,
+    hr: `.target{${css}}.target:hover{transform:rotate(28deg)}</style><p style="font-size:12px;color:#6b7280;margin:0 0 8px">Passe o mouse sobre a caixa</p><div style="padding:30px 0 0 30px"><div class="box target" style="display:inline-block">Gira</div></div>`,
     a: `.target{display:inline-block;${css}}</style><div class="wrap" style="min-height:90px"><div class="box target">Animado</div></div>`,
   };
   return `<!doctype html><meta charset="utf-8"><style>${BASE}${scenes[mode] ?? scenes.i}`;

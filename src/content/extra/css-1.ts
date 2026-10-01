@@ -21,7 +21,7 @@ export const cssA = [
       k: "tamanho incluindo borda|largura previsível|reset css|content-box" }),
     S({ s: "overflow", t: "overflow", d: "Controla o que acontece quando o conteúdo é maior que a caixa.", x: "overflow: visible | hidden | scroll | auto;",
       n: "hidden corta o excesso. scroll sempre mostra barra de rolagem. auto só mostra a barra quando necessário. overflow-x/overflow-y controlam cada eixo separado.",
-      v: "i:overflow:auto;width:100px;height:60px;white-space:nowrap",
+      v: "p:overflow:auto;height:56px;border:2px solid #2f6fed;padding:6px",
       k: "cortar conteúdo|barra de rolagem|scroll|esconder excesso|rolagem horizontal" }),
   ]),
 

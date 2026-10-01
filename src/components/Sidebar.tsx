@@ -13,6 +13,8 @@ const SECTIONS = [
   { href: "/guias", label: "Guias e tutoriais" },
   { href: "/snippets", label: "Snippets prontos" },
   { href: "/templates", label: "Templates de site" },
+  { href: "/vscode", label: "Atalhos do VS Code" },
+  { href: "/favoritos", label: "★ Favoritos" },
   { href: "/todos", label: "Todos os comandos" },
 ];
 
