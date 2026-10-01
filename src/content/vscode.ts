@@ -396,3 +396,7 @@ export function buildVsJson(lang: "html" | "css" | "all") {
   }
   return JSON.stringify(out, null, 2);
 }
+
+/** Converte o corpo para a sintaxe de snippet do CodeMirror (usado no Lab). */
+export const toCm = (s: string) =>
+  s.replace(/\[\[(\d+)(?::([^\]]*))?\]\]/g, (_, n, t) => (n === "0" ? "${}" : t !== undefined ? `\${${n}:${t}}` : `\${${n}}`));

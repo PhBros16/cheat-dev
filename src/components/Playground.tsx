@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PlayKind } from "@/lib/types";
+import OpenInLab from "@/components/OpenInLab";
 
 /* ---------- documentos do iframe ---------- */
 
@@ -80,7 +81,7 @@ function Frame({ srcDoc, height = 210, scripts = false, iframeRef }: {
   );
 }
 
-function Shell({ label, hint, children, onReset }: { label: string; hint: string; children: React.ReactNode; onReset: () => void }) {
+function Shell({ label, hint, children, onReset, lab }: { label: string; hint: string; children: React.ReactNode; onReset: () => void; lab?: { doc: string } | { project: { html: string; css: string; js: string } } }) {
   return (
     <section className="rounded-xl border border-border bg-surface p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
@@ -88,9 +89,12 @@ function Shell({ label, hint, children, onReset }: { label: string; hint: string
           <p className="text-sm font-semibold text-foreground">{label}</p>
           <p className="text-xs text-muted">{hint}</p>
         </div>
-        <button type="button" onClick={onReset} className="rounded-md border border-border px-2 py-1 text-xs text-muted hover:text-foreground">
-          Restaurar
-        </button>
+        <div className="flex items-center gap-2">
+          {lab && <OpenInLab payload={lab} />}
+          <button type="button" onClick={onReset} className="rounded-md border border-border px-2 py-1 text-xs text-muted hover:text-foreground">
+            Restaurar
+          </button>
+        </div>
       </div>
       {children}
     </section>
@@ -103,7 +107,7 @@ const areaCls =
 function HtmlPlay({ initial }: { initial: string }) {
   const [code, setCode] = useState(initial);
   return (
-    <Shell label="Testar ao vivo" hint="Edite o HTML e veja o resultado na hora." onReset={() => setCode(initial)}>
+    <Shell label="Testar ao vivo" hint="Edite o HTML e veja o resultado na hora." onReset={() => setCode(initial)} lab={{ doc: htmlDoc(code) }}>
       <div className="grid gap-3 lg:grid-cols-2">
         <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} aria-label="Código HTML" className={areaCls} />
         <Frame srcDoc={htmlDoc(code)} height={208} />
@@ -116,7 +120,7 @@ function CssPlay({ mode, initial }: { mode: string; initial: string }) {
   const pretty = initial.split(";").map((s) => s.trim()).filter(Boolean).map((s) => s + ";").join("\n");
   const [css, setCss] = useState(pretty);
   return (
-    <Shell label="Testar ao vivo" hint="Edite as declarações CSS e veja o efeito na caixa B." onReset={() => setCss(pretty)}>
+    <Shell label="Testar ao vivo" hint="Edite as declarações CSS e veja o efeito na caixa B." onReset={() => setCss(pretty)} lab={{ doc: cssDoc(mode, css.replace(/\n/g, " ")) }}>
       <div className="grid gap-3 lg:grid-cols-2">
         <textarea value={css} onChange={(e) => setCss(e.target.value)} spellCheck={false} aria-label="Código CSS" className={areaCls} />
         <Frame srcDoc={cssDoc(mode, css.replace(/\n/g, " "))} height={208} />
@@ -148,7 +152,7 @@ function JsPlay({ initial }: { initial: string }) {
   }
 
   return (
-    <Shell label="Executar" hint="Edite o código e clique em Rodar. O console aparece abaixo." onReset={() => { setCode(initial); setLines([]); setRunKey(0); }}>
+    <Shell label="Executar" hint="Edite o código e clique em Rodar. O console aparece abaixo." onReset={() => { setCode(initial); setLines([]); setRunKey(0); }} lab={{ project: { html: "", css: "", js: code } }}>
       <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} aria-label="Código JavaScript" className={areaCls} />
       <div className="mt-2 flex items-center gap-2">
         <button type="button" onClick={run} className="rounded-lg bg-js px-3.5 py-1.5 text-sm font-semibold text-black">

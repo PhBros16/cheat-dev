@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/guias", label: "Guias" },
   { href: "/snippets", label: "Snippets" },
   { href: "/templates", label: "Templates" },
+  { href: "/lab", label: "Lab" },
   { href: "/todos", label: "Comandos" },
 ];
 

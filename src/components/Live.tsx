@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { htmlDoc } from "@/components/Playground";
+import OpenInLab from "@/components/OpenInLab";
 
 /** Preview de um documento HTML completo (snippets e templates). */
 export default function Live({ doc, height = 320, editable = false }: { doc: string; height?: number; editable?: boolean }) {
   const [code, setCode] = useState(doc);
   return (
     <div className="grid gap-3">
+      <div className="flex justify-end"><OpenInLab payload={{ doc: code }} label="Editar no Lab (HTML + CSS + JS)" /></div>
       {editable && (
         <textarea
           value={code}
