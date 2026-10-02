@@ -4,6 +4,13 @@ import { useState } from "react";
 import { htmlDoc } from "@/components/Playground";
 import OpenInLab from "@/components/OpenInLab";
 
+/** O iframe é isolado (sem allow-same-origin): sem isto, localStorage/sessionStorage lançam SecurityError. */
+const STORAGE_SHIM = `<script>(function(){function m(){var d={};return{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}}try{void localStorage.length}catch(e){try{Object.defineProperty(window,"localStorage",{value:m(),configurable:true});Object.defineProperty(window,"sessionStorage",{value:m(),configurable:true})}catch(_){}}})();</script>`;
+
+function withShim(d: string) {
+  return /<head[^>]*>/i.test(d) ? d.replace(/<head[^>]*>/i, (m) => m + STORAGE_SHIM) : STORAGE_SHIM + d;
+}
+
 /** Preview de um documento HTML completo (snippets e templates). */
 export default function Live({ doc, height = 320, editable = false }: { doc: string; height?: number; editable?: boolean }) {
   const [code, setCode] = useState(doc);
@@ -22,7 +29,7 @@ export default function Live({ doc, height = 320, editable = false }: { doc: str
       <iframe
         title="Preview"
         sandbox="allow-scripts"
-        srcDoc={/<html|<!doctype/i.test(code) ? code : htmlDoc(code)}
+        srcDoc={withShim(/<html|<!doctype/i.test(code) ? code : htmlDoc(code))}
         style={{ height }}
         className="w-full rounded-lg border border-border bg-white"
       />

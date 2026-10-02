@@ -11,6 +11,8 @@ const chevron = (
 
 const SECTIONS = [
   { href: "/lab", label: "🧪 Lab (testar código)" },
+  { href: "/receitas", label: "Receitas (como fazer)" },
+  { href: "/comparativos", label: "Comparativos" },
   { href: "/guias", label: "Guias e tutoriais" },
   { href: "/snippets", label: "Snippets prontos" },
   { href: "/templates", label: "Templates de site" },

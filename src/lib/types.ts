@@ -89,3 +89,25 @@ export type SiteTemplate = {
   tags: string[];
   code: string;
 };
+
+export type Comparison = {
+  slug: string;
+  title: string;
+  summary: string;
+  lang: "html" | "css" | "js" | "sql";
+  tags: string[];
+  columns: string[];
+  rows: { label: string; cells: string[] }[];
+  verdict: string;
+  examples: { lang: string; content: string; caption?: string }[];
+};
+
+export type Recipe = {
+  slug: string;
+  title: string;
+  summary: string;
+  level: "iniciante" | "intermediário" | "avançado";
+  tags: string[];
+  project: { html: string; css: string; js: string };
+  how: string[];
+};
