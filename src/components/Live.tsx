@@ -12,11 +12,13 @@ function withShim(d: string) {
 }
 
 /** Preview de um documento HTML completo (snippets e templates). */
-export default function Live({ doc, height = 320, editable = false }: { doc: string; height?: number; editable?: boolean }) {
+export default function Live({ doc, height = 320, editable = false, lab = true }: { doc: string; height?: number; editable?: boolean; lab?: boolean }) {
   const [code, setCode] = useState(doc);
+  const [prev, setPrev] = useState(doc);
+  if (doc !== prev) { setPrev(doc); setCode(doc); } // o documento mudou (ex.: outro estilo): recomeça dele
   return (
     <div className="grid gap-3">
-      <div className="flex justify-end"><OpenInLab payload={{ doc: code }} label="Editar no Lab (HTML + CSS + JS)" /></div>
+      {lab && <div className="flex justify-end"><OpenInLab payload={{ doc: code }} label="Editar no Lab (HTML + CSS + JS)" /></div>}
       {editable && (
         <textarea
           value={code}
@@ -28,6 +30,7 @@ export default function Live({ doc, height = 320, editable = false }: { doc: str
       )}
       <iframe
         title="Preview"
+        loading="lazy"
         sandbox="allow-scripts"
         srcDoc={withShim(/<html|<!doctype/i.test(code) ? code : htmlDoc(code))}
         style={{ height }}

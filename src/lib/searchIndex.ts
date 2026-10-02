@@ -1,7 +1,7 @@
 import { buildDocs, Doc } from "@/lib/search";
 import { LangSlug, SearchItem } from "@/lib/types";
 
-type Compact = { l: LangSlug; lt: string; c: string; ct: string; s: string; t: string; d: string; k: string };
+type Compact = { l: LangSlug; lt: string; c: string; ct: string; s: string; t: string; d: string; k: string; h?: string };
 
 let cached: Promise<Doc[]> | null = null;
 
@@ -21,7 +21,7 @@ export function loadDocs(): Promise<Doc[]> {
               slug: r.s,
               title: r.t,
               summary: r.d,
-              href: `/${r.l}/${r.c}/${r.s}`,
+              href: r.h ?? `/${r.l}/${r.c}/${r.s}`,
               keywords: r.k ? r.k.split("|") : [],
             })
           )

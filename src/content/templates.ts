@@ -1,6 +1,7 @@
 import { SiteTemplate } from "@/lib/types";
+import { templatesExtra } from "@/content/templates-extra";
 
-export const templates: SiteTemplate[] = [
+const base: SiteTemplate[] = [
   {
     slug: "landing-page",
     title: "Landing page de produto",
@@ -350,6 +351,10 @@ export const templates: SiteTemplate[] = [
 </html>`,
   },
 ];
+
+const CATS: Record<string, string> = { "landing-page": "Vendas", "portfolio-pessoal": "Portfólio", "dashboard-admin": "Painéis" };
+
+export const templates: SiteTemplate[] = [...base.map((t) => ({ ...t, category: CATS[t.slug] ?? "Páginas" })), ...templatesExtra];
 
 export function getTemplate(slug: string) {
   return templates.find((t) => t.slug === slug);

@@ -82,12 +82,17 @@ export type Snippet = {
   code: string;
 };
 
+export type SiteTheme = { id: string; name: string; vars: string };
+
 export type SiteTemplate = {
   slug: string;
   title: string;
   description: string;
   tags: string[];
   code: string;
+  category?: string;
+  /** Estilos visuais: cada um troca o bloco :root (cores, raio, fontes) do código. */
+  themes?: SiteTheme[];
 };
 
 export type Comparison = {

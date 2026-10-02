@@ -81,6 +81,28 @@ export function resolveRelated(refs: string[] | undefined) {
     .filter((x): x is NonNullable<typeof x> => x !== null);
 }
 
+import { recipes } from "@/content/recipes";
+import { comparisons } from "@/content/comparisons";
+import { guides } from "@/content/guides";
+import { snippets } from "@/content/snippets";
+import { templates } from "@/content/templates";
+
+/** Receitas, comparativos, guias, snippets e templates entram na busca como itens com link próprio. */
+function extraSearchItems(): SearchItem[] {
+  const pick = (tags: string[]): LangSlug =>
+    (["sql", "js", "css", "html"] as LangSlug[]).find((l) => tags.includes(l) || tags.includes(l === "js" ? "javascript" : l)) ?? "html";
+  const mk = (kind: string, cat: string, slug: string, lang: LangSlug, title: string, summary: string, href: string, extra: string[]): SearchItem => ({
+    lang, langTitle: kind, category: cat, categoryTitle: kind, slug, title, summary, href, keywords: extra,
+  });
+  return [
+    ...recipes.map((r) => mk("Receita", "receitas", r.slug, pick(r.tags), r.title, r.summary, `/receitas/${r.slug}`, [...r.tags, "como fazer", "tutorial", "receita"])),
+    ...comparisons.map((c) => mk("Comparativo", "comparativos", c.slug, c.lang, c.title, c.summary, `/comparativos/${c.slug}`, [...c.tags, "diferença", "diferenca entre", "versus", "vs", "comparar", "qual usar"])),
+    ...guides.map((g) => mk("Guia", "guias", g.slug, pick(g.tags), g.title, g.summary, `/guias/${g.slug}`, [...g.tags, "passo a passo", "tutorial"])),
+    ...snippets.map((x) => mk("Snippet", "snippets", x.slug, "css", x.title, x.description, `/snippets/${x.slug}`, [x.category, "componente", "pronto", "copiar e colar", "exemplo"])),
+    ...templates.map((t) => mk("Template", "templates", t.slug, "html", t.title, t.description, `/templates/${t.slug}`, [...t.tags, "site completo", "modelo", "layout"])),
+  ];
+}
+
 export function buildSearchIndex(): SearchItem[] {
   const items: SearchItem[] = [];
   for (const language of languages) {
@@ -100,7 +122,7 @@ export function buildSearchIndex(): SearchItem[] {
       }
     }
   }
-  return items;
+  return [...items, ...extraSearchItems()];
 }
 
 export function countEntries(language: Language) {

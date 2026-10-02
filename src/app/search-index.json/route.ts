@@ -12,6 +12,7 @@ export function GET() {
     t: i.title,
     d: i.summary,
     k: i.keywords.join("|"),
+    ...(i.href && !i.href.startsWith(`/${i.lang}/${i.category}/`) ? { h: i.href } : {}),
   }));
   return Response.json(rows);
 }

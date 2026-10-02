@@ -81,3 +81,44 @@ export async function decodeProject(code: string): Promise<Project | null> {
   } catch {}
   return null;
 }
+
+/* ---------- projeto em arquivos (ZIP) ---------- */
+export type ProjFile = { name: string; content: string };
+
+/** Divide o projeto em index.html + style.css + script.js (como numa pasta de verdade). */
+export function exportFiles(p: Project): ProjFile[] {
+  const link = p.css.trim() ? `<link rel="stylesheet" href="style.css">` : "";
+  const script = p.js.trim() ? `<script src="script.js" defer></script>` : "";
+  let html: string;
+  if (isFull(p.html)) {
+    html = p.html;
+    if (link) html = inject(html, /<\/head>/i, (m) => `  ${link}\n${m}`, (x) => x);
+    if (script) html = inject(html, /<\/body>/i, (m) => `  ${script}\n${m}`, (x) => x + script);
+  } else {
+    html = `<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n  <meta charset="UTF-8">\n  ${VIEWPORT}\n  <title>Projeto</title>\n${link ? `  ${link}\n` : ""}</head>\n<body>\n${p.html}\n${script ? `  ${script}\n` : ""}</body>\n</html>\n`;
+  }
+  const files: ProjFile[] = [{ name: "index.html", content: html }];
+  if (p.css.trim()) files.push({ name: "style.css", content: p.css });
+  if (p.js.trim()) files.push({ name: "script.js", content: p.js });
+  files.push({ name: "LEIA-ME.txt", content: "Projeto exportado do cheat/dev Lab.\nAbra o index.html no navegador, ou arraste esta pasta para o VS Code.\nPara publicar: veja o guia 'Do zero ao site no ar: GitHub + Vercel'.\n" });
+  return files;
+}
+
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Junta arquivos soltos (.html/.css/.js) ou o conteúdo de um ZIP em um projeto do Lab. */
+export function importFiles(files: ProjFile[]): Project {
+  const base = (n: string) => n.split("/").pop() ?? n;
+  const htmls = files.filter((f) => /\.html?$/i.test(f.name));
+  const main = htmls.find((f) => /^index\.html?$/i.test(base(f.name))) ?? htmls[0];
+  const csss = files.filter((f) => /\.css$/i.test(f.name));
+  const jss = files.filter((f) => /\.m?js$/i.test(f.name));
+  let html = main?.content ?? "";
+  for (const f of csss) html = html.replace(new RegExp(`<link[^>]+href=["'][^"']*${esc(base(f.name))}["'][^>]*>\\s*`, "gi"), "");
+  for (const f of jss) html = html.replace(new RegExp(`<script[^>]+src=["'][^"']*${esc(base(f.name))}["'][^>]*>\\s*</script>\\s*`, "gi"), "");
+  return {
+    html,
+    css: csss.map((f) => f.content.trim()).join("\n\n"),
+    js: jss.map((f) => f.content.trim()).join("\n\n"),
+  };
+}

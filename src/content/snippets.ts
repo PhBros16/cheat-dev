@@ -1,11 +1,12 @@
 import { Snippet } from "@/lib/types";
+import { snippetsExtra } from "@/content/snippets-extra";
 
 const style = `<style>
 *{box-sizing:border-box}
 body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#0e1013;color:#e8eaec}
 </style>`;
 
-export const snippets: Snippet[] = [
+const base: Snippet[] = [
   {
     slug: "botoes",
     title: "Botões (primário, secundário, perigo)",
@@ -260,6 +261,8 @@ button{padding:9px 16px;border-radius:8px;border:none;background:#2f6fed;color:#
 </div>`,
   },
 ];
+
+export const snippets: Snippet[] = [...base, ...snippetsExtra];
 
 export function getSnippet(slug: string) {
   return snippets.find((s) => s.slug === slug);
