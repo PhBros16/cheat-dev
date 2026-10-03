@@ -9,16 +9,18 @@ import { acceptCompletion, snippet, type CompletionContext } from "@codemirror/a
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { javascript } from "@codemirror/lang-javascript";
+import { sql } from "@codemirror/lang-sql";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { abbreviationTracker, expandAbbreviation, emmetConfig, type EmmetKnownSyntax } from "@emmetio/codemirror6-plugin";
 import { prefixes, toCm, vscodeSnippets } from "@/content/vscode";
 
 export type Lang = "html" | "css" | "js";
+type EditorLang = Lang | "sql";
 
-function snippetSource(lang: Lang) {
+function snippetSource(lang: EditorLang) {
   const list = vscodeSnippets.filter((s) => s.lang === (lang === "css" ? "css" : "html"));
   return (ctx: CompletionContext) => {
-    if (lang === "js") return null;
+    if (lang === "js" || lang === "sql") return null;
     const m = ctx.matchBefore(/cd-?[\w]*/);
     if (!m || (m.from === m.to && !ctx.explicit)) return null;
     return {
@@ -37,10 +39,10 @@ function snippetSource(lang: Lang) {
 }
 
 /** Estilo VS Code: digitou o gatilho exato (ex.: cd-card) e apertou Tab, o snippet entra. */
-function tabTrigger(lang: Lang) {
+function tabTrigger(lang: EditorLang) {
   const list = vscodeSnippets.filter((s) => s.lang === (lang === "css" ? "css" : "html"));
   return (view: EditorView) => {
-    if (lang === "js") return false;
+    if (lang === "js" || lang === "sql") return false;
     const sel = view.state.selection.main;
     if (!sel.empty) return false;
     const line = view.state.doc.lineAt(sel.head);
@@ -55,7 +57,7 @@ function tabTrigger(lang: Lang) {
 
 export default function Editor({
   lang, value, onChange, onRun, visible,
-}: { lang: Lang; value: string; onChange: (v: string) => void; onRun: () => void; visible: boolean }) {
+}: { lang: EditorLang; value: string; onChange: (v: string) => void; onRun: () => void; visible: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const cb = useRef({ onChange, onRun });
@@ -70,18 +72,18 @@ export default function Editor({
       extensions: [
         basicSetup,
         oneDark,
-        lang === "html" ? html() : lang === "css" ? css() : javascript(),
+        lang === "html" ? html() : lang === "css" ? css() : lang === "sql" ? sql({ upperCaseKeywords: true }) : javascript(),
         Prec.highest(
           keymap.of([
             { key: "Mod-Enter", run: () => (cb.current.onRun(), true) },
             { key: "Tab", run: tabTrigger(lang) },
             { key: "Tab", run: acceptCompletion },
-            ...(lang !== "js" ? [{ key: "Tab", run: expandAbbreviation }] : []),
+            ...(lang === "html" || lang === "css" ? [{ key: "Tab", run: expandAbbreviation }] : []),
             indentWithTab,
           ])
         ),
         EditorState.languageData.of(() => [{ autocomplete: source }]),
-        ...(lang !== "js" ? [emmetConfig.of({ syntax }), abbreviationTracker({ syntax })] : []),
+        ...(lang === "html" || lang === "css" ? [emmetConfig.of({ syntax }), abbreviationTracker({ syntax })] : []),
         EditorView.lineWrapping,
         EditorView.theme({ "&": { height: "100%", fontSize: "13.5px" }, ".cm-scroller": { fontFamily: "var(--font-mono, ui-monospace, monospace)" } }),
         EditorView.updateListener.of((u) => { if (u.docChanged) cb.current.onChange(u.state.doc.toString()); }),

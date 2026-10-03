@@ -1,6 +1,6 @@
 export type LangSlug = "html" | "css" | "js" | "sql";
 
-export type PlayKind = "html" | "css" | "js";
+export type PlayKind = "html" | "css" | "js" | "sql";
 
 export type Example = {
   code: string;
@@ -23,6 +23,8 @@ export type Entry = {
   play?: PlayKind;
   /** demo visual para CSS: mode define o cenário, css são as declarações editáveis */
   demo?: { mode: string; css: string };
+  /** consulta executável (SQLite no navegador) para comandos SQL */
+  sql?: { db: string; query: string };
 };
 
 export type Category = {

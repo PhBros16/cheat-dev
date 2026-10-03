@@ -5,6 +5,7 @@ import { languages, getEntry, resolveRelated, entryHref } from "@/lib/content";
 import { langStyles } from "@/lib/langStyles";
 import CodeBlock from "@/components/CodeBlock";
 import Playground from "@/components/Playground";
+import SqlPlay from "@/components/SqlPlay";
 import FavoriteButton from "@/components/FavoriteButton";
 import TrackView from "@/components/TrackView";
 
@@ -99,7 +100,13 @@ export default async function EntryPage({ params }: P) {
           </div>
         )}
 
-        {entry.play && playCode && (
+        {entry.sql && (
+          <div className="mt-6">
+            <SqlPlay db={entry.sql.db} query={entry.sql.query} />
+          </div>
+        )}
+
+        {entry.play && entry.play !== "sql" && playCode && (
           <div className="mt-6">
             <Playground kind={entry.play} code={entry.demo?.css ?? playCode} mode={entry.demo?.mode} />
           </div>

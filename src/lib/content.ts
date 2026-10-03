@@ -3,10 +3,14 @@ import css from "@/content/css";
 import js from "@/content/js";
 import sql from "@/content/sql";
 import { EXTRA } from "@/content/extra";
+import { SQL_DEMOS } from "@/content/sql-demos";
 import { OLD_KEYWORDS } from "@/content/extra/keywords";
 import { Language, LangSlug, SearchItem, Entry, Category } from "@/lib/types";
 
 const splitKw = (v?: string) => (v ? v.split("|").map((x) => x.trim()).filter(Boolean) : []);
+
+const withSql = (lang: string) => (e: Entry): Entry =>
+  lang === "sql" && SQL_DEMOS[e.slug] ? { ...e, sql: SQL_DEMOS[e.slug], play: "sql" } : e;
 
 function build(): Language[] {
   return [html, css, js, sql].map((lang) => {
@@ -15,15 +19,16 @@ function build(): Language[] {
       entries: c.entries.map((e) => ({
         ...e,
         keywords: [...(e.keywords ?? []), ...splitKw(OLD_KEYWORDS[`${lang.slug}/${c.slug}/${e.slug}`])],
+        ...(lang.slug === "sql" && SQL_DEMOS[e.slug] ? { sql: SQL_DEMOS[e.slug], play: "sql" as const } : {}),
       })),
     }));
     for (const ex of EXTRA[lang.slug]) {
       const found = cats.find((c) => c.slug === ex.slug);
       if (found) {
         const have = new Set(found.entries.map((e) => e.slug));
-        found.entries.push(...ex.entries.filter((e) => !have.has(e.slug)));
+        found.entries.push(...ex.entries.filter((e) => !have.has(e.slug)).map(withSql(lang.slug)));
       } else {
-        cats.push({ ...ex, entries: [...ex.entries] });
+        cats.push({ ...ex, entries: ex.entries.map(withSql(lang.slug)) });
       }
     }
     return { ...lang, categories: cats };

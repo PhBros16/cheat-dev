@@ -104,13 +104,19 @@ function Shell({ label, hint, children, onReset, lab }: { label: string; hint: s
 const areaCls =
   "h-52 w-full resize-y rounded-lg border border-border bg-surface-muted p-3 font-mono text-[13px] leading-relaxed text-foreground outline-none focus:border-css";
 
+/** O preview é isolado (sem allow-same-origin): sem isto, localStorage lança erro. Só entra quando o exemplo roda scripts. */
+const STORAGE_SHIM = `<script>(function(){function m(){var d={};return{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}}try{void localStorage.length}catch(e){try{Object.defineProperty(window,"localStorage",{value:m(),configurable:true});Object.defineProperty(window,"sessionStorage",{value:m(),configurable:true})}catch(_){}}})();</script>`;
+function withStorage(d: string) {
+  return /<script|\son[a-z]+\s*=/i.test(d) ? STORAGE_SHIM + d : d;
+}
+
 function HtmlPlay({ initial }: { initial: string }) {
   const [code, setCode] = useState(initial);
   return (
     <Shell label="Testar ao vivo" hint="Edite o HTML e veja o resultado na hora." onReset={() => setCode(initial)} lab={{ doc: htmlDoc(code) }}>
       <div className="grid gap-3 lg:grid-cols-2">
         <textarea value={code} onChange={(e) => setCode(e.target.value)} spellCheck={false} aria-label="Código HTML" className={areaCls} />
-        <Frame srcDoc={htmlDoc(code)} height={208} />
+        <Frame srcDoc={withStorage(htmlDoc(code))} height={208} scripts={/<script|\son[a-z]+\s*=/i.test(code)} />
       </div>
     </Shell>
   );
