@@ -4,13 +4,22 @@ import js from "@/content/js";
 import sql from "@/content/sql";
 import { EXTRA } from "@/content/extra";
 import { SQL_DEMOS } from "@/content/sql-demos";
+import { PG_OVERRIDES } from "@/content/pg-demos";
+import { SQL_PG_ONLY } from "@/content/extra/sql-4";
 import { OLD_KEYWORDS } from "@/content/extra/keywords";
 import { Language, LangSlug, SearchItem, Entry, Category } from "@/lib/types";
 
 const splitKw = (v?: string) => (v ? v.split("|").map((x) => x.trim()).filter(Boolean) : []);
 
-const withSql = (lang: string) => (e: Entry): Entry =>
-  lang === "sql" && SQL_DEMOS[e.slug] ? { ...e, sql: SQL_DEMOS[e.slug], play: "sql" } : e;
+/** Consulta(s) executável(is) de um comando SQL: SQLite, PostgreSQL ou só PostgreSQL. */
+function sqlProps(lang: string, slug: string): Partial<Entry> {
+  if (lang !== "sql") return {};
+  if (SQL_PG_ONLY[slug]) return { sql: { db: SQL_PG_ONLY[slug].db, query: "", pg: SQL_PG_ONLY[slug].pg, only: "pg" }, play: "sql" };
+  if (SQL_DEMOS[slug]) return { sql: { ...SQL_DEMOS[slug], ...(PG_OVERRIDES[slug] ? { pg: PG_OVERRIDES[slug] } : {}) }, play: "sql" };
+  return {};
+}
+
+const withSql = (lang: string) => (e: Entry): Entry => ({ ...e, ...sqlProps(lang, e.slug) });
 
 function build(): Language[] {
   return [html, css, js, sql].map((lang) => {
@@ -19,7 +28,7 @@ function build(): Language[] {
       entries: c.entries.map((e) => ({
         ...e,
         keywords: [...(e.keywords ?? []), ...splitKw(OLD_KEYWORDS[`${lang.slug}/${c.slug}/${e.slug}`])],
-        ...(lang.slug === "sql" && SQL_DEMOS[e.slug] ? { sql: SQL_DEMOS[e.slug], play: "sql" as const } : {}),
+        ...sqlProps(lang.slug, e.slug),
       })),
     }));
     for (const ex of EXTRA[lang.slug]) {

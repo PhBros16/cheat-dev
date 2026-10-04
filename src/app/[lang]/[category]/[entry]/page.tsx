@@ -102,7 +102,7 @@ export default async function EntryPage({ params }: P) {
 
         {entry.sql && (
           <div className="mt-6">
-            <SqlPlay db={entry.sql.db} query={entry.sql.query} />
+            <SqlPlay db={entry.sql.db} query={entry.sql.query} pg={entry.sql.pg} only={entry.sql.only} />
           </div>
         )}
 

@@ -24,7 +24,7 @@ export type Entry = {
   /** demo visual para CSS: mode define o cenário, css são as declarações editáveis */
   demo?: { mode: string; css: string };
   /** consulta executável (SQLite no navegador) para comandos SQL */
-  sql?: { db: string; query: string };
+  sql?: { db: string; query: string; /** versão PostgreSQL (se difere) */ pg?: string; /** comando exclusivo de um motor */ only?: "pg" };
 };
 
 export type Category = {

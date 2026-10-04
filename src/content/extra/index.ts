@@ -11,10 +11,11 @@ import { jsB } from "@/content/extra/js-2";
 import { sqlA } from "@/content/extra/sql-1";
 import { sqlB } from "@/content/extra/sql-2";
 import { sqlC } from "@/content/extra/sql-3";
+import { sqlD } from "@/content/extra/sql-4";
 
 export const EXTRA: Record<LangSlug, Category[]> = {
   html: [...htmlA, ...htmlB, ...htmlC],
   css: [...cssA, ...cssB, ...cssC, ...cssD],
   js: [...jsA, ...jsB],
-  sql: [...sqlA, ...sqlB, ...sqlC],
+  sql: [...sqlA, ...sqlB, ...sqlC, ...sqlD],
 };
