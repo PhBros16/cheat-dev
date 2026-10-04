@@ -3,14 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Editor from "@/components/lab/Editor";
 import SqlResults, { toCsv } from "@/components/SqlResults";
-import { explainError, getSqlJs, type ResultSet } from "@/lib/sqljs";
+import type { ResultSet } from "@/lib/sqljs";
+import { ENGINES, errHint, openConn, type Conn, type Engine, type Table } from "@/lib/sqlEngine";
+import { PG_OVERRIDES } from "@/content/pg-demos";
+import Dialects from "@/components/sql/Dialects";
 import { DBS, DB_IDS, type DbId } from "@/lib/sqlDbs";
 import { SQL_DEMOS } from "@/content/sql-demos";
 import { SQL_EXERCISES, SQL_LESSONS, type SqlExercise } from "@/content/sql-exercises";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Table = { name: string; cols: { name: string; type: string; pk: boolean }[]; rows: number };
-type Tab = "aulas" | "exercicios" | "historico";
+type Tab = "aulas" | "exercicios" | "historico" | "dialetos";
 
 const KEY = "cheatdev:sqllab:v1";
 const INBOX = "cheatdev:sqllab:inbox";
@@ -35,12 +36,13 @@ function sameResult(user: ResultSet | undefined, sol: ResultSet | undefined, ord
 }
 
 /** Estado inicial: o que foi salvo antes, ou uma consulta enviada de outra página (ex.: "Abrir no SQL Lab"). */
-function loadInit(): { db: DbId; query: string; history: { q: string; db: DbId; ok: boolean }[]; solved: string[] } {
-  const init = { db: "loja" as DbId, query: DEFAULT_Q, history: [] as { q: string; db: DbId; ok: boolean }[], solved: [] as string[] };
+function loadInit(): { db: DbId; engine: Engine; query: string; history: { q: string; db: DbId; ok: boolean }[]; solved: string[] } {
+  const init = { db: "loja" as DbId, engine: "sqlite" as Engine, query: DEFAULT_Q, history: [] as { q: string; db: DbId; ok: boolean }[], solved: [] as string[] };
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || "null");
     if (saved) {
       if (saved.db in DBS) init.db = saved.db;
+      if (saved.engine === "pg") init.engine = "pg";
       init.query = saved.query ?? DEFAULT_Q;
       init.history = saved.history ?? [];
       init.solved = saved.solved ?? [];
@@ -49,7 +51,7 @@ function loadInit(): { db: DbId; query: string; history: { q: string; db: DbId; 
     if (inbox) {
       localStorage.removeItem(INBOX);
       const o = JSON.parse(inbox);
-      if (o.db in DBS) { init.db = o.db; init.query = o.query; }
+      if (o.db in DBS) { init.db = o.db; init.query = o.query; if (o.engine === "pg") init.engine = "pg"; }
     }
   } catch {}
   return init;
@@ -58,6 +60,8 @@ function loadInit(): { db: DbId; query: string; history: { q: string; db: DbId; 
 export default function SqlLab() {
   const [init] = useState(loadInit);
   const [db, setDb] = useState<DbId>(init.db);
+  const [engine, setEngine] = useState<Engine>(init.engine);
+  const [loadingEngine, setLoadingEngine] = useState(false);
   const [query, setQuery] = useState(init.query);
   const [sets, setSets] = useState<ResultSet[] | null>(null);
   const [err, setErr] = useState("");
@@ -72,71 +76,81 @@ export default function SqlLab() {
   const [showHint, setShowHint] = useState(false);
   const [showSol, setShowSol] = useState(false);
   const [toast, setToast] = useState("");
-  const conn = useRef<any>(null);
-  const SQLRef = useRef<any>(null);
+  const conn = useRef<Conn | null>(null);
 
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2200); };
 
-  const readSchema = useCallback(() => {
-    const d = conn.current;
-    if (!d) return;
-    const names = (d.exec("SELECT name FROM sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' ORDER BY type, name")[0]?.values ?? []).map((v: unknown[]) => String(v[0]));
-    setTables(names.map((n: string) => {
-      const info = d.exec(`PRAGMA table_info("${n}")`)[0]?.values ?? [];
-      let rows = 0;
-      try { rows = Number(d.exec(`SELECT COUNT(*) FROM "${n}"`)[0].values[0][0]); } catch {}
-      return { name: n, cols: info.map((c: unknown[]) => ({ name: String(c[1]), type: String(c[2]), pk: Number(c[5]) > 0 })), rows };
-    }));
+  const readSchema = useCallback(async () => {
+    if (conn.current) setTables(await conn.current.schema());
   }, []);
 
-  const fresh = useCallback(async (id: DbId) => {
-    const S = SQLRef.current ?? (SQLRef.current = await getSqlJs());
-    conn.current?.close();
-    const d = new S.Database();
-    d.exec(DBS[id].script);
-    conn.current = d;
-    readSchema();
+  const fresh = useCallback(async (id: DbId, eng: Engine) => {
+    setLoadingEngine(true);
+    try {
+      const c = await openConn(eng, id);
+      conn.current?.close();
+      conn.current = c;
+      await readSchema();
+    } finally { setLoadingEngine(false); }
   }, [readSchema]);
 
   /* inicialização: carrega o motor SQL e cria o banco do estado inicial */
   useEffect(() => {
-    getSqlJs().then(() => fresh(init.db)).then(() => setReady(true)).catch((e) => setErr(String(e.message ?? e)));
-  }, [fresh, init.db]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const c = await openConn(init.engine, init.db);
+        if (cancelled) { c.close(); return; }
+        conn.current = c;
+        setTables(await c.schema());
+        setReady(true);
+      } catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
+    })();
+    return () => { cancelled = true; };
+  }, [init.db, init.engine]);
 
   useEffect(() => {
-    const t = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify({ db, query, history: history.slice(0, 30), solved })); } catch {} }, 400);
+    const t = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify({ db, engine, query, history: history.slice(0, 30), solved })); } catch {} }, 400);
     return () => clearTimeout(t);
-  }, [db, query, history, solved]);
+  }, [db, engine, query, history, solved]);
 
   async function run(sql = query) {
     if (!ready || !conn.current) return;
     setErr(""); setSets(null);
     try {
       const t = performance.now();
-      const r = conn.current.exec(sql) as ResultSet[];
+      const r = await conn.current.run(sql);
       setMs(Math.round((performance.now() - t) * 10) / 10);
       setSets(r);
       setHistory((h) => [{ q: sql, db, ok: true }, ...h.filter((x) => x.q !== sql)].slice(0, 30));
-      readSchema();
+      await readSchema();
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
       setHistory((h) => [{ q: sql, db, ok: false }, ...h.filter((x) => x.q !== sql)].slice(0, 30));
     }
   }
 
-  async function changeDb(id: DbId) {
-    setDb(id); setSets(null); setErr("");
-    await fresh(id);
-    flash(`Banco "${DBS[id].name}" carregado.`);
+  async function changeDb(id: DbId, eng: Engine = engine) {
+    setDb(id); setEngine(eng); setSets(null); setErr("");
+    try { await fresh(id, eng); flash(`Banco "${DBS[id].name}" carregado (${ENGINES.find((e) => e.id === eng)?.short}).`); }
+    catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
   }
 
-  async function reset() { await fresh(db); setSets(null); setErr(""); flash("Banco reiniciado ao estado original."); }
+  async function changeEngine(eng: Engine) {
+    if (eng === engine) return;
+    await changeDb(db, eng);
+  }
+
+  async function reset() {
+    try { await fresh(db, engine); setSets(null); setErr(""); flash("Banco reiniciado ao estado original."); }
+    catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
+  }
 
   function explainPlan() {
     const clean = query.split("\n").filter((l) => !l.trim().startsWith("--")).join("\n");
     const first = clean.split(";").map((x) => x.trim()).find((x) => /^(select|with)\b/i.test(x));
     if (!first) return flash("Escreva um SELECT para ver o plano de execução.");
-    void run(`EXPLAIN QUERY PLAN ${first}`);
+    void run(`${engine === "pg" ? "EXPLAIN" : "EXPLAIN QUERY PLAN"} ${first}`);
   }
 
   function downloadCsv() {
@@ -154,36 +168,35 @@ export default function SqlLab() {
     if (!d) return;
     if (d.db !== db) await changeDb(d.db);
     setEx(null); setVerdict(null);
-    setQuery(d.query);
+    setQuery(engine === "pg" ? PG_OVERRIDES[slug] ?? d.query : d.query);
   }
 
   async function openExercise(e: SqlExercise) {
     setEx(e); setVerdict(null); setShowHint(false); setShowSol(false);
-    if (e.db !== db) await changeDb(e.db); else await reset();
+    if (e.db !== db || engine !== "sqlite") await changeDb(e.db, "sqlite"); else await reset();
     setQuery(`-- ${e.title}\n-- ${e.text}\n\n`);
     setSets(null);
   }
 
   async function check() {
     if (!ex) return;
-    const S = SQLRef.current ?? (SQLRef.current = await getSqlJs());
     try {
-      const a = new S.Database(); a.exec(DBS[ex.db].script);
-      const b = new S.Database(); b.exec(DBS[ex.db].script);
-      const user = (a.exec(query) as ResultSet[]).at(-1);
-      const sol = (b.exec(ex.solution) as ResultSet[]).at(-1);
+      const a = await openConn("sqlite", ex.db);
+      const b = await openConn("sqlite", ex.db);
+      const user = (await a.run(query)).at(-1);
+      const sol = (await b.run(ex.solution)).at(-1);
       a.close(); b.close();
       const v = sameResult(user, sol, /order\s+by/i.test(ex.solution));
       setVerdict(v);
       if (v.ok && !solved.includes(ex.id)) setSolved((s) => [...s, ex.id]);
     } catch (e) {
       const m = e instanceof Error ? e.message : String(e);
-      setVerdict({ ok: false, msg: `Sua consulta deu erro: ${m}. ${explainError(m)}` });
+      setVerdict({ ok: false, msg: `Sua consulta deu erro: ${m}. ${errHint("sqlite", m)}` });
     }
   }
 
   const grouped = useMemo(() => (["iniciante", "intermediário", "avançado"] as const).map((l) => ({ l, items: SQL_EXERCISES.filter((e) => e.level === l) })), []);
-  const hint = err ? explainError(err) : "";
+  const hint = err ? errHint(engine, err) : "";
 
   return (
     <div className="fixed inset-x-0 bottom-0 top-[57px] z-20 flex flex-col bg-background lg:z-[45]">
@@ -194,11 +207,16 @@ export default function SqlLab() {
             {DB_IDS.map((id) => <option key={id} value={id}>{DBS[id].name}</option>)}
           </select>
         </label>
-        <button className="rounded-md border border-[#1f9c7a] bg-[#1f9c7a] px-3 py-1.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-50" onClick={() => void run()} disabled={!ready}>▶ Rodar</button>
+        <label className="flex items-center gap-1.5 text-xs text-muted">Motor
+          <select value={engine} onChange={(e) => void changeEngine(e.target.value as Engine)} className="rounded-md border border-border bg-surface px-2 py-1.5 text-xs font-semibold text-foreground" title="SQLite ou PostgreSQL (o banco do Supabase)">
+            {ENGINES.map((e) => <option key={e.id} value={e.id}>{e.label}</option>)}
+          </select>
+        </label>
+        <button className="rounded-md border border-[#1f9c7a] bg-[#1f9c7a] px-3 py-1.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-50" onClick={() => void run()} disabled={!ready || loadingEngine}>{loadingEngine ? "Carregando…" : "▶ Rodar"}</button>
         <button className={btn} onClick={explainPlan} disabled={!ready} title="Mostra COMO o banco vai executar a consulta">⚙ Plano de execução</button>
         <button className={btn} onClick={() => void reset()} disabled={!ready} title="Volta o banco ao estado original">↺ Reiniciar banco</button>
         <button className={btn} onClick={downloadCsv} disabled={!sets?.length}>⬇ CSV</button>
-        <span className="ml-auto hidden text-xs text-muted md:block">SQLite rodando no seu navegador · alterações ficam até reiniciar</span>
+        <span className="ml-auto hidden text-xs text-muted md:block">{engine === "pg" ? "PostgreSQL (o banco do Supabase) rodando no seu navegador" : "SQLite rodando no seu navegador"} · alterações ficam até reiniciar</span>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
@@ -270,9 +288,9 @@ export default function SqlLab() {
         {/* aulas / exercícios / histórico */}
         <aside className="max-h-56 shrink-0 overflow-auto border-t border-border bg-surface lg:max-h-none lg:w-80 lg:border-l lg:border-t-0">
           <div className="sticky top-0 flex border-b border-border bg-surface">
-            {(["aulas", "exercicios", "historico"] as const).map((t) => (
+            {(["aulas", "exercicios", "historico", "dialetos"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`flex-1 py-2 text-xs font-semibold ${tab === t ? "bg-surface-muted text-foreground" : "text-muted"}`}>
-                {t === "aulas" ? "Aulas" : t === "exercicios" ? `Exercícios ${solved.length}/${SQL_EXERCISES.length}` : "Histórico"}
+                {t === "aulas" ? "Aulas" : t === "exercicios" ? `Exerc. ${solved.length}/${SQL_EXERCISES.length}` : t === "historico" ? "Histórico" : "Dialetos"}
               </button>
             ))}
           </div>
@@ -293,7 +311,6 @@ export default function SqlLab() {
               <div key={g.l} className="mb-3">
                 <p className="mb-1 px-2 font-semibold uppercase tracking-wide text-muted"><span className={`mr-1.5 inline-block h-2 w-2 rounded-full ${LEVEL_DOT[g.l]}`} />{g.l}</p>
                 {g.items.map((e) => (
-                  // eslint-disable-next-line react-hooks/refs -- falso positivo: openExercise só lê refs dentro do clique, nunca durante a renderização
                   <button key={e.id} onClick={() => void openExercise(e)} className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-surface-muted ${ex?.id === e.id ? "bg-surface-muted" : ""}`}>
                     <span className="w-4 shrink-0">{solved.includes(e.id) ? "✅" : "○"}</span>
                     <span className="flex-1 text-foreground">{e.title}</span>
@@ -302,6 +319,7 @@ export default function SqlLab() {
                 ))}
               </div>
             ))}
+            {tab === "dialetos" && <Dialects onTry={(q, eng) => { if (eng !== engine) void changeEngine(eng); setQuery(q); }} />}
             {tab === "historico" && (history.length === 0 ? <p className="px-2 text-muted">Suas consultas aparecem aqui.</p> : (
               <ul className="grid gap-1">
                 {history.map((h, i) => (
