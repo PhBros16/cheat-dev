@@ -1,0 +1,81 @@
+/** Receitas lado a lado: o mesmo objetivo escrito em cada banco. SQLite e PostgreSQL rodam no SQL Lab; MySQL e SQL Server são só referência. */
+export type Dialect = {
+  id: string;
+  title: string;
+  why: string;
+  sqlite: string;
+  pg: string;
+  mysql: string;
+  sqlserver: string;
+  /** consultas de teste no banco "Loja" (só onde dá para executar) */
+  try?: { sqlite: string; pg: string };
+};
+
+export const DIALECTS: Dialect[] = [
+  { id: "limit", title: "Limitar linhas (os 3 mais caros)", why: "Cada banco inventou a sua forma antes de existir um padrão. Sempre use ORDER BY junto.",
+    sqlite: "SELECT nome, preco FROM produtos ORDER BY preco DESC LIMIT 3;", pg: "SELECT nome, preco FROM produtos ORDER BY preco DESC LIMIT 3;",
+    mysql: "SELECT nome, preco FROM produtos ORDER BY preco DESC LIMIT 3;", sqlserver: "SELECT TOP 3 nome, preco FROM produtos ORDER BY preco DESC;",
+    try: { sqlite: "SELECT nome, preco FROM produtos ORDER BY preco DESC LIMIT 3;", pg: "SELECT nome, preco FROM produtos ORDER BY preco DESC LIMIT 3;" } },
+  { id: "pagina", title: "Paginar (página 2, 5 por página)", why: "SQL Server exige ORDER BY e usa OFFSET ... FETCH. O padrão SQL também é aceito pelo PostgreSQL.",
+    sqlite: "SELECT id, nome FROM produtos ORDER BY id LIMIT 5 OFFSET 5;", pg: "SELECT id, nome FROM produtos ORDER BY id LIMIT 5 OFFSET 5;\n-- ou (padrão SQL):\nSELECT id, nome FROM produtos ORDER BY id OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;",
+    mysql: "SELECT id, nome FROM produtos ORDER BY id LIMIT 5 OFFSET 5;\n-- ou: LIMIT 5, 5   (deslocamento, quantidade)", sqlserver: "SELECT id, nome FROM produtos ORDER BY id OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;",
+    try: { sqlite: "SELECT id, nome FROM produtos ORDER BY id LIMIT 5 OFFSET 5;", pg: "SELECT id, nome FROM produtos ORDER BY id OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;" } },
+  { id: "concat", title: "Juntar textos (nome e cidade)", why: "No MySQL, || normalmente significa OU lógico, não concatenação. Use CONCAT(). Com NULL, o resultado vira NULL na maioria dos bancos.",
+    sqlite: "SELECT nome || ' - ' || cidade AS ficha FROM clientes;", pg: "SELECT nome || ' - ' || cidade AS ficha FROM clientes;\n-- ou: CONCAT(nome, ' - ', cidade)  (CONCAT trata NULL como vazio)",
+    mysql: "SELECT CONCAT(nome, ' - ', cidade) AS ficha FROM clientes;", sqlserver: "SELECT nome + ' - ' + cidade AS ficha FROM clientes;\n-- ou: CONCAT(nome, ' - ', cidade)",
+    try: { sqlite: "SELECT nome || ' - ' || cidade AS ficha FROM clientes;", pg: "SELECT nome || ' - ' || cidade AS ficha FROM clientes;" } },
+  { id: "hoje", title: "Data e hora atuais", why: "Funções diferentes em cada banco. No PostgreSQL, now() inclui fuso horário.",
+    sqlite: "SELECT date('now') AS hoje, datetime('now') AS agora;", pg: "SELECT CURRENT_DATE AS hoje, now() AS agora;",
+    mysql: "SELECT CURDATE() AS hoje, NOW() AS agora;", sqlserver: "SELECT CAST(GETDATE() AS DATE) AS hoje, GETDATE() AS agora;",
+    try: { sqlite: "SELECT date('now') AS hoje, datetime('now') AS agora;", pg: "SELECT CURRENT_DATE AS hoje, now() AS agora;" } },
+  { id: "somar-dias", title: "Somar 7 dias a uma data", why: "Cuidado ao somar MESES: 31/01 + 1 mês cai em dias diferentes conforme o banco.",
+    sqlite: "SELECT date('2024-03-15', '+7 days') AS daqui_a_7;", pg: "SELECT DATE '2024-03-15' + 7 AS daqui_a_7;\n-- ou: DATE '2024-03-15' + INTERVAL '7 days'",
+    mysql: "SELECT DATE_ADD('2024-03-15', INTERVAL 7 DAY) AS daqui_a_7;", sqlserver: "SELECT DATEADD(day, 7, '2024-03-15') AS daqui_a_7;",
+    try: { sqlite: "SELECT date('2024-03-15', '+7 days') AS daqui_a_7;", pg: "SELECT DATE '2024-03-15' + 7 AS daqui_a_7;" } },
+  { id: "dif-dias", title: "Diferença em dias entre duas datas", why: "No PostgreSQL basta subtrair duas datas. No SQL Server, atenção à ordem dos argumentos (início, fim).",
+    sqlite: "SELECT CAST(julianday('2024-12-25') - julianday('2024-03-15') AS INTEGER) AS dias;", pg: "SELECT DATE '2024-12-25' - DATE '2024-03-15' AS dias;",
+    mysql: "SELECT DATEDIFF('2024-12-25', '2024-03-15') AS dias;", sqlserver: "SELECT DATEDIFF(day, '2024-03-15', '2024-12-25') AS dias;",
+    try: { sqlite: "SELECT CAST(julianday('2024-12-25') - julianday('2024-03-15') AS INTEGER) AS dias;", pg: "SELECT DATE '2024-12-25' - DATE '2024-03-15' AS dias;" } },
+  { id: "formatar-data", title: "Formatar data como dd/mm/aaaa", why: "Formate só na apresentação; guarde datas em colunas do tipo certo.",
+    sqlite: "SELECT strftime('%d/%m/%Y', data) AS data_br FROM pedidos LIMIT 3;", pg: "SELECT to_char(data, 'DD/MM/YYYY') AS data_br FROM pedidos LIMIT 3;",
+    mysql: "SELECT DATE_FORMAT(data, '%d/%m/%Y') AS data_br FROM pedidos LIMIT 3;", sqlserver: "SELECT TOP 3 FORMAT(data, 'dd/MM/yyyy') AS data_br FROM pedidos;",
+    try: { sqlite: "SELECT strftime('%d/%m/%Y', data) AS data_br FROM pedidos LIMIT 3;", pg: "SELECT to_char(data, 'DD/MM/YYYY') AS data_br FROM pedidos LIMIT 3;" } },
+  { id: "agregar-texto", title: "Juntar valores de um grupo em um texto", why: "O MySQL usa a palavra SEPARATOR; o SQL Server só tem STRING_AGG a partir da versão 2017.",
+    sqlite: "SELECT categoria, GROUP_CONCAT(nome, ', ') AS produtos FROM produtos GROUP BY categoria;", pg: "SELECT categoria, STRING_AGG(nome, ', ' ORDER BY nome) AS produtos FROM produtos GROUP BY categoria;",
+    mysql: "SELECT categoria, GROUP_CONCAT(nome ORDER BY nome SEPARATOR ', ') AS produtos FROM produtos GROUP BY categoria;", sqlserver: "SELECT categoria, STRING_AGG(nome, ', ') WITHIN GROUP (ORDER BY nome) AS produtos FROM produtos GROUP BY categoria;",
+    try: { sqlite: "SELECT categoria, GROUP_CONCAT(nome, ', ') AS produtos FROM produtos GROUP BY categoria;", pg: "SELECT categoria, STRING_AGG(nome, ', ' ORDER BY nome) AS produtos FROM produtos GROUP BY categoria;" } },
+  { id: "upsert", title: "Inserir ou atualizar (upsert)", why: "O MySQL usa ON DUPLICATE KEY (sem dizer qual coluna); o SQL Server usa MERGE, bem mais verboso.",
+    sqlite: "INSERT INTO contador (id, total) VALUES (1, 5)\nON CONFLICT (id) DO UPDATE SET total = total + excluded.total;", pg: "INSERT INTO contador (id, total) VALUES (1, 5)\nON CONFLICT (id) DO UPDATE SET total = contador.total + excluded.total;",
+    mysql: "INSERT INTO contador (id, total) VALUES (1, 5)\nON DUPLICATE KEY UPDATE total = total + VALUES(total);", sqlserver: "MERGE contador AS t\nUSING (SELECT 1 AS id, 5 AS total) AS s ON t.id = s.id\nWHEN MATCHED THEN UPDATE SET t.total = t.total + s.total\nWHEN NOT MATCHED THEN INSERT (id, total) VALUES (s.id, s.total);" },
+  { id: "auto", title: "Chave primária automática", why: "O mesmo CREATE TABLE não roda em todos os bancos justamente por causa disto.",
+    sqlite: "CREATE TABLE t (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT);", pg: "CREATE TABLE t (id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, nome TEXT);\n-- ou (antigo): id SERIAL PRIMARY KEY",
+    mysql: "CREATE TABLE t (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(50));", sqlserver: "CREATE TABLE t (id INT IDENTITY(1,1) PRIMARY KEY, nome VARCHAR(50));",
+    try: { sqlite: "CREATE TABLE t (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT);\nINSERT INTO t (nome) VALUES ('a'), ('b');\nSELECT * FROM t;", pg: "CREATE TABLE t (id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, nome TEXT);\nINSERT INTO t (nome) VALUES ('a'), ('b');\nSELECT * FROM t;" } },
+  { id: "ultimo-id", title: "Descobrir o id que acabou de ser gerado", why: "O PostgreSQL resolve na própria instrução com RETURNING (o SQL Server tem OUTPUT).",
+    sqlite: "INSERT INTO clientes (nome) VALUES ('Novo');\nSELECT last_insert_rowid();", pg: "INSERT INTO clientes (nome) VALUES ('Novo') RETURNING id;",
+    mysql: "INSERT INTO clientes (nome) VALUES ('Novo');\nSELECT LAST_INSERT_ID();", sqlserver: "INSERT INTO clientes (nome) OUTPUT INSERTED.id VALUES ('Novo');\n-- ou: SELECT SCOPE_IDENTITY();",
+    try: { sqlite: "INSERT INTO clientes (nome) VALUES ('Novo');\nSELECT last_insert_rowid() AS id;", pg: "INSERT INTO clientes (nome) VALUES ('Novo') RETURNING id;" } },
+  { id: "busca-caixa", title: "Buscar texto sem diferenciar maiúsculas", why: "No PostgreSQL o LIKE diferencia caixa; no MySQL e SQL Server isso depende da collation (padrão: ignora).",
+    sqlite: "SELECT nome FROM clientes WHERE nome LIKE '%ana%';   -- LIKE ignora caixa em ASCII", pg: "SELECT nome FROM clientes WHERE nome ILIKE '%ana%';",
+    mysql: "SELECT nome FROM clientes WHERE nome LIKE '%ana%';   -- ignora caixa na collation padrão", sqlserver: "SELECT nome FROM clientes WHERE nome LIKE '%ana%';   -- ignora caixa na collation padrão",
+    try: { sqlite: "SELECT nome FROM clientes WHERE nome LIKE '%ana%';", pg: "SELECT nome FROM clientes WHERE nome ILIKE '%ana%';" } },
+  { id: "aspas", title: "Aspas em nomes de colunas e tabelas", why: "Textos SEMPRE entre aspas simples ('Ana'). O que muda é a aspa para NOMES de colunas e tabelas.",
+    sqlite: "SELECT \"nome\", \"preco\" FROM \"produtos\";", pg: "SELECT \"nome\", \"preco\" FROM \"produtos\";\n-- Atenção: entre aspas duplas o Postgres diferencia maiúsculas de minúsculas",
+    mysql: "SELECT `nome`, `preco` FROM `produtos`;", sqlserver: "SELECT [nome], [preco] FROM [produtos];",
+    try: { sqlite: "SELECT \"nome\", \"preco\" FROM \"produtos\" LIMIT 3;", pg: "SELECT \"nome\", \"preco\" FROM \"produtos\" LIMIT 3;" } },
+  { id: "nulo", title: "Valor padrão quando for NULL", why: "COALESCE funciona em todos. IFNULL/ISNULL são atalhos de um banco só.",
+    sqlite: "SELECT nome, COALESCE(email, 'sem e-mail') FROM clientes;\n-- ou IFNULL(email, 'sem e-mail')", pg: "SELECT nome, COALESCE(email, 'sem e-mail') FROM clientes;",
+    mysql: "SELECT nome, COALESCE(email, 'sem e-mail') FROM clientes;\n-- ou IFNULL(email, 'sem e-mail')", sqlserver: "SELECT nome, COALESCE(email, 'sem e-mail') FROM clientes;\n-- ou ISNULL(email, 'sem e-mail')",
+    try: { sqlite: "SELECT nome, COALESCE(email, 'sem e-mail') AS email FROM clientes;", pg: "SELECT nome, COALESCE(email, 'sem e-mail') AS email FROM clientes;" } },
+  { id: "booleano", title: "Tipo booleano (verdadeiro/falso)", why: "Só o PostgreSQL tem um BOOLEAN de verdade que aceita true/false.",
+    sqlite: "CREATE TABLE t (ativo INTEGER DEFAULT 1);  -- 0 = falso, 1 = verdadeiro", pg: "CREATE TABLE t (ativo BOOLEAN DEFAULT true);",
+    mysql: "CREATE TABLE t (ativo BOOLEAN DEFAULT TRUE);  -- apelido de TINYINT(1)", sqlserver: "CREATE TABLE t (ativo BIT DEFAULT 1);  -- 0, 1 ou NULL" },
+  { id: "full-join", title: "FULL OUTER JOIN", why: "O MySQL não tem FULL JOIN: simula-se com UNION de um LEFT e um RIGHT JOIN.",
+    sqlite: "SELECT c.nome, p.id FROM clientes c FULL OUTER JOIN pedidos p ON p.cliente_id = c.id;", pg: "SELECT c.nome, p.id FROM clientes c FULL OUTER JOIN pedidos p ON p.cliente_id = c.id;",
+    mysql: "SELECT c.nome, p.id FROM clientes c LEFT JOIN pedidos p ON p.cliente_id = c.id\nUNION\nSELECT c.nome, p.id FROM clientes c RIGHT JOIN pedidos p ON p.cliente_id = c.id;", sqlserver: "SELECT c.nome, p.id FROM clientes c FULL OUTER JOIN pedidos p ON p.cliente_id = c.id;",
+    try: { sqlite: "SELECT c.nome, p.id FROM clientes c FULL OUTER JOIN pedidos p ON p.cliente_id = c.id ORDER BY c.nome LIMIT 15;", pg: "SELECT c.nome, p.id FROM clientes c FULL OUTER JOIN pedidos p ON p.cliente_id = c.id ORDER BY c.nome LIMIT 15;" } },
+  { id: "tamanho", title: "Tamanho de um texto", why: "Em SQL Server, LEN ignora espaços finais; LENGTH existe nos demais.",
+    sqlite: "SELECT nome, LENGTH(nome) AS tamanho FROM clientes;", pg: "SELECT nome, LENGTH(nome) AS tamanho FROM clientes;",
+    mysql: "SELECT nome, CHAR_LENGTH(nome) AS tamanho FROM clientes;  -- LENGTH() no MySQL conta BYTES", sqlserver: "SELECT nome, LEN(nome) AS tamanho FROM clientes;",
+    try: { sqlite: "SELECT nome, LENGTH(nome) AS tamanho FROM clientes;", pg: "SELECT nome, LENGTH(nome) AS tamanho FROM clientes;" } },
+];
