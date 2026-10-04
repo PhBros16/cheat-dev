@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/templates`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/receitas`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/comparativos`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/essencial`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE_URL}/sql-lab`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/geradores`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/lab`, changeFrequency: "monthly", priority: 0.7 },

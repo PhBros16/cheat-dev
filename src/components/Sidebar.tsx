@@ -10,6 +10,7 @@ const chevron = (
 );
 
 const SECTIONS = [
+  { href: "/essencial", label: "★ Essencial (comece aqui)" },
   { href: "/lab", label: "🧪 Lab (testar código)" },
   { href: "/sql-lab", label: "🗄 SQL Lab (praticar SQL)" },
   { href: "/geradores", label: "🎛 Geradores de CSS" },

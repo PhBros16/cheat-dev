@@ -6,6 +6,7 @@ import { langStyles } from "@/lib/langStyles";
 import CodeBlock from "@/components/CodeBlock";
 import Playground from "@/components/Playground";
 import SqlPlay from "@/components/SqlPlay";
+import { ESS_COMMANDS } from "@/content/essencial";
 import FavoriteButton from "@/components/FavoriteButton";
 import TrackView from "@/components/TrackView";
 
@@ -67,7 +68,10 @@ export default async function EntryPage({ params }: P) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-          <h1 className="font-mono text-3xl font-bold text-foreground sm:text-4xl">{entry.title}</h1>
+          <div>
+            {ESS_COMMANDS.has(`${lang}/${entry.slug}`) && <Link href="/essencial" className="mb-2 inline-block rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-500 hover:bg-amber-500/25">★ Essencial</Link>}
+            <h1 className="font-mono text-3xl font-bold text-foreground sm:text-4xl">{entry.title}</h1>
+          </div>
           <FavoriteButton item={saved} />
         </div>
         <p className="mt-3 text-lg text-muted">{entry.summary}</p>
