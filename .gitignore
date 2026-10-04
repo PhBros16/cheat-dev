@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Arquivos do PGlite copiados em tempo de build (scripts/copy-pglite.mjs)
+/public/pglite/
