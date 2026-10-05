@@ -7,6 +7,7 @@ import type { ResultSet } from "@/lib/sqljs";
 import { ENGINES, errHint, openConn, type Conn, type Engine, type Table } from "@/lib/sqlEngine";
 import { PG_OVERRIDES } from "@/content/pg-demos";
 import Dialects from "@/components/sql/Dialects";
+import { sameResult } from "@/lib/sqlCheck";
 import { DBS, DB_IDS, type DbId } from "@/lib/sqlDbs";
 import { SQL_DEMOS } from "@/content/sql-demos";
 import { SQL_EXERCISES, SQL_LESSONS, type SqlExercise } from "@/content/sql-exercises";
@@ -19,21 +20,6 @@ const DEFAULT_Q = `-- Escreva seu SQL aqui e aperte Ctrl+Enter\nSELECT nome, cid
 
 const btn = "rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-muted disabled:opacity-40";
 const LEVEL_DOT: Record<string, string> = { "iniciante": "bg-emerald-500", "intermediário": "bg-amber-500", "avançado": "bg-rose-500" };
-
-/** Compara o resultado do aluno com o da solução (ignora nomes de coluna; ordem só importa se a solução usa ORDER BY). */
-function sameResult(user: ResultSet | undefined, sol: ResultSet | undefined, ordered: boolean): { ok: boolean; msg: string } {
-  if (!user) return { ok: false, msg: "Sua consulta não devolveu linhas. Falta um SELECT?" };
-  if (!sol) return { ok: false, msg: "Erro interno ao ler a solução." };
-  if (user.columns.length !== sol.columns.length) return { ok: false, msg: `Quase! O resultado esperado tem ${sol.columns.length} coluna(s) e o seu tem ${user.columns.length}. Releia o enunciado para ver o que deve ser mostrado.` };
-  const norm = (v: unknown) => (typeof v === "number" ? Math.round(v * 10000) / 10000 : v);
-  const rows = (r: ResultSet) => r.values.map((x) => JSON.stringify(x.map(norm)));
-  let a = rows(user), b = rows(sol);
-  if (!ordered) { a = [...a].sort(); b = [...b].sort(); }
-  if (a.length !== b.length) return { ok: false, msg: `O resultado esperado tem ${b.length} linha(s) e o seu tem ${a.length}. Revise o filtro (WHERE/HAVING) ou o JOIN.` };
-  const bad = a.findIndex((x, i) => x !== b[i]);
-  if (bad >= 0) return { ok: false, msg: ordered ? "As linhas estão certas em quantidade, mas os valores ou a ordem diferem. Confira o ORDER BY e as colunas." : "Mesma quantidade de linhas, mas algum valor difere. Confira cálculos, arredondamentos e colunas." };
-  return { ok: true, msg: "Correto! Seu resultado é idêntico ao esperado." };
-}
 
 /** Estado inicial: o que foi salvo antes, ou uma consulta enviada de outra página (ex.: "Abrir no SQL Lab"). */
 function loadInit(): { db: DbId; engine: Engine; query: string; history: { q: string; db: DbId; ok: boolean }[]; solved: string[] } {
