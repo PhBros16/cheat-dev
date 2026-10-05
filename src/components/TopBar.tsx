@@ -6,6 +6,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { setNavOpen, useNavOpen } from "@/lib/store";
 
 const LINKS = [
+  { href: "/essencial", label: "Essencial" },
+  { href: "/desafios", label: "Desafios" },
   { href: "/receitas", label: "Receitas" },
   { href: "/comparativos", label: "Comparativos" },
   { href: "/guias", label: "Guias" },
