@@ -1,125 +1,53 @@
 # cheat/dev
 
-Uma referência rápida, moderna e explicativa de **HTML**, **CSS**, **JavaScript** e **SQL** —
-no espírito da W3Schools/MDN, mas enxuta e feita pra aquele momento
-*"caramba, qual é aquele comando mesmo?"*.
+Hub de consulta e treino para quem programa: **503 comandos** de HTML, CSS, JavaScript e SQL em que **tudo é explicado e pode ser testado na hora**, dentro da página.
 
-- 🔎 Busca instantânea (atalho `⌘K` / `Ctrl+K`)
-- 🎨 Uma cor de identidade por linguagem, usada de forma consistente na navegação e nos badges
-- 🖤 Modo claro/escuro
-- 🧠 Cada comando com sintaxe, exemplo(s) reais, e um "use quando / evite quando"
-- ⚡ 100% estático (SSG) — rápido e barato de hospedar
+🔗 **Site:** https://cheat-dev.vercel.app
+
+> Material de estudo que você não pode testar é decoração.
+
+## O que tem aqui
+
+| Recurso | O que faz |
+|---|---|
+| **Comandos** (503) | Sintaxe, explicação do porquê, armadilha comum, "use quando / evite quando" e playground ao vivo (HTML, CSS, JavaScript e SQL) |
+| **Lab** `/lab` | Editor HTML/CSS/JS com resultado ao vivo, Emmet, 17 dispositivos, multi-tela, console, link compartilhável e exportar/importar ZIP |
+| **SQL Lab** `/sql-lab` | SQLite e **PostgreSQL** (o motor do Supabase) rodando no navegador; 3 bancos de exemplo, aulas, exercícios com correção e dialetos lado a lado |
+| **Desafios** `/desafios` | Roleta com 58 desafios (do iniciante ao chefe), testes automáticos, XP, patentes e sequência diária |
+| **Essencial** `/essencial` | 53 passos que não dá para pular, com o risco de pular cada um e uma tarefa prática |
+| **Geradores** `/geradores` | Sombra, gradiente, flexbox, grid, curva de animação e border-radius |
+| **Receitas · Comparativos · Guias** | "Como fazer X", diferenças lado a lado (let/const/var, JOINs...) e tutoriais |
+| **Snippets (65) e Templates (11)** | Componentes e sites completos, com abas por categoria e seletor de estilo visual |
+| **VS Code** `/vscode` | Gatilhos `cd-html`, `cd-css` e mais 38 para baixar |
 
 ## Stack
 
-- [Next.js 16](https://nextjs.org) (App Router) + TypeScript
-- [Tailwind CSS v4](https://tailwindcss.com)
-- [Shiki](https://shiki.style) para o realce de sintaxe (renderizado no servidor, zero JS extra no cliente)
+Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Shiki · CodeMirror 6 + Emmet · sql.js (SQLite) · PGlite (PostgreSQL em WebAssembly) · fflate. Sem backend: conteúdo estático (SSG) e `localStorage`.
 
 ## Rodando localmente
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
+npm run lint
+npm run build      # gera o site estático
 ```
 
-Acesse `http://localhost:3000`.
+O `predev`/`prebuild` copia o PostgreSQL em WebAssembly para `public/pglite/` (pasta não versionada).
 
-Para gerar o build de produção:
+## Documentação
 
-```bash
-npm run build
-npm run start
-```
+- [`docs/DOC-MESTRE.md`](docs/DOC-MESTRE.md): arquitetura, convenções, como validar conteúdo, armadilhas conhecidas e roadmap.
+- [`docs/LINKEDIN-SERIE.md`](docs/LINKEDIN-SERIE.md): plano de divulgação do projeto.
 
-## Estrutura do projeto
+## Como o conteúdo é validado
 
-```
-src/
-  app/
-    page.tsx                        # Home (busca em destaque + populares)
-    [lang]/page.tsx                 # Visão geral de uma linguagem (ex: /css)
-    [lang]/[category]/page.tsx      # Lista de comandos de uma categoria
-    [lang]/[category]/[entry]/      # Página de um comando específico
-  components/                       # Sidebar, SearchBox, CodeBlock, TopBar, etc.
-  content/
-    html.ts                         # Todo o conteúdo de HTML
-    css.ts                          # Todo o conteúdo de CSS
-    js.ts                           # Todo o conteúdo de JavaScript
-    sql.ts                          # Todo o conteúdo de SQL
-  lib/
-    types.ts                        # Tipos: Language, Category, Entry
-    content.ts                      # Funções para ler/buscar o conteúdo
-    search.ts                       # Lógica de busca (usada pelo SearchBox)
-    langStyles.ts                   # Classes Tailwind por linguagem (cores)
-```
+Não há testes unitários; a validação é feita em **Chromium headless real**: cada demo CSS é comparada com a cena sem o CSS, todas as consultas SQL rodam em SQLite e PostgreSQL, cada desafio precisa passar na solução e falhar no código inicial, e as interações (digitar, arrastar, clicar) são exercitadas. Detalhes no documento mestre.
 
-## Como adicionar um novo comando
+## Contribuindo
 
-Todo o conteúdo vive em `src/content/*.ts` como objetos TypeScript comuns —
-não precisa mexer em nenhuma página. Abra o arquivo da linguagem desejada,
-encontre (ou crie) a categoria certa, e adicione um objeto `Entry` na lista
-`entries`:
+Issues e PRs são bem-vindos, principalmente **novos desafios** (HTML e CSS ainda têm poucos), correções de conteúdo e ideias de recursos. Antes de abrir um PR, rode `npm run lint` e `npm run build`. Commits pequenos, em português, no formato `tipo(escopo): descrição`.
 
-```ts
-{
-  slug: "meu-comando",           // vira a URL: /js/categoria/meu-comando
-  title: "meuComando()",
-  summary: "Uma frase curta explicando o que ele faz.",
-  syntax: "meuComando(argumento)",
-  description: [
-    "Primeiro parágrafo explicando em mais detalhes.",
-    "Segundo parágrafo, se precisar.",
-  ],
-  examples: [
-    { code: "meuComando(42);", caption: "Opcional: legenda do exemplo" },
-  ],
-  useWhen: ["Quando usar isso"],
-  avoidWhen: ["Quando NÃO usar"],
-  related: ["js/outra-categoria/outro-comando"], // opcional
-}
-```
+## Licença
 
-O TypeScript avisa se algum campo obrigatório faltar (veja `src/lib/types.ts`).
-Depois de salvar, o comando já aparece na sidebar, na busca e ganha sua
-própria página automaticamente — nenhuma rota precisa ser criada manualmente.
-
-## Como adicionar uma nova linguagem (Python, etc.)
-
-1. Crie `src/content/python.ts` seguindo o mesmo formato de `html.ts` (exporte
-   um objeto `Language`).
-2. Escolha uma cor de identidade e adicione em `src/lib/langStyles.ts`
-   (precisa ser uma classe Tailwind **literal**, não construída dinamicamente,
-   por causa de como o Tailwind detecta classes usadas).
-3. Adicione a cor em `src/app/globals.css`, no bloco `:root` e no `@theme inline`
-   (ex: `--color-python: #3776AB;`).
-4. Registre a linguagem no array `languages` em `src/lib/content.ts`.
-
-Pronto — todas as rotas, a busca e a sidebar já enxergam a nova linguagem
-automaticamente, porque tudo é gerado a partir desse array.
-
-## Deploy na Vercel
-
-1. Suba este projeto para um repositório no GitHub (veja o passo a passo abaixo).
-2. Em [vercel.com/new](https://vercel.com/new), importe o repositório.
-3. A Vercel detecta o Next.js automaticamente — não precisa configurar nada.
-4. Cada push na branch principal gera um novo deploy.
-
-### Subindo para o GitHub pela primeira vez
-
-```bash
-git init
-git add .
-git commit -m "primeira versão do cheat/dev"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/NOME-DO-REPO.git
-git push -u origin main
-```
-
-## Roadmap / ideias para turbinar mais
-
-- [ ] Mais comandos por categoria (o conteúdo atual é uma base sólida, não o catálogo completo)
-- [ ] Novas linguagens: Python, Git, Bash, React
-- [ ] Preview ao vivo para exemplos de HTML/CSS (iframe sandboxed)
-- [ ] Página "todos os comandos" por linguagem, ordenável e filtrável
-- [ ] Botão de sugestão/edição levando direto para o arquivo no GitHub
+Defina a licença do projeto antes de divulgar (sugestão: MIT).
