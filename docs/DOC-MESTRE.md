@@ -179,15 +179,20 @@ Campos: `s` slug · `t` título · `d` resumo · `x` sintaxe · `n` explicação
 
 `src/lib/search.ts` (stopwords, ~150 sinônimos pt-BR → termos técnicos, pontuação por título/keyword/resumo). **Cuidado:** palavras de domínio ("elemento", "tag", "função", "propriedade") **não** podem estar nas stopwords (bug já corrigido). O índice (`/search-index.json`) inclui comandos e também receitas, comparativos, guias, snippets e templates (com link próprio).
 
-## 10. Como testar (fluxo que funcionou)
+## 10. Como testar (scripts versionados em `scripts/validate/`)
 
-Não há suíte de testes unitários; a validação é feita com **navegador headless real**:
+Não há suíte de testes unitários; a validação é feita com **navegador headless real** e executando todo o SQL nos dois motores. Os scripts estão no repositório, com instruções em `scripts/validate/README.md`:
 
-1. `npm install puppeteer-core @sparticuz/chromium` (em uma pasta temporária; o Chromium vem dentro do pacote npm, útil em ambientes sem acesso à internet).
-2. Suba o servidor de produção: `npm run build && npx next start -p 3111`.
-3. Scripts de teste usados: renderizar cada demo CSS e comparar com a cena sem o CSS (detecta demos sem efeito); executar todas as consultas SQL em SQLite **e** PGlite; carregar cada desafio (solução deve passar tudo, código inicial deve falhar); executar cada exemplo de JS e checar erros; testar interações reais (digitar no CodeMirror, arrastar, clicar).
-4. Para validar conteúdo TypeScript em Node, use `npx tsx` com um arquivo `.mts` dentro do repositório (para o alias `@/` resolver) e importe com `await import("@/lib/content")`.
-5. Rode `npm run lint` e `npm run build` antes de cada push.
+| Script | Valida |
+|---|---|
+| `sql-all.mts` | todas as consultas SQL em SQLite **e** PostgreSQL (comandos, dialetos, exclusivos do Postgres, desafios) |
+| `links.mts` | links "relacionados" dos comandos e links da trilha Essencial |
+| `challenges.mts` + `challenges-run.mjs` | cada desafio web: a solução passa 100% e o código inicial falha |
+| `js-examples.mts` + `js-examples-run.mjs` | executa os exemplos de JavaScript e acusa erros |
+| `css-demos.mts` | demos de CSS sem efeito visível e declarações inúteis |
+| `e2e-hub.mjs`, `e2e-lab.mjs` | fluxos reais (roleta, testes, Emmet, multi-tela, ZIP, compartilhar) |
+
+Preparação: `puppeteer-core` e `@sparticuz/chromium` em `/tmp/val` (o Chromium vem dentro do pacote npm, útil sem acesso à internet), `npm run build && npx next start -p 3111` para os e2e. Rode também `npm run lint` e `npm run build` antes de cada push. Rode `links.mts` **sempre que escrever um lote novo** (referências `r:` quebradas são descartadas em silêncio; já tivemos 3 assim).
 
 ## 11. Armadilhas já descobertas (não repetir)
 
@@ -211,6 +216,41 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 
 `cheatdev:favs` · `cheatdev:recent` · `cheatdev:lab:v1` · `cheatdev:lab:inbox` · `cheatdev:lab:running` · `cheatdev:sqllab:v1` · `cheatdev:sqllab:inbox` · `cheatdev:hub:v1` · `cheatdev:essencial:v1`.
 Mudar o formato de uma chave exige migração (ou trocar para `:v2`).
+
+## 12b. Guia de manutenção: como adicionar...
+
+**Um comando novo.** Crie ou edite um arquivo em `src/content/extra/` (próximo número do lote), use `H/S/J/Q` + `cat(...)`, registre o lote em `extra/index.ts`. Preencha `n` (o porquê), `ex` (exemplo que **roda**), `a` (armadilha), `r` e `k` (frases em linguagem natural). Rode `links.mts` e os validadores do tipo (JS: `js-examples`; CSS: `css-demos`; SQL: `sql-all`).
+
+**Uma consulta SQL executável.** SQLite em `sql-demos.ts` (`slug → {db, query}`). Se o Postgres precisar de outra sintaxe, `pg-demos.ts`. Se o recurso só existe no Postgres, use `P()` em `extra/sql-4.ts` (entra em `SQL_PG_ONLY`). Rode `sql-all.mts`.
+
+**Um desafio.** Em `src/content/challenges.ts`, use os construtores `js()/css()/html()/sqlNew()`. Campos: `id` único, `level` (`iniciante|intermediário|avançado|chefe`), `brief`, `hint`, `starter`, `solution` e `tests`. Cada teste é `{ name, check }` com `check` = **expressão JavaScript** avaliada dentro da página do aluno (verdadeiro = passou; pode ser uma Promise, com limite de 3 s; classes e funções do código do aluno ficam visíveis). Para CSS, meça `getComputedStyle` e `getBoundingClientRect` (a página de teste tem **560 px de largura**); para regras que dependem de `:hover` ou `@media`, leia `document.styleSheets`. SQL: forneça `db` e a consulta `solution` (a comparação ignora nomes de coluna e só considera a ordem se a solução tem `ORDER BY`). **Sempre** rode `challenges.mts` + `challenges-run.mjs`.
+
+**Um passo da trilha Essencial.** Em `src/content/essencial.ts`: `id`, `title`, `why`, `skip` (o risco de pular), `task` e `links` (`lang:slug` ou `/rota`). Rode `links.mts`.
+
+**Um template ou estilo.** Template: `T({...})` em `templates-extra.ts`, usando **somente** as variáveis do `:root` (`--bg --surface --text --muted --brand --brand2 --on --radius --font --head`). Estilo novo: entrada em `THEME_LIB` (`themes.ts`) e inclua o id na lista `themes` do template. A página troca só o bloco `:root`.
+
+**Um snippet.** `S(slug, título, descrição, categoria, css, html, {light?, js?})` em `snippets-extra.ts` (base escura por padrão; `light: true` para fundo claro). A categoria vira uma aba automaticamente.
+
+**Um gatilho do VS Code.** Em `vscode.ts` (tabstops no formato `[[1:texto]]`, `[[0]]` para o final). A exportação e o autocompletar do Lab são derivados dele.
+
+## 12c. Como o Pedro trabalha (para manter o mesmo padrão)
+
+- Quer ser **direto**: sem bajulação nem introduções vazias; quando algo não funciona ou não é viável, dizer logo, com o motivo e alternativas.
+- Quer que cada limitação seja dita em voz alta (ex.: "MySQL não roda no navegador") e que os pontos fracos do que foi entregue sejam apontados.
+- Gosta de seguir em blocos grandes ("pode seguir"), mas espera que **tudo seja testado de verdade** antes de ser publicado.
+- Prefere **commits pequenos e atômicos** e quer ver sempre **o caminho dos arquivos entregues** (ex.: `/mnt/user-data/outputs/...`).
+- Deixa a ordem de prioridade a critério do Claude quando diz "pode seguir pro lado que achar melhor", mas pede que a ordem escolhida seja justificada.
+- Escreve em português; o produto é todo em português do Brasil.
+
+## 12d. Limitações conhecidas e o que NÃO foi testado
+
+- Testes apenas em **Chromium headless**: não houve teste em celular real nem em Safari/Firefox.
+- Laço infinito no código do aluno (Lab/desafios) pode travar a aba; o Hub avisa após 9 s, mas esse cenário não foi exercitado.
+- Os exemplos de **CDNs externas** (Tailwind, React via CDN) no Lab não foram testados (o ambiente de desenvolvimento não tinha internet).
+- O suporte a recursos novos de CSS/HTML (anchor positioning, `@scope`, `popover` etc.) foi escrito de memória: conferir no caniuse.
+- As tarefas da trilha Essencial **não são verificadas automaticamente** (o usuário marca).
+- Supabase: só a parte SQL (incluindo RLS com `auth.uid()` simulado) roda; login, storage, realtime e a API automática não.
+- Não há analytics instalado: as métricas do plano de LinkedIn dependem do analytics da Vercel ou de uma ferramenta que você adicione.
 
 ## 13. Estado atual e próximos passos sugeridos
 
