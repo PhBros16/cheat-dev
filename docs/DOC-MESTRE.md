@@ -268,6 +268,90 @@ Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQ
 8. Seção de Git/terminal; OG image dinâmica por comando; versão em inglês; testes automatizados; GitHub Actions (lint + build).
 9. Sincronizar progresso (favoritos, Hub, Essencial) entre dispositivos com login (Supabase).
 
+## 13a. Histórico de atualizações (changelog)
+
+Resumo por fase (os commits têm o detalhe; `git log --oneline`):
+
+| Data | O que entrou |
+|---|---|
+| 26/09 a 01/10 | Primeira versão; 80 comandos; PWA e SEO; "turbinada geral" (264 comandos, busca em linguagem natural, playgrounds, guias, snippets e templates) |
+| 01/10 | CSS lote 1 (+94: transições, animações, transformações, posicionamento, scroll, seletores modernos); demos validados em navegador; página **Favoritos** por linguagem; página **VS Code** (40 gatilhos `cd-`); autoria dos commits corrigida (e-mail noreply) |
+| 01 a 02/10 | **Lab** (editor ao vivo, Emmet, 17 dispositivos, multi-tela, console, ZIP, link compartilhável); **Receitas** (13), **Comparativos**, guia **GitHub + Vercel**; **Snippets** (65, abas por categoria) e **Templates** (11, com estilos visuais); busca ampliada |
+| 03/10 | CSS lote 2 (+36: `@property`, anchor, popover, `@scope`, cores relativas, impressão, fontes variáveis, formulários); **Geradores de CSS**; **SQL Lab** (SQLite) com "Testar na hora" em 76 comandos, aulas e exercícios com correção; +36 comandos SQL e +38 de HTML; 8 comparativos novos; playground HTML passa a rodar scripts |
+| 04/10 | **PostgreSQL (PGlite)** no SQL Lab e nos comandos; categoria **PostgreSQL & Supabase** (RLS, JSONB, triggers...); aba **Dialetos** (17 receitas); trilha **Essencial** (53 passos) com etiqueta ★; banco de **58 desafios** com testes validados |
+| 05/10 | **Hub de desafios** (roleta, XP, patentes, sequência, desafio do dia); verificador de SQL compartilhado; **JavaScript** +25 comandos (datas, Map/Set, regex, event loop...) |
+| 06 a 07/10 | Doc mestre, plano de LinkedIn (14 posts) e README; scripts de validação versionados; correção de 3 links quebrados e do lint |
+
+Totais: 37 commits · 503 comandos · 58 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+
+## 13b. Backlog de ideias e aprofundamentos (por área)
+
+Legenda: **valor** (A/M/B) · **esforço** (P/M/G).
+
+### Plataforma e produto
+- **Login com Supabase** para sincronizar favoritos, Hub e Essencial entre dispositivos (A · G). Habilita ranking e certificados.
+- **Analytics** (Vercel Analytics ou Plausible) para saber o que as pessoas usam (A · P). Hoje não há nenhum.
+- **GitHub Actions**: lint + build + `scripts/validate` a cada PR (A · M).
+- **OG image dinâmica por comando** para compartilhar bem no WhatsApp/LinkedIn (M · M).
+- **Versão em inglês** (i18n) (M · G).
+- **PWA offline** também para Lab e SQL Lab (cache dos `.wasm`) (M · P).
+- Página de **novidades** (changelog público) e newsletter (B · P).
+- Auditoria de acessibilidade do próprio site (axe) e orçamento de performance (M · M).
+
+### Hub de desafios
+- **Mais desafios de HTML e CSS** (hoje 8 e 11): meta de 15 novos, com os mesmos testes validados (A · M). **Próximo passo sugerido.**
+- **Trilhas guiadas**: sequência guia → receita → comparativo → desafio, com selo ao concluir (A · M).
+- **Modo prova** com cronômetro e **modo entrevista** (algoritmos clássicos em JS, dicas de complexidade) (M · M).
+- **Revisão espaçada** (flashcards dos comandos que o usuário errou) (M · M).
+- **Desafio semanal compartilhado**, ranking e **certificado em PDF** por trilha (depende de login) (M · G).
+- **Desafios criados por usuários** com link compartilhável (B · G).
+- Mostrar, após acertar, **a solução comentada e uma variação mais elegante** (M · M).
+
+### HTML
+- Padrões ARIA completos (combobox, tabs, menu, modal com *focus trap*) com testes (A · M).
+- Formulários avançados (`datalist`, `output`, `meter`, validação por país), microdados e schema.org além do JSON-LD (M · M).
+- **HTML de e-mail** (tabelas, compatibilidade por cliente) (M · M).
+- Web Components avançados (Shadow DOM, `slot`, form-associated) (M · M).
+
+### CSS
+- **Lote 3** rumo às 500+ propriedades: `scroll-timeline`, `font-stretch`, `mask`, `columns` avançado, `@font-face` completo, *container style queries*, propriedades lógicas restantes (M · G).
+- **Equivalente em Tailwind** e **tabela de compatibilidade (caniuse)** em cada comando (A · G).
+- Mais geradores: `clip-path`, grid com áreas nomeadas, glassmorphism/neumorphism, editor visual de `@keyframes`, checador de contraste e paleta (A · M).
+- Guia "**por que meu CSS não funciona**" (z-index, flex que não centraliza, overflow, specificity) (A · P).
+
+### JavaScript
+- Web Workers, IndexedDB, Canvas, WebSockets/SSE, `Proxy`/`Reflect`, `Symbol`, Service Workers (M · M).
+- **Visualizador do event loop** e "JS tutor" passo a passo (A · G).
+- Mini **executor de testes** no Lab (estilo Vitest) para escrever funções e testes juntos (M · M).
+- Guia de **TypeScript** para quem vem do JS (M · M).
+- Fetch avançado (retry, streaming, cancelamento) e padrões de estado no front (M · M).
+
+### SQL e bancos
+- **pg_trgm, busca full-text e pgvector** (o lado "IA" do Supabase) com demos no PGlite (A · M; verificar se as extensões estão no PGlite).
+- **Laboratório de performance** com dataset grande gerado (100 mil linhas) para *ver* o efeito do índice (A · M).
+- **Transações e isolamento** com duas conexões (dirty read, deadlock) (M · G).
+- **Gerador de diagrama ER** (Mermaid) a partir do esquema (M · M).
+- Supabase além do SQL: schema `auth`, políticas de **storage**, publicações de **realtime**, funções + `.rpc()` (A · M).
+- Banco de **séries temporais/vendas** para análise (coorte, retenção, funil) e 30 perguntas de **entrevista de SQL** (A · M).
+- **MySQL real** via servidor (contêiner por sessão): só se houver demanda e orçamento (M · G).
+
+### Lab
+- **Auditoria de acessibilidade (axe-core)** e checagens de SEO básicas dentro do Lab (A · M).
+- **Vários arquivos e pastas**, histórico de versões (desfazer por snapshot) e botão **formatar código** (Prettier) (M · M).
+- **Seletor de bibliotecas** por CDN com lista permitida (Tailwind, Alpine, React UMD) (M · P); testar com internet.
+- Exportar **capturas de tela** nos vários tamanhos (B · M).
+- **Link curto** via Supabase (A · M; atenção a abuso, moderação e LGPD).
+
+### Divulgação
+- Gerar os **carrosséis do LinkedIn** (Posts 5, 6 e 11) com o conector do **Canva** que já está disponível na conta (M · P).
+- Vídeos curtos (30 s) do Lab, da roleta e do RLS, seguindo o plano em `docs/LINKEDIN-SERIE.md` (A · P).
+- Série "bug da semana" reaproveitando os aprendizados da seção 11 (M · P).
+
+### Sugestão de ordem (próximos 3 ciclos)
+1. +15 desafios de HTML/CSS e **trilhas guiadas** (completa o "hub": estudar → treinar → comprovar).
+2. **Analytics + CI** e **login Supabase** (medir, proteger e sincronizar).
+3. **pgvector/full-text** e **laboratório de performance** (diferencial no SQL) + auditoria de acessibilidade no Lab.
+
 ## 14. Como continuar numa nova conversa
 
 Cole este documento e diga, por exemplo:
