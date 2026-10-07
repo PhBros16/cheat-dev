@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Arquivos de terceiros copiados para public/ (motor SQL em WebAssembly)
     "public/sqljs/**",
     "public/pglite/**",
+    // Ferramentas de validação (rodam fora do site, em Node, com tipos soltos)
+    "scripts/validate/**",
   ]),
 ]);
 
