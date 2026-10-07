@@ -3,12 +3,21 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f6f7f5;
-  --surface: #ffffff;
-  --surface-muted: #eef0ee;
-  --foreground: #14171a;
-  --muted: #5b6169;
-  --border: #dfe2e0;
+  /* Paleta clara: creme + verde-sálvia, com amarelo e azul-elétrico de destaque */
+  --background: #f5f1df;
+  --surface: #fbf9ee;
+  --surface-muted: #ebe6cc;
+  --foreground: #22251b;
+  --muted: #5d614c;
+  --border: #d9d3b2;
+
+  --accent: #4f7d4a;
+  --accent-soft: #d3dfbc;
+  --highlight: #f4ef8e;
+  --electric: #3b55e6;
+  --sky-soft: #cadeeb;
+  --blush-soft: #ecd0dc;
+  --peach-soft: #f0cfae;
 
   --color-html: #e4572e;
   --color-css: #2f6fed;
@@ -17,12 +26,20 @@
 }
 
 .dark {
-  --background: #0e1013;
-  --surface: #16191d;
-  --surface-muted: #1c2024;
-  --foreground: #e8eaec;
-  --muted: #9aa1a9;
-  --border: #2a2e33;
+  --background: #11130e;
+  --surface: #181b14;
+  --surface-muted: #1f231a;
+  --foreground: #eceee2;
+  --muted: #a0a592;
+  --border: #2c3125;
+
+  --accent: #8fbf86;
+  --accent-soft: #2a3624;
+  --highlight: #f4ef8e;
+  --electric: #6f86ff;
+  --sky-soft: #1f2d3a;
+  --blush-soft: #3a2630;
+  --peach-soft: #3a2d20;
 
   --color-js: #d4ac2b;
 }
@@ -34,6 +51,13 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-highlight: var(--highlight);
+  --color-electric: var(--electric);
+  --color-sky-soft: var(--sky-soft);
+  --color-blush-soft: var(--blush-soft);
+  --color-peach-soft: var(--peach-soft);
 
   --color-html: var(--color-html);
   --color-css: var(--color-css);
@@ -60,7 +84,8 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-html) 25%, transparent);
+  background: color-mix(in srgb, var(--highlight) 75%, transparent);
+  color: var(--foreground);
 }
 
 /* Shiki code blocks: let our own background/typography win */
@@ -91,10 +116,14 @@ pre.shiki span {
 
 /* Sidebar: link ativo com a cor da linguagem */
 nav[data-sidebar] a[data-active="true"] {
-  background: var(--surface-muted);
+  background: color-mix(in srgb, var(--highlight) 70%, transparent);
   color: var(--foreground);
-  font-weight: 500;
+  font-weight: 600;
 }
+.dark nav[data-sidebar] a[data-active="true"] {
+  background: color-mix(in srgb, var(--highlight) 16%, transparent);
+}
+nav[data-sidebar] a[data-active="true"] svg { color: var(--accent); }
 nav[data-sidebar] details[data-lang="html"] a[data-active="true"] { color: var(--color-html); }
 nav[data-sidebar] details[data-lang="css"] a[data-active="true"] { color: var(--color-css); }
 nav[data-sidebar] details[data-lang="js"] a[data-active="true"] { color: var(--color-js); }
