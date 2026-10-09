@@ -1,7 +1,7 @@
 # cheat/dev — Documento Mestre (handoff completo)
 
 > **Como usar:** cole este arquivo inteiro na primeira mensagem de uma nova conversa com o Claude e diga o que quer atacar.
-> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: outubro/2026.
+> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: 09/10/2026.
 
 ---
 
@@ -59,6 +59,19 @@ Commits **pequenos, atômicos e com mensagem clara** (um por unidade lógica), e
 - PWA: manifest, service worker (cache de páginas visitadas), ícones
 - Build: `npm run build` · Lint: `npm run lint` (deve passar sem erros) · Dev: `npm run dev`
 - O ESLint ignora `public/sqljs/**` e `public/pglite/**` (código de terceiros)
+
+### Tema e cores (atualizado em 09/10/2026)
+
+Claro = creme `#f5f1df` com verde-sálvia e destaque amarelo; escuro = oliva `#11130e`. Tudo vem de **tokens** em `src/app/globals.css` (`:root` e `.dark`), expostos ao Tailwind via `@theme inline`.
+
+- **Superfícies:** `background`, `surface`, `surface-muted`, `border`, `foreground`, `muted`; fundo de código `bg-code` (claro `#fdfbf2`, escuro `#12140f`).
+- **Ação primária:** `bg-accent text-on-accent` (sálvia; branco no claro, escuro no escuro). Foco de teclado: contorno azul-elétrico global (`--electric`).
+- **Linguagens:** a cor PURA (`--color-html|css|js|sql`) só em pontos, bordas e fundos suaves. **Texto pequeno usa `text-<lang>-fg`** (mesmo matiz, tom ajustado para AA). Não mude as cores puras.
+- **Status/níveis:** pares `bg-ok-bg text-ok-fg`, `warn`, `err`, `info`, `boss` (cada par ≥ 4,5:1, verificado). Níveis: iniciante=ok, intermediário=info, avançado=warn, chefe=boss.
+- **Nunca** use cores soltas do Tailwind (`emerald-400`, `red-300`, `amber-500`…) sobre fundo do tema: foram pensadas para o escuro e ficam quase invisíveis no claro. Exceção: painéis escuros fixos (editor, console), onde o `-400` é o certo.
+- **Código:** Shiki `github-light-high-contrast` (claro) e `github-dark` com `colorReplacements` para os comentários (escuro). CodeMirror: One Dark com 4 cores ajustadas em `src/components/lab/Editor.tsx`.
+- **Meta de acessibilidade:** contraste WCAG AA (4,5:1; 3:1 para texto grande), medido por `a11y-audit.mjs`. Isentos: o logotipo "/" (identidade da linguagem) e controles desabilitados (ex.: "⬇ CSV" sem resultado).
+- **Definidos e ainda sem uso:** `--sky-soft`, `--blush-soft`, `--peach-soft` (reservados para tags/chips) e `--electric` fora do foco.
 
 ## 5. Mapa de pastas
 
@@ -191,8 +204,14 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 | `js-examples.mts` + `js-examples-run.mjs` | executa os exemplos de JavaScript e acusa erros |
 | `css-demos.mts` | demos de CSS sem efeito visível e declarações inúteis |
 | `e2e-hub.mjs`, `e2e-lab.mjs` | fluxos reais (roleta, testes, Emmet, multi-tela, ZIP, compartilhar) |
+| `a11y-audit.mjs` | por página: contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow horizontal |
+| `a11y-states.mjs` | o mesmo, em ~83 **estados interativos** (desafios com erro/sucesso, SQL nos 2 motores, console do Lab, abas dos Geradores…). Rode nos 2 temas e em 390, 768 e 1440 px |
+| `overflow-all.mjs` | overflow horizontal em TODAS as rotas numa largura (rápido); rode em 320, 390, 768 e 1024 |
+| `serve-and-run.sh` | sobe o servidor, roda o comando e derruba (na MESMA chamada) |
 
 Preparação: `puppeteer-core` e `@sparticuz/chromium` em `/tmp/val` (o Chromium vem dentro do pacote npm, útil sem acesso à internet), `npm run build && npx next start -p 3111` para os e2e. Rode também `npm run lint` e `npm run build` antes de cada push. Rode `links.mts` **sempre que escrever um lote novo** (referências `r:` quebradas são descartadas em silêncio; já tivemos 3 assim).
+
+Notas de execução (aprendidas em 09/10): ambientes com limite de ~300 s por comando cortam `sql-all.mts` (cria um PGlite por consulta) **e ele sai sem imprimir nada**, o que parece sucesso: confira o código de saída (`exit=124` é timeout) ou divida em partes. Em 09/10 todas as 211 execuções foram validadas em 6 partes, 0 falhas. Rodadas completas de `a11y-states.mjs` levam ~4-5 min: uma por chamada.
 
 ## 11. Armadilhas já descobertas (não repetir)
 
@@ -211,6 +230,12 @@ Preparação: `puppeteer-core` e `@sparticuz/chromium` em `/tmp/val` (o Chromium
 13. Datas: `31/01 + 1 mês` cai em 02/03 no SQLite/JS e em 29/02 no MySQL/Postgres. Os textos já avisam.
 14. **Não reescrever histórico do Git** sem necessidade (ver seção 3).
 15. Upload de arquivo binário grande via API da Vercel falha; use sempre o fluxo Git (push → deploy automático).
+16. **Grid sem coluna definida estoura no celular**: `grid gap-4 lg:grid-cols-[...]` usa uma coluna `auto` que adota o min-content de `<pre>`, `<input range>` etc., ignorando `overflow-x-auto`. Use `grid-cols-1` (ou `grid-cols-[minmax(0,1fr)]`) no mobile. Já corrigido em Geradores e Dialetos.
+17. **Títulos com palavra longa** (`element.addEventListener()`, "Compartilhamento") estouram 320 px: há `h1 { overflow-wrap: anywhere }` global.
+18. **Barra do topo**: o `<nav>` só aparece a partir de `lg` (1024 px). Entre 768 e 1023 px ele estourava a largura em TODAS as rotas (agora o hambúrguer cobre essa faixa). Ao adicionar link no topo, rode `overflow-all.mjs` em 768.
+19. **Cores de status só aparecem após interagir** (acertar desafio, rodar SQL com erro). A varredura estática não as vê: use `a11y-states.mjs`.
+20. **Falsos positivos da auditoria**: texto `text-transparent` (o ✓ do checkbox não marcado) e captura no meio de `transition` de cor (espera de 700 ms resolve).
+21. **Ambiente de desenvolvimento**: processos em background (`next start`/`next build`) não sobrevivem entre comandos e builds interrompidos deixam órfãos (`Another next build process`, `ENOTEMPTY`). Mate por PID; `pkill -f "next build"` casa com a própria linha de comando e se mata. `cut -c` quebra caracteres acentuados (UTF-8): use Python.
 
 ## 12. Chaves do `localStorage`
 
@@ -251,6 +276,9 @@ Mudar o formato de uma chave exige migração (ou trocar para `:v2`).
 - As tarefas da trilha Essencial **não são verificadas automaticamente** (o usuário marca).
 - Supabase: só a parte SQL (incluindo RLS com `auth.uid()` simulado) roda; login, storage, realtime e a API automática não.
 - Não há analytics instalado: as métricas do plano de LinkedIn dependem do analytics da Vercel ou de uma ferramenta que você adicione.
+- **Acessibilidade (09/10):** auditada só em Chromium (celular emulado), com o Google Fonts bloqueado no ambiente: as fontes Space Grotesk e Inter não foram vistas nos testes, só a fonte reserva. Nada de leitor de tela, Safari, Firefox ou aparelho real.
+- `js-examples-run.mjs` acusa 1 falha de 25 (`eventos-modulos/modulos-esm`: `export` não roda como script clássico) e `css-demos.mts` mostra 3 "declarações sem efeito" (`text-gradient`, `background-size`). Já existiam antes de 09/10; são limitações dos validadores, não regressões.
+- Exemplos de demonstração geram 404 de propósito (`<script src="/js/app.js">`, `<embed>`): não são bugs do site.
 
 ## 13. Estado atual e próximos passos sugeridos
 
@@ -267,6 +295,7 @@ Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQ
 7. Mais comandos: CSS ainda está longe das 500+ propriedades; JS pode ganhar Web Workers, IndexedDB, Canvas, Web Components avançados.
 8. Seção de Git/terminal; OG image dinâmica por comando; versão em inglês; testes automatizados; GitHub Actions (lint + build).
 9. Sincronizar progresso (favoritos, Hub, Essencial) entre dispositivos com login (Supabase).
+10. **Terminar a aplicação da paleta** (09/10): usar azul-elétrico, céu, rosa e pêssego em chips/tags/botões secundários; trocar os emojis das abas do Essencial e dos títulos de página por ícones SVG (a sidebar já usa); incluir SQL Lab e Geradores na barra do topo; testar em Safari/iOS reais.
 
 ## 13a. Histórico de atualizações (changelog)
 
@@ -281,8 +310,9 @@ Resumo por fase (os commits têm o detalhe; `git log --oneline`):
 | 04/10 | **PostgreSQL (PGlite)** no SQL Lab e nos comandos; categoria **PostgreSQL & Supabase** (RLS, JSONB, triggers...); aba **Dialetos** (17 receitas); trilha **Essencial** (53 passos) com etiqueta ★; banco de **58 desafios** com testes validados |
 | 05/10 | **Hub de desafios** (roleta, XP, patentes, sequência, desafio do dia); verificador de SQL compartilhado; **JavaScript** +25 comandos (datas, Map/Set, regex, event loop...) |
 | 06 a 07/10 | Doc mestre, plano de LinkedIn (14 posts) e README; scripts de validação versionados; correção de 3 links quebrados e do lint |
+| 09/10 | **Navegação e tema**: sidebar com ícones SVG uniformes e "Todos os comandos" no fim; paleta creme + verde-sálvia (claro) e oliva (escuro) com tokens; contraste AA em todas as telas e estados; 4 defeitos de layout corrigidos (barra do topo em 768–1023 px, painel Dialetos, Geradores no celular, títulos longos); auditoria de acessibilidade versionada |
 
-Totais: 37 commits · 503 comandos · 58 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+Totais: 43 commits · 503 comandos · 58 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
 
 ## 13b. Backlog de ideias e aprofundamentos (por área)
 
