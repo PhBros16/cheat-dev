@@ -12,7 +12,7 @@ type LangStyle = {
 
 export const langStyles: Record<LangSlug, LangStyle> = {
   html: {
-    text: "text-html",
+    text: "text-html-fg",
     bg: "bg-html",
     bgSoft: "bg-html/10",
     border: "border-html",
@@ -21,7 +21,7 @@ export const langStyles: Record<LangSlug, LangStyle> = {
     dot: "bg-html",
   },
   css: {
-    text: "text-css",
+    text: "text-css-fg",
     bg: "bg-css",
     bgSoft: "bg-css/10",
     border: "border-css",
@@ -30,7 +30,7 @@ export const langStyles: Record<LangSlug, LangStyle> = {
     dot: "bg-css",
   },
   js: {
-    text: "text-js",
+    text: "text-js-fg",
     bg: "bg-js",
     bgSoft: "bg-js/10",
     border: "border-js",
@@ -39,7 +39,7 @@ export const langStyles: Record<LangSlug, LangStyle> = {
     dot: "bg-js",
   },
   sql: {
-    text: "text-sql",
+    text: "text-sql-fg",
     bg: "bg-sql",
     bgSoft: "bg-sql/10",
     border: "border-sql",

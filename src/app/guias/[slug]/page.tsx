@@ -26,7 +26,7 @@ export default async function GuidePage({ params }: P) {
   return (
     <div className="px-4 py-12 sm:px-8 lg:px-16">
       <div className="max-w-2xl">
-        <Link href="/guias" className="text-sm font-medium text-css hover:underline">
+        <Link href="/guias" className="text-sm font-medium text-css-fg hover:underline">
           ← Todos os guias
         </Link>
         <h1 className="mt-3 font-display text-3xl font-bold text-foreground sm:text-4xl">{guide.title}</h1>

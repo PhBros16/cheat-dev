@@ -11,7 +11,7 @@ export default function FavoriteButton({ item }: { item: Saved }) {
       onClick={() => toggleFav(item)}
       aria-pressed={on}
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-        on ? "border-js text-js" : "border-border text-muted hover:text-foreground"
+        on ? "border-js text-js-fg" : "border-border text-muted hover:text-foreground"
       }`}
     >
       <span aria-hidden>{on ? "★" : "☆"}</span>

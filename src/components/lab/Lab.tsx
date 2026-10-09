@@ -75,7 +75,7 @@ function Frame({ w, h, scale, getDoc, runId, register, blocked }: {
   );
 }
 
-const btn = "rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-muted disabled:opacity-40";
+const btn = "rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-muted disabled:cursor-not-allowed disabled:opacity-60";
 const btnOn = "rounded-md border border-foreground bg-foreground px-2.5 py-1.5 text-xs font-semibold text-background";
 
 export default function Lab() {
@@ -470,7 +470,7 @@ export default function Lab() {
                 <span className="h-2 w-2 rounded-full" style={{ background: t.color }} />{t.label}
               </button>
             ))}
-            <span className="ml-auto hidden px-3 text-[11px] text-zinc-500 md:block">Tab: Emmet e <code>cd-</code> · Ctrl+Enter: executar</span>
+            <span className="ml-auto hidden px-3 text-[11px] text-zinc-400 md:block">Tab: Emmet e <code>cd-</code> · Ctrl+Enter: executar</span>
           </div>
           <div className="min-h-0 flex-1">
             {tabs.map((t) => (
@@ -540,9 +540,9 @@ export default function Lab() {
                 <button onClick={() => setLines([])} className="hover:text-white">limpar</button>
               </div>
               <div className="min-h-0 flex-1 overflow-auto px-3 py-1.5 font-mono text-[12.5px] leading-relaxed">
-                {lines.length === 0 && <span className="text-zinc-600">{"// console.log() aparece aqui"}</span>}
+                {lines.length === 0 && <span className="text-zinc-400">{"// console.log() aparece aqui"}</span>}
                 {lines.map((l, i) => (
-                  <div key={i} className={`whitespace-pre-wrap ${l.t === "error" ? "text-red-400" : l.t === "warn" ? "text-yellow-300" : l.t === "result" ? "text-sky-300" : l.t === "input" ? "text-zinc-500" : "text-zinc-100"}`}>
+                  <div key={i} className={`whitespace-pre-wrap ${l.t === "error" ? "text-red-400" : l.t === "warn" ? "text-yellow-300" : l.t === "result" ? "text-sky-300" : l.t === "input" ? "text-zinc-400" : "text-zinc-100"}`}>
                     {l.t === "result" ? "← " : l.t === "input" ? "› " : ""}{l.m}
                   </div>
                 ))}
@@ -553,7 +553,7 @@ export default function Lab() {
                 onChange={(e) => setRepl(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendRepl()}
                 placeholder="› digite uma expressão JavaScript e aperte Enter (ex.: document.title)"
-                className="border-t border-white/10 bg-transparent px-3 py-1.5 font-mono text-[12.5px] text-zinc-100 outline-none placeholder:text-zinc-600"
+                className="border-t border-white/10 bg-transparent px-3 py-1.5 font-mono text-[12.5px] text-zinc-100 outline-none placeholder:text-zinc-400"
               />
             </div>
           )}

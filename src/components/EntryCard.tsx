@@ -9,7 +9,7 @@ export default function EntryCard({ item }: { item: CardItem }) {
   return (
     <Link
       href={item.href}
-      className={`group flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 transition-colors hover:border-current ${style.text}`}
+      className={`group flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 transition-colors ${style.hoverBorder}`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="truncate font-mono text-sm font-semibold text-foreground">{item.title}</span>

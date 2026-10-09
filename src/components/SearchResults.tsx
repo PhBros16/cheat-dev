@@ -49,10 +49,10 @@ export default function SearchResults() {
               type="button"
               onClick={() => setFilter(f.slug)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                active ? `border-current ${st ? `${st.text} ${st.bgSoft}` : "bg-surface-muted text-foreground"}` : "border-border text-muted hover:text-foreground"
+                active ? `${st ? `${st.border} ${st.text} ${st.bgSoft}` : "bg-surface-muted text-foreground"}` : "border-border text-muted hover:text-foreground"
               }`}
             >
-              {f.label} <span className="opacity-60">{count}</span>
+              {f.label} <span className="font-mono text-[0.85em]">{count}</span>
             </button>
           );
         })}

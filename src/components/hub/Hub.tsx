@@ -2,16 +2,17 @@
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import Wheel from "@/components/hub/Wheel";
+import { langStyles } from "@/lib/langStyles";
 import WebRunner from "@/components/hub/WebRunner";
 import SqlRunner from "@/components/hub/SqlRunner";
 import { CHALLENGES, CHALLENGE_BY_ID, LANG_META, LEVELS, LEVEL_XP, type Lang, type Level } from "@/content/challenges";
 import { BADGES, addTry, dailyId, hubServerSnapshot, hubSnapshot, hubSubscribe, levelsLeft, markSolved, parseProg, pickChallenge, rankOf, resetHub, streakOf, xpOf } from "@/lib/hubStore";
 
 const LEVEL_STYLE: Record<Level, string> = {
-  "iniciante": "bg-emerald-500/15 text-emerald-400",
-  "intermediário": "bg-amber-500/15 text-amber-400",
-  "avançado": "bg-rose-500/15 text-rose-400",
-  "chefe": "bg-fuchsia-500/15 text-fuchsia-300",
+  "iniciante": "bg-ok-bg text-ok-fg",
+  "intermediário": "bg-info-bg text-info-fg",
+  "avançado": "bg-warn-bg text-warn-fg",
+  "chefe": "bg-boss-bg text-boss-fg",
 };
 const noop = () => () => {};
 
@@ -73,7 +74,7 @@ export default function Hub() {
               <div><p className="font-display text-2xl font-bold text-foreground">{solvedN}/{CHALLENGES.length}</p><p className="text-xs text-muted">resolvidos</p></div>
             </div>
           </div>
-          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-[#1f9c7a] transition-all" style={{ width: `${rank.pct}%` }} /></div>
+          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-accent transition-all" style={{ width: `${rank.pct}%` }} /></div>
           <p className="mt-1.5 text-xs text-muted">{rank.next ? `${rank.next.min - xp} XP para ${rank.next.emoji} ${rank.next.name}` : "Patente máxima alcançada!"}</p>
 
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -92,7 +93,7 @@ export default function Hub() {
           <div className="mt-4 flex flex-wrap gap-2">
             {BADGES.map((b) => {
               const on = b.test(prog, streak);
-              return <span key={b.id} title={b.desc} className={`rounded-full border px-2.5 py-1 text-xs ${on ? "border-amber-500/50 bg-amber-500/10 text-foreground" : "border-border text-muted opacity-60"}`}>{b.emoji} {b.name}{on ? "" : " 🔒"}</span>;
+              return <span key={b.id} title={b.desc} className={`rounded-full border px-2.5 py-1 text-xs ${on ? "border-warn-fg/40 bg-warn-bg text-foreground" : "border-dashed border-border text-muted"}`}>{b.emoji} {b.name}{on ? "" : " 🔒"}</span>;
             })}
           </div>
         </div>
@@ -115,9 +116,9 @@ export default function Hub() {
       {daily && CHALLENGE_BY_ID.get(daily) && (() => {
         const c = CHALLENGE_BY_ID.get(daily)!;
         return (
-          <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4">
+          <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-warn-fg/40 bg-warn-bg/40 p-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-amber-500">📅 Desafio do dia</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-warn-fg">📅 Desafio do dia</p>
               <p className="mt-0.5 font-semibold text-foreground">{c.title} <span className="font-normal text-muted">· {LANG_META[c.lang].label} · {c.level}</span></p>
             </div>
             <button onClick={() => open(c.id)} className="rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background hover:opacity-90">{prog.solved[c.id] ? "✅ Refazer" : "Aceitar o desafio"}</button>
@@ -132,9 +133,9 @@ export default function Hub() {
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-4">
               <div className="min-w-0 max-w-3xl">
                 <p className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full px-2 py-0.5 font-bold text-white" style={{ background: LANG_META[sel.lang].color }}>{LANG_META[sel.lang].label}</span>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-bold ${langStyles[sel.lang as keyof typeof langStyles].bgSoft} ${langStyles[sel.lang as keyof typeof langStyles].text}`}><span className="h-2 w-2 rounded-full" style={{ background: LANG_META[sel.lang].color }} />{LANG_META[sel.lang].label}</span>
                   <span className={`rounded-full px-2 py-0.5 font-semibold ${LEVEL_STYLE[sel.level]}`}>{sel.level} · {LEVEL_XP[sel.level]} XP</span>
-                  {prog.solved[sel.id] && <span className="text-emerald-400">✅ já resolvido</span>}
+                  {prog.solved[sel.id] && <span className="text-ok-fg">✅ já resolvido</span>}
                   {prog.tries[sel.id] ? <span className="text-muted">{prog.tries[sel.id]} tentativa(s)</span> : null}
                 </p>
                 <h2 className="mt-1.5 font-display text-xl font-bold text-foreground">{sel.title}</h2>
@@ -146,7 +147,7 @@ export default function Hub() {
               </div>
             </div>
             <div className="p-4">
-              {gain && <p role="status" className="mb-3 rounded-lg bg-emerald-500/15 p-3 text-center text-sm font-bold text-emerald-400">🎉 Desafio concluído! {gain}</p>}
+              {gain && <p role="status" className="mb-3 rounded-lg bg-ok-bg p-3 text-center text-sm font-bold text-ok-fg">🎉 Desafio concluído! {gain}</p>}
               {sel.kind === "web"
                 ? <WebRunner key={sel.id} challenge={sel} onAttempt={attempt} onSolved={solvedNow} />
                 : <SqlRunner key={sel.id} challenge={sel} onAttempt={attempt} onSolved={solvedNow} />}

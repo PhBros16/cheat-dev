@@ -43,7 +43,7 @@ export default function AllCommandsBrowser({ index }: { index: SearchItem[] }) {
               type="button"
               onClick={() => setFilter(f.slug)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                isActive ? `border-current ${style ? `${style.text} ${style.bgSoft}` : "bg-surface-muted text-foreground"}` : "border-border text-muted hover:text-foreground"
+                isActive ? `${style ? `${style.border} ${style.text} ${style.bgSoft}` : "bg-surface-muted text-foreground"}` : "border-border text-muted hover:text-foreground"
               }`}
             >
               {f.label}

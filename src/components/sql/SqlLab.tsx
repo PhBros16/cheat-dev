@@ -18,8 +18,8 @@ const KEY = "cheatdev:sqllab:v1";
 const INBOX = "cheatdev:sqllab:inbox";
 const DEFAULT_Q = `-- Escreva seu SQL aqui e aperte Ctrl+Enter\nSELECT nome, cidade, estado\nFROM clientes\nORDER BY nome\nLIMIT 5;`;
 
-const btn = "rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-muted disabled:opacity-40";
-const LEVEL_DOT: Record<string, string> = { "iniciante": "bg-emerald-500", "intermediário": "bg-amber-500", "avançado": "bg-rose-500" };
+const btn = "rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-muted disabled:cursor-not-allowed disabled:opacity-60";
+const LEVEL_DOT: Record<string, string> = { "iniciante": "bg-ok-fg", "intermediário": "bg-info-fg", "avançado": "bg-warn-fg" };
 
 /** Estado inicial: o que foi salvo antes, ou uma consulta enviada de outra página (ex.: "Abrir no SQL Lab"). */
 function loadInit(): { db: DbId; engine: Engine; query: string; history: { q: string; db: DbId; ok: boolean }[]; solved: string[] } {
@@ -198,7 +198,7 @@ export default function SqlLab() {
             {ENGINES.map((e) => <option key={e.id} value={e.id}>{e.label}</option>)}
           </select>
         </label>
-        <button className="rounded-md border border-[#1f9c7a] bg-[#1f9c7a] px-3 py-1.5 text-xs font-bold text-white hover:brightness-110 disabled:opacity-50" onClick={() => void run()} disabled={!ready || loadingEngine}>{loadingEngine ? "Carregando…" : "▶ Rodar"}</button>
+        <button className="rounded-md border border-accent bg-accent px-3 py-1.5 text-xs font-bold text-on-accent hover:brightness-110 disabled:opacity-50" onClick={() => void run()} disabled={!ready || loadingEngine}>{loadingEngine ? "Carregando…" : "▶ Rodar"}</button>
         <button className={btn} onClick={explainPlan} disabled={!ready} title="Mostra COMO o banco vai executar a consulta">⚙ Plano de execução</button>
         <button className={btn} onClick={() => void reset()} disabled={!ready} title="Volta o banco ao estado original">↺ Reiniciar banco</button>
         <button className={btn} onClick={downloadCsv} disabled={!sets?.length}>⬇ CSV</button>
@@ -217,11 +217,11 @@ export default function SqlLab() {
               <ul className="border-t border-border px-2.5 py-1.5 font-mono">
                 {t.cols.map((c) => (
                   <li key={c.name} className="flex justify-between gap-2">
-                    <button className="text-left text-foreground hover:text-css" onClick={() => setQuery((q) => q + (q.endsWith("\n") || !q ? "" : " ") + c.name)} title="Inserir no editor">{c.pk ? "🔑 " : ""}{c.name}</button>
+                    <button className="text-left text-foreground hover:text-css-fg" onClick={() => setQuery((q) => q + (q.endsWith("\n") || !q ? "" : " ") + c.name)} title="Inserir no editor">{c.pk ? "🔑 " : ""}{c.name}</button>
                     <span className="text-muted">{c.type.toLowerCase()}</span>
                   </li>
                 ))}
-                <li className="mt-1 border-t border-border pt-1"><button className="text-css hover:underline" onClick={() => setQuery(`SELECT * FROM ${t.name} LIMIT 10;`)}>ver 10 linhas →</button></li>
+                <li className="mt-1 border-t border-border pt-1"><button className="text-css-fg hover:underline" onClick={() => setQuery(`SELECT * FROM ${t.name} LIMIT 10;`)}>ver 10 linhas →</button></li>
               </ul>
             </details>
           ))}
@@ -243,9 +243,9 @@ export default function SqlLab() {
                 <button className={btn} onClick={() => setShowHint((v) => !v)}>💡 Dica</button>
                 <button className={btn} onClick={() => { if (showSol || confirm("Ver a solução agora? Tente mais um pouco antes, é assim que se aprende.")) setShowSol((v) => !v); }}>👁 Solução</button>
               </div>
-              {showHint && <p className="mt-2 rounded-md bg-amber-500/10 p-2 text-xs text-foreground">{ex.hint}</p>}
+              {showHint && <p className="mt-2 rounded-md bg-warn-bg p-2 text-xs text-foreground">{ex.hint}</p>}
               {showSol && <pre className="mt-2 overflow-x-auto rounded-md bg-[#0e1013] p-2 font-mono text-xs text-[#e8eaec]">{ex.solution}</pre>}
-              {verdict && <p className={`mt-2 rounded-md p-2 text-xs font-semibold ${verdict.ok ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/10 text-red-300"}`} role="status">{verdict.ok ? "✅ " : "❌ "}{verdict.msg}</p>}
+              {verdict && <p className={`mt-2 rounded-md p-2 text-xs font-semibold ${verdict.ok ? "bg-ok-bg text-ok-fg" : "bg-err-bg text-err-fg"}`} role="status">{verdict.ok ? "✅ " : "❌ "}{verdict.msg}</p>}
             </div>
           )}
 
@@ -255,8 +255,8 @@ export default function SqlLab() {
 
           <div className="min-h-0 flex-1 overflow-auto p-3" aria-live="polite">
             {err && (
-              <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">
-                <p className="font-mono text-red-400">{err}</p>
+              <div className="rounded-lg border border-err-fg/40 bg-err-bg p-3 text-sm">
+                <p className="font-mono text-err-fg">{err}</p>
                 {hint && <p className="mt-2 text-foreground">💡 {hint}</p>}
               </div>
             )}
@@ -311,7 +311,7 @@ export default function SqlLab() {
                 {history.map((h, i) => (
                   <li key={i}>
                     <button onClick={async () => { if (h.db !== db) await changeDb(h.db); setQuery(h.q); }} className="w-full rounded-md border border-border px-2 py-1.5 text-left font-mono text-[11px] text-foreground hover:border-muted">
-                      <span className={h.ok ? "text-emerald-400" : "text-red-400"}>{h.ok ? "✓" : "✕"}</span> {h.q.replace(/--.*\n?/g, "").trim().slice(0, 90)}
+                      <span className={h.ok ? "text-ok-fg" : "text-err-fg"}>{h.ok ? "✓" : "✕"}</span> {h.q.replace(/--.*\n?/g, "").trim().slice(0, 90)}
                     </button>
                   </li>
                 ))}

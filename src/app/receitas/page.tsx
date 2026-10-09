@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 const LEVEL: Record<string, string> = {
-  "iniciante": "bg-sql/10 text-sql",
-  "intermediário": "bg-js/10 text-js",
-  "avançado": "bg-html/10 text-html",
+  "iniciante": "bg-ok-bg text-ok-fg",
+  "intermediário": "bg-info-bg text-info-fg",
+  "avançado": "bg-warn-bg text-warn-fg",
 };
 
 export default function ReceitasPage() {

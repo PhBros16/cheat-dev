@@ -19,6 +19,22 @@
   --blush-soft: #ecd0dc;
   --peach-soft: #f0cfae;
 
+  --code-bg: #fdfbf2;
+  --on-accent: #ffffff;
+
+  /* Texto das linguagens: mesmo matiz, tom ajustado para legibilidade (AA). As cores puras seguem em --color-* */
+  --html-fg: #96391e;
+  --css-fg: #2251ad;
+  --js-fg: #705813;
+  --sql-fg: #14644e;
+
+  /* Status (fundo + texto, cada par verificado ≥ 4.5:1) */
+  --ok-bg: #d3dfbc;   --ok-fg: #2f5d2b;
+  --warn-bg: #f0cfae; --warn-fg: #6b3a0a;
+  --err-bg: #ecd0dc;  --err-fg: #8c1d3f;
+  --info-bg: #cadeeb; --info-fg: #1d4f7c;
+  --boss-bg: #dcd2ee; --boss-fg: #55308f;
+
   --color-html: #e4572e;
   --color-css: #2f6fed;
   --color-js: #b8901f;
@@ -41,6 +57,20 @@
   --blush-soft: #3a2630;
   --peach-soft: #3a2d20;
 
+  --code-bg: #12140f;
+  --on-accent: #11130e;
+
+  --html-fg: #ea7f60;
+  --css-fg: #6b99f2;
+  --js-fg: #d4ac2b;
+  --sql-fg: #4eb196;
+
+  --ok-bg: #223020;   --ok-fg: #a9d6a0;
+  --warn-bg: #3a2d20; --warn-fg: #f0c48f;
+  --err-bg: #3a2630;  --err-fg: #f2a0b8;
+  --info-bg: #1f2d3a; --info-fg: #9cc7ee;
+  --boss-bg: #2d2640; --boss-fg: #cdb8f2;
+
   --color-js: #d4ac2b;
 }
 
@@ -58,6 +88,17 @@
   --color-sky-soft: var(--sky-soft);
   --color-blush-soft: var(--blush-soft);
   --color-peach-soft: var(--peach-soft);
+  --color-code: var(--code-bg);
+  --color-on-accent: var(--on-accent);
+  --color-html-fg: var(--html-fg);
+  --color-css-fg: var(--css-fg);
+  --color-js-fg: var(--js-fg);
+  --color-sql-fg: var(--sql-fg);
+  --color-ok-bg: var(--ok-bg);     --color-ok-fg: var(--ok-fg);
+  --color-warn-bg: var(--warn-bg); --color-warn-fg: var(--warn-fg);
+  --color-err-bg: var(--err-bg);   --color-err-fg: var(--err-fg);
+  --color-info-bg: var(--info-bg); --color-info-fg: var(--info-fg);
+  --color-boss-bg: var(--boss-bg); --color-boss-fg: var(--boss-fg);
 
   --color-html: var(--color-html);
   --color-css: var(--color-css);
@@ -121,10 +162,19 @@ nav[data-sidebar] a[data-active="true"] {
   font-weight: 600;
 }
 .dark nav[data-sidebar] a[data-active="true"] {
-  background: color-mix(in srgb, var(--highlight) 16%, transparent);
+  background: color-mix(in srgb, var(--highlight) 10%, transparent);
 }
 nav[data-sidebar] a[data-active="true"] svg { color: var(--accent); }
-nav[data-sidebar] details[data-lang="html"] a[data-active="true"] { color: var(--color-html); }
-nav[data-sidebar] details[data-lang="css"] a[data-active="true"] { color: var(--color-css); }
-nav[data-sidebar] details[data-lang="js"] a[data-active="true"] { color: var(--color-js); }
-nav[data-sidebar] details[data-lang="sql"] a[data-active="true"] { color: var(--color-sql); }
+nav[data-sidebar] details[data-lang="html"] a[data-active="true"] { color: var(--html-fg); }
+nav[data-sidebar] details[data-lang="css"] a[data-active="true"] { color: var(--css-fg); }
+nav[data-sidebar] details[data-lang="js"] a[data-active="true"] { color: var(--js-fg); }
+nav[data-sidebar] details[data-lang="sql"] a[data-active="true"] { color: var(--sql-fg); }
+
+/* Foco de teclado visível em toda a interface */
+:where(a, button, summary, [role="tab"], [role="checkbox"]):focus-visible {
+  outline: 2px solid var(--electric);
+  outline-offset: 2px;
+}
+
+/* Títulos com palavra longa (ex.: "Compartilhamento", "element.addEventListener()") não podem estourar telas de 320px */
+h1 { overflow-wrap: anywhere; }

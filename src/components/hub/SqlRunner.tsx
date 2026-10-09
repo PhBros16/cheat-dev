@@ -66,15 +66,15 @@ export default function SqlRunner({ challenge, onAttempt, onSolved }: { challeng
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button onClick={() => void run()} className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:border-muted">▶ Rodar</button>
-          <button onClick={() => void check()} className="rounded-lg bg-[#1f9c7a] px-4 py-2 text-sm font-bold text-white hover:brightness-110">✓ Verificar resposta</button>
+          <button onClick={() => void check()} className="rounded-lg bg-accent px-4 py-2 text-sm font-bold text-on-accent hover:brightness-110">✓ Verificar resposta</button>
           <button onClick={() => setHint((v) => !v)} className="rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-muted">💡 Dica</button>
           <button onClick={() => { if (sol || confirm("Ver a solução agora? Tente mais um pouco antes: é assim que se aprende.")) setSol((v) => !v); }} className="rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-muted">👁 Solução</button>
         </div>
-        {hint && <p className="mt-2 rounded-lg bg-amber-500/10 p-3 text-sm text-foreground">💡 {challenge.hint}</p>}
+        {hint && <p className="mt-2 rounded-lg bg-warn-bg p-3 text-sm text-foreground">💡 {challenge.hint}</p>}
         {sol && <pre className="mt-2 overflow-x-auto rounded-lg bg-[#0e1013] p-3 font-mono text-xs text-[#e8eaec]">{challenge.solution}</pre>}
-        {verdict && <p role="status" className={`mt-3 rounded-lg p-3 text-sm font-semibold ${verdict.ok ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/10 text-red-300"}`}>{verdict.ok ? "🎉 " : "❌ "}{verdict.msg}</p>}
+        {verdict && <p role="status" className={`mt-3 rounded-lg p-3 text-sm font-semibold ${verdict.ok ? "bg-ok-bg text-ok-fg" : "bg-err-bg text-err-fg"}`}>{verdict.ok ? "🎉 " : "❌ "}{verdict.msg}</p>}
         <div className="mt-3" aria-live="polite">
-          {err && <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm"><p className="font-mono text-red-400">{err}</p>{hintTxt && <p className="mt-2 text-foreground">💡 {hintTxt}</p>}</div>}
+          {err && <div className="rounded-lg border border-err-fg/40 bg-err-bg p-3 text-sm"><p className="font-mono text-err-fg">{err}</p>{hintTxt && <p className="mt-2 text-foreground">💡 {hintTxt}</p>}</div>}
           {sets && sets.length > 0 && <SqlResults sets={sets} />}
         </div>
       </div>

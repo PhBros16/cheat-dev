@@ -171,9 +171,9 @@ function JsPlay({ initial }: { initial: string }) {
       )}
       <pre className="mt-2 min-h-16 overflow-x-auto rounded-lg border border-border bg-black p-3 font-mono text-[13px] leading-relaxed">
         {runKey === 0 ? (
-          <span className="text-zinc-500">{"// a saída do console aparece aqui"}</span>
+          <span className="text-zinc-400">{"// a saída do console aparece aqui"}</span>
         ) : lines.length === 0 ? (
-          <span className="text-zinc-500">{"// (sem saída)"}</span>
+          <span className="text-zinc-400">{"// (sem saída)"}</span>
         ) : (
           lines.map((l, i) => (
             <div key={i} className={l.t === "error" ? "text-red-400" : l.t === "warn" ? "text-yellow-300" : "text-zinc-100"}>

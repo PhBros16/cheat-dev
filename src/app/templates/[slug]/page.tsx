@@ -30,7 +30,7 @@ export default async function TemplatePage({ params }: P) {
   return (
     <div className="px-4 py-12 sm:px-8 lg:px-16">
       <div className="max-w-4xl">
-        <Link href="/templates" className="text-sm font-medium text-css hover:underline">
+        <Link href="/templates" className="text-sm font-medium text-css-fg hover:underline">
           ← Todos os templates
         </Link>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">

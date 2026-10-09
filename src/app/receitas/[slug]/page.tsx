@@ -26,7 +26,7 @@ export default async function RecipePage({ params }: P) {
   return (
     <div className="px-4 py-12 sm:px-8 lg:px-16">
       <div className="max-w-3xl">
-        <Link href="/receitas" className="text-sm font-medium text-css hover:underline">← Todas as receitas</Link>
+        <Link href="/receitas" className="text-sm font-medium text-css-fg hover:underline">← Todas as receitas</Link>
         <h1 className="mt-3 font-display text-3xl font-bold text-foreground sm:text-4xl">{r.title}</h1>
         <p className="mt-3 text-lg text-muted">{r.summary}</p>
 

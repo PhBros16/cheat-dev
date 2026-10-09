@@ -10,7 +10,8 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { javascript } from "@codemirror/lang-javascript";
 import { sql } from "@codemirror/lang-sql";
-import { oneDark } from "@codemirror/theme-one-dark";
+import { oneDarkTheme, oneDarkHighlightStyle } from "@codemirror/theme-one-dark";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { abbreviationTracker, expandAbbreviation, emmetConfig, type EmmetKnownSyntax } from "@emmetio/codemirror6-plugin";
 import { prefixes, toCm, vscodeSnippets } from "@/content/vscode";
 
@@ -55,6 +56,15 @@ function tabTrigger(lang: EditorLang) {
   };
 }
 
+// One Dark com ajustes de contraste (WCAG AA): vermelho de atributos/nomes e números de linha ficavam < 4.5:1
+const oneDarkAA = [
+  oneDarkTheme,
+  syntaxHighlighting(
+    HighlightStyle.define(oneDarkHighlightStyle.specs.map((sp) => (sp.color === "#e06c75" ? { ...sp, color: "#e8808a" } : sp.color === "#7d8799" ? { ...sp, color: "#9aa3b5" } : sp.color === "#c678dd" ? { ...sp, color: "#d48ee8" } : sp))),
+  ),
+  Prec.highest(EditorView.theme({ ".cm-gutters": { color: "#9aa3b5" }, ".cm-activeLineGutter": { color: "#d0d6e2" }, "&.cm-focused .cm-matchingBracket, .cm-matchingBracket": { backgroundColor: "#3d4759", color: "#f0f2f6", outline: "1px solid #6b778c" } }, { dark: true })),
+];
+
 export default function Editor({
   lang, value, onChange, onRun, visible,
 }: { lang: EditorLang; value: string; onChange: (v: string) => void; onRun: () => void; visible: boolean }) {
@@ -71,7 +81,7 @@ export default function Editor({
       doc: value,
       extensions: [
         basicSetup,
-        oneDark,
+        oneDarkAA,
         lang === "html" ? html() : lang === "css" ? css() : lang === "sql" ? sql({ upperCaseKeywords: true }) : javascript(),
         Prec.highest(
           keymap.of([

@@ -12,12 +12,14 @@ export default async function CodeBlock({
 }) {
   const html = await codeToHtml(code, {
     lang,
-    themes: { light: "github-light", dark: "github-dark" },
+    themes: { light: "github-light-high-contrast", dark: "github-dark" },
+    // comentários do github-dark (#6a737d) ficam abaixo de 4.5:1 sobre o fundo do bloco
+    colorReplacements: { "github-dark": { "#6a737d": "#8b949e" } },
     defaultColor: false,
   });
 
   return (
-    <figure className="group relative overflow-hidden rounded-xl border border-border bg-surface-muted">
+    <figure className="group relative overflow-hidden rounded-xl border border-border bg-code">
       <div
         className="[&>pre]:!bg-transparent"
         dangerouslySetInnerHTML={{ __html: html }}

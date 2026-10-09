@@ -78,7 +78,7 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
             {tabs.map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`border-r border-black/40 px-4 py-2 text-xs font-semibold uppercase ${tab === t ? "bg-[#282c34] text-white" : "text-zinc-400 hover:text-zinc-200"}`}>{t}</button>
             ))}
-            <span className="ml-auto px-3 text-[11px] text-zinc-500">Ctrl+Enter roda os testes</span>
+            <span className="ml-auto px-3 text-[11px] text-zinc-400">Ctrl+Enter roda os testes</span>
           </div>
           <div className="h-72 bg-[#282c34]">
             {(["html", "css", "js"] as const).map((t) => (
@@ -87,16 +87,16 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button onClick={run} disabled={running} className="rounded-lg bg-[#1f9c7a] px-4 py-2 text-sm font-bold text-white hover:brightness-110 disabled:opacity-60">{running ? "Testando…" : "▶ Rodar testes"}</button>
+          <button onClick={run} disabled={running} className="rounded-lg bg-accent px-4 py-2 text-sm font-bold text-on-accent hover:brightness-110 disabled:opacity-60">{running ? "Testando…" : "▶ Rodar testes"}</button>
           <button onClick={() => setHint((v) => !v)} className="rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-muted">💡 Dica</button>
           <button onClick={() => { if (sol || confirm("Ver a solução agora? Tente mais um pouco antes: é assim que se aprende.")) setSol((v) => !v); }} className="rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-muted">👁 Solução</button>
           <button onClick={() => { setCode(challenge.starter); setResults(null); }} className="ml-auto rounded-lg px-3 py-2 text-sm text-muted hover:text-foreground">↺ Recomeçar</button>
         </div>
-        {hint && <p className="mt-2 rounded-lg bg-amber-500/10 p-3 text-sm text-foreground">💡 {challenge.hint}</p>}
+        {hint && <p className="mt-2 rounded-lg bg-warn-bg p-3 text-sm text-foreground">💡 {challenge.hint}</p>}
         {sol && (
           <div className="mt-2 overflow-x-auto rounded-lg bg-[#0e1013] p-3 font-mono text-xs leading-relaxed text-[#e8eaec]">
             {(["html", "css", "js"] as const).filter((t) => challenge.solution[t].trim() && (t !== "html" || challenge.lang !== "js" || true)).map((t) => (
-              <div key={t} className="mb-2 last:mb-0"><p className="mb-1 text-[10px] uppercase text-zinc-500">{t}</p><pre className="whitespace-pre-wrap">{challenge.solution[t]}</pre></div>
+              <div key={t} className="mb-2 last:mb-0"><p className="mb-1 text-[10px] uppercase text-zinc-400">{t}</p><pre className="whitespace-pre-wrap">{challenge.solution[t]}</pre></div>
             ))}
           </div>
         )}
@@ -113,19 +113,19 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
         <div className="mt-3 rounded-xl border border-border bg-surface p-3" aria-live="polite">
           <p className="flex items-center justify-between text-sm font-semibold text-foreground">
             <span>Testes</span>
-            {results && <span className={allOk ? "text-emerald-400" : "text-muted"}>{passed}/{results.length}</span>}
+            {results && <span className={allOk ? "text-ok-fg" : "text-muted"}>{passed}/{results.length}</span>}
           </p>
           <ul className="mt-2 grid gap-1.5 text-sm">
             {(results ?? challenge.tests.map((t) => ({ name: t.name, ok: null as boolean | null, err: undefined }))).map((r, i) => (
               <li key={i} className="flex gap-2">
                 <span className="w-5 shrink-0 text-center">{r.ok === null ? "○" : r.ok ? "✅" : "❌"}</span>
-                <span className={r.ok === null ? "text-muted" : r.ok ? "text-foreground" : "text-red-300"}>
+                <span className={r.ok === null ? "text-muted" : r.ok ? "text-foreground" : "text-err-fg"}>
                   {r.name}{"err" in r && r.err ? <span className="block text-xs text-muted">{r.err}</span> : null}
                 </span>
               </li>
             ))}
           </ul>
-          {allOk && <p className="mt-3 rounded-lg bg-emerald-500/15 p-2.5 text-sm font-semibold text-emerald-400">🎉 Todos os testes passaram! Desafio concluído.</p>}
+          {allOk && <p className="mt-3 rounded-lg bg-ok-bg p-2.5 text-sm font-semibold text-ok-fg">🎉 Todos os testes passaram! Desafio concluído.</p>}
           {results && !allOk && <p className="mt-3 text-xs text-muted">Confira os testes com ❌, ajuste o código e rode de novo.</p>}
         </div>
       </div>

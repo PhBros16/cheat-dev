@@ -12,7 +12,7 @@ export default function NotFound() {
       <div className="mt-6 w-full max-w-lg">
         <SearchBox variant="hero" />
       </div>
-      <Link href="/" className="mt-8 text-sm font-medium text-css hover:underline">
+      <Link href="/" className="mt-8 text-sm font-medium text-css-fg hover:underline">
         Voltar para a home
       </Link>
     </div>

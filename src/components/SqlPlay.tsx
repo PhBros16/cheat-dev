@@ -71,7 +71,7 @@ export default function SqlPlay({ db, query, pg, only }: { db: string; query: st
             {ENGINES.map((e) => (
               <button key={e.id} role="tab" aria-selected={engine === e.id} disabled={!!only && e.id !== only} onClick={() => pick(e.id)}
                 title={e.id === "pg" ? "PostgreSQL de verdade (o mesmo banco do Supabase)" : "SQLite: leve, usado em apps e celulares"}
-                className={`px-2.5 py-1 text-xs font-semibold ${engine === e.id ? "bg-foreground text-background" : "bg-surface text-muted hover:text-foreground disabled:opacity-40"}`}>{e.short}</button>
+                className={`px-2.5 py-1 text-xs font-semibold ${engine === e.id ? "bg-foreground text-background" : "bg-surface text-muted hover:text-foreground disabled:cursor-not-allowed disabled:line-through"}`}>{e.short}</button>
             ))}
           </div>
           <button onClick={toggleSchema} className="rounded-md border border-border px-2 py-1 text-xs text-muted hover:text-foreground">{schema ? "Ocultar tabelas" : "Ver tabelas"}</button>
@@ -80,8 +80,8 @@ export default function SqlPlay({ db, query, pg, only }: { db: string; query: st
         </div>
       </div>
 
-      {only === "pg" && <p className="border-b border-border bg-sky-500/10 px-4 py-2 text-xs text-foreground">Este recurso é do <b>PostgreSQL</b> (e, portanto, do Supabase). Ele roda aqui num Postgres de verdade dentro do navegador; o SQLite não tem equivalente.</p>}
-      {engine === "pg" && !only && <p className="border-b border-border bg-sky-500/10 px-4 py-2 text-xs text-foreground">Rodando no <b>PostgreSQL</b> (o mesmo motor do Supabase). Na primeira vez ele baixa cerca de 4 MB.</p>}
+      {only === "pg" && <p className="border-b border-border bg-info-bg px-4 py-2 text-xs text-foreground">Este recurso é do <b>PostgreSQL</b> (e, portanto, do Supabase). Ele roda aqui num Postgres de verdade dentro do navegador; o SQLite não tem equivalente.</p>}
+      {engine === "pg" && !only && <p className="border-b border-border bg-info-bg px-4 py-2 text-xs text-foreground">Rodando no <b>PostgreSQL</b> (o mesmo motor do Supabase). Na primeira vez ele baixa cerca de 4 MB.</p>}
 
       {schema && (
         <div className="grid grid-cols-1 gap-2 border-b border-border bg-surface-muted/40 p-3 sm:grid-cols-2">
@@ -105,14 +105,14 @@ export default function SqlPlay({ db, query, pg, only }: { db: string; query: st
           aria-label="Consulta SQL"
         />
         <div className="mt-2 flex items-center gap-3">
-          <button onClick={() => void run()} disabled={busy} className="rounded-lg bg-[#1f9c7a] px-4 py-2 text-sm font-bold text-white hover:brightness-110 disabled:opacity-60">{busy ? (engine === "pg" ? "Carregando Postgres…" : "Rodando…") : "▶ Rodar (Ctrl+Enter)"}</button>
+          <button onClick={() => void run()} disabled={busy} className="rounded-lg bg-accent px-4 py-2 text-sm font-bold text-on-accent hover:brightness-110 disabled:opacity-60">{busy ? (engine === "pg" ? "Carregando Postgres…" : "Rodando…") : "▶ Rodar (Ctrl+Enter)"}</button>
           {ms !== null && !err && <span className="text-xs text-muted">{ms} ms · {ENGINES.find((e) => e.id === engine)?.short}</span>}
         </div>
 
         <div className="mt-3" aria-live="polite">
           {err && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">
-              <p className="font-mono text-red-400">{err}</p>
+            <div className="rounded-lg border border-err-fg/40 bg-err-bg p-3 text-sm">
+              <p className="font-mono text-err-fg">{err}</p>
               {hint && <p className="mt-2 text-foreground">💡 {hint}</p>}
             </div>
           )}

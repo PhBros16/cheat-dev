@@ -24,7 +24,7 @@ export default function SqlResults({ sets }: { sets: ResultSet[] }) {
                 {r.values.slice(0, MAX).map((row, i) => (
                   <tr key={i} className="hover:bg-surface-muted/60">
                     {row.map((v, j) => (
-                      <td key={j} className={`whitespace-nowrap px-3 py-1 ${typeof v === "number" ? "text-right text-sky-500" : "text-foreground"}`}>
+                      <td key={j} className={`whitespace-nowrap px-3 py-1 ${typeof v === "number" ? "text-right text-info-fg" : "text-foreground"}`}>
                         {v === null ? <i className="text-muted">NULL</i> : String(v)}
                       </td>
                     ))}

@@ -24,7 +24,7 @@ export default async function ComparisonPage({ params }: P) {
   return (
     <div className="px-4 py-12 sm:px-8 lg:px-16">
       <div className="max-w-4xl">
-        <Link href="/comparativos" className="text-sm font-medium text-css hover:underline">← Todos os comparativos</Link>
+        <Link href="/comparativos" className="text-sm font-medium text-css-fg hover:underline">← Todos os comparativos</Link>
         <h1 className="mt-3 font-display text-3xl font-bold text-foreground sm:text-4xl">{c.title}</h1>
         <p className="mt-3 text-lg text-muted">{c.summary}</p>
 
