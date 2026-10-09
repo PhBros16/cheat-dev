@@ -27,8 +27,8 @@ export default function Dialects({ onTry }: { onTry: (query: string, engine: Eng
       <select value={id} onChange={(e) => setId(e.target.value)} className="mb-3 w-full rounded-md border border-border bg-surface px-2 py-1.5 text-xs font-semibold text-foreground" aria-label="Receita">
         {DIALECTS.map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}
       </select>
-      <p className="mb-3 rounded-md bg-amber-500/10 p-2 text-foreground">{d.why}</p>
-      <div className="grid gap-2">
+      <p className="mb-3 rounded-md bg-warn-bg p-2 text-foreground">{d.why}</p>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
         {ROWS.map((r) => {
           const code = d[r.k];
           const test = r.run && d.try ? d.try[r.run === "pg" ? "pg" : "sqlite"] : null;
@@ -37,7 +37,7 @@ export default function Dialects({ onTry }: { onTry: (query: string, engine: Eng
               <div className="flex items-center justify-between border-b border-border px-2.5 py-1.5">
                 <b className="text-foreground">{r.name}</b>
                 <span className="flex items-center gap-2">
-                  {r.run ? (test ? <button onClick={() => onTry(test, r.run!)} className="font-semibold text-[#1f9c7a] hover:underline">▶ Testar aqui</button> : <span className="text-muted">sem teste</span>) : <span className="text-muted" title="Não há como rodar MySQL ou SQL Server no navegador">só referência</span>}
+                  {r.run ? (test ? <button onClick={() => onTry(test, r.run!)} className="font-semibold text-sql-fg hover:underline">▶ Testar aqui</button> : <span className="text-muted">sem teste</span>) : <span className="text-muted" title="Não há como rodar MySQL ou SQL Server no navegador">só referência</span>}
                   <button onClick={() => void copy(r.k, code)} className="text-muted hover:text-foreground">{copied === r.k ? "copiado ✓" : "copiar"}</button>
                 </span>
               </div>

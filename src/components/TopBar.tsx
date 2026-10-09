@@ -41,7 +41,7 @@ export default function TopBar() {
           </span>
         </Link>
 
-        <nav className="hidden shrink-0 items-center gap-4 md:flex" aria-label="Seções">
+        <nav className="hidden shrink-0 items-center gap-4 lg:flex" aria-label="Seções">
           {LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="text-sm font-medium text-muted hover:text-foreground">
               {l.label}

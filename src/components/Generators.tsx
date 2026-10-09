@@ -68,7 +68,7 @@ function ShadowGen() {
   const up = (p: Partial<Sh>) => setLayers((ls) => ls.map((s, k) => (k === i ? { ...s, ...p } : s)));
   const css = `.caixa {\n  width: 160px; height: 110px;\n  background: #fff; border-radius: 16px;\n  box-shadow:\n    ${shCss(layers).join(",\n    ")};\n}`;
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.1fr]">
       <div className={card}>
         <div className="mb-3 flex flex-wrap gap-1.5">{SHADOW_PRESETS.map((p) => <button key={p.name} onClick={() => { setLayers(p.l); setI(0); }} className="rounded-full border border-border px-2.5 py-1 text-xs text-muted hover:text-foreground">{p.name}</button>)}</div>
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
@@ -107,7 +107,7 @@ function GradientGen() {
   const upS = (k: number, p: Partial<Stop>) => setStops((s) => s.map((x, j) => (j === k ? { ...x, ...p } : x)));
   const css = `.caixa {\n  width: 220px; height: 150px; border-radius: 16px;\n  background: ${value};\n}`;
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.1fr]">
       <div className={card}>
         <div className="grid gap-3">
           <Select label="Tipo" v={kind} set={setKind} opts={["linear", "radial", "conic"] as const} />
@@ -140,7 +140,7 @@ function FlexGen() {
   const [n, setN] = useState(4);
   const css = `.container {\n  display: flex;\n  flex-direction: ${dir};\n  flex-wrap: ${wrap};\n  justify-content: ${jc};\n  align-items: ${ai};\n  gap: ${gap}px;\n}`;
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.3fr]">
       <div className={card}>
         <div className="grid grid-cols-2 gap-3">
           <Select label="flex-direction" v={dir} set={setDir} opts={["row", "row-reverse", "column", "column-reverse"] as const} />
@@ -172,7 +172,7 @@ function GridGen() {
   const tpl = mode === "colunas fixas" ? `repeat(${cols}, 1fr)` : `repeat(auto-fit, minmax(${min}px, 1fr))`;
   const css = `.grade {\n  display: grid;\n  grid-template-columns: ${tpl};\n  gap: ${gap}px;\n}`;
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.3fr]">
       <div className={card}>
         <div className="grid gap-3">
           <Select label="Modo" v={mode} set={setMode} opts={["colunas fixas", "auto-fit (responsivo)"] as const} />
@@ -234,7 +234,7 @@ function BezierGen() {
   const anim = useMemo(() => `@keyframes ida { from { left: 0 } to { left: calc(100% - 44px) } }`, []);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.1fr]">
       <div className={card}>
         <div className="mb-3 flex flex-wrap gap-1.5">{CURVES.map((c) => <button key={c.name} onClick={() => { setV(c.v); setRun((n) => n + 1); }} className="rounded-full border border-border px-2.5 py-1 text-xs text-muted hover:text-foreground">{c.name}</button>)}</div>
         <svg ref={svg} viewBox={`0 0 ${S + PAD * 2} ${H}`} className="w-full max-w-[300px] touch-none rounded-lg bg-surface-muted">
@@ -270,7 +270,7 @@ function RadiusGen() {
   const names = ["Topo esquerdo", "Topo direito", "Base direita", "Base esquerda"];
   const rnd = () => Array.from({ length: 4 }, () => 30 + Math.round(Math.random() * 40));
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.1fr]">
       <div className={card}>
         <div className="grid gap-3">
           {names.map((nm, k) => (
