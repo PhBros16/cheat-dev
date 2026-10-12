@@ -21,12 +21,16 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
   const pending = useRef(false);
   const guard = useRef<ReturnType<typeof setTimeout> | null>(null);
   const seq = useRef(0);
+  const runningRef = useRef(false); // valor atual de `running` (o estado fica velho dentro do setTimeout)
 
   /* resultado ao vivo (com pausa para não recarregar a cada tecla) */
   useEffect(() => {
-    const t = setTimeout(() => setDoc(buildChallengeDoc(code)), 500);
+    const t = setTimeout(() => {
+      // não recarrega o iframe no meio de uma execução: digitar e rodar em < 500 ms derrubava os testes (ficava em "Testando…")
+      if (!pending.current && !runningRef.current) setDoc(buildChallengeDoc(code));
+    }, 500);
     return () => clearTimeout(t);
-  }, [code]);
+  }, [code, running]);
 
   /* mensagens do iframe: pronto para testar / resultados */
   useEffect(() => {
@@ -42,6 +46,7 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
         if (guard.current) clearTimeout(guard.current);
         const r = d.results as Result[];
         setResults(r);
+        runningRef.current = false;
         setRunning(false);
         if (r.every((x) => x.ok)) onSolved();
       }
@@ -53,14 +58,16 @@ export default function WebRunner({ challenge, onAttempt, onSolved }: { challeng
   function run() {
     seq.current += 1;
     pending.current = true;
+    runningRef.current = true;
     setRunning(true);
     setResults(null);
     onAttempt();
     setDoc(buildChallengeDoc(code) + `\n<!-- ${seq.current} -->`); // força recarregar a página do exercício
     if (guard.current) clearTimeout(guard.current);
     guard.current = setTimeout(() => {
-      if (pending.current || running) {
+      if (pending.current || runningRef.current) {
         pending.current = false;
+        runningRef.current = false;
         setRunning(false);
         setResults([{ name: "Os testes não responderam", ok: false, err: "A página pode ter ficado presa (laço infinito?) ou tem um erro de sintaxe. Revise o código e tente de novo." }]);
       }
