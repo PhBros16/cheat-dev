@@ -21,7 +21,7 @@ npm run build && npx next start -p 3111      # só para os scripts e2e (precisa 
 | `npx tsx scripts/validate/css-demos.mts` | Acha demos de CSS sem efeito visível |
 | `node scripts/validate/e2e-hub.mjs` · `e2e-lab.mjs` | Fluxos reais (roleta, testes, Emmet, multi-tela, ZIP, compartilhar). Exigem o servidor na porta 3111 |
 | `node scripts/validate/a11y-audit.mjs <light\|dark> <largura> <rotas.txt> <saida.json> [conc]` | Contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow, por página |
-| `node scripts/validate/a11y-states.mjs <light\|dark> <largura> [pasta-de-prints]` | A mesma auditoria em ~83 estados interativos. Antes: `npx tsx scripts/validate/challenges.mts`. Leva ~4-5 min |
+| `node scripts/validate/a11y-states.mjs <light\|dark> <largura> [pasta-de-prints]` | A mesma auditoria em ~83 estados interativos. Antes: `npx tsx scripts/validate/challenges.mts`. Leva ~4-5 min. `ONLY=desafios,sql-lab` roda só essas etapas; falha com `ESTADO NÃO ALCANÇADO` se um estado esperado não aparecer |
 | `node scripts/validate/overflow-all.mjs <largura> <rotas.txt> <saida.json> [conc]` | Overflow horizontal em todas as rotas (use 320, 390, 768, 1024) |
 | `scripts/validate/serve-and-run.sh "<comando>"` | Sobe o servidor, roda o comando e derruba, tudo na mesma chamada |
 

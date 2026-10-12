@@ -1,7 +1,7 @@
 # cheat/dev — Documento Mestre (handoff completo)
 
 > **Como usar:** cole este arquivo inteiro na primeira mensagem de uma nova conversa com o Claude e diga o que quer atacar.
-> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: 09/10/2026.
+> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: 11/10/2026.
 
 ---
 
@@ -60,18 +60,17 @@ Commits **pequenos, atômicos e com mensagem clara** (um por unidade lógica), e
 - Build: `npm run build` · Lint: `npm run lint` (deve passar sem erros) · Dev: `npm run dev`
 - O ESLint ignora `public/sqljs/**` e `public/pglite/**` (código de terceiros)
 
-### Tema e cores (atualizado em 09/10/2026)
+### Tema e cores (atualizado em 11/10/2026)
 
-Claro = creme `#f5f1df` com verde-sálvia e destaque amarelo; escuro = oliva `#11130e`. Tudo vem de **tokens** em `src/app/globals.css` (`:root` e `.dark`), expostos ao Tailwind via `@theme inline`.
+Tudo vem de **tokens** em `src/app/globals.css` (`:root` e `.dark`), expostos ao Tailwind via `@theme inline`. **Escuro** = base original (`#0e1013`, `#16191d`, `#1c2024`). **Claro** = cinza-azulado em camadas (`#f3f5f9` de fundo, cards brancos). A paleta creme + sálvia + amarelo (09/10) foi descartada: parecia app de outro nicho, não "dev".
 
-- **Superfícies:** `background`, `surface`, `surface-muted`, `border`, `foreground`, `muted`; fundo de código `bg-code` (claro `#fdfbf2`, escuro `#12140f`).
-- **Ação primária:** `bg-accent text-on-accent` (sálvia; branco no claro, escuro no escuro). Foco de teclado: contorno azul-elétrico global (`--electric`).
+- **Acento da interface:** índigo (`--accent` `#4f46e5` claro / `#8b93ff` escuro; `--accent-fg` para texto; `--accent-soft` para fundos). Não conflita com nenhuma cor de linguagem. Usado em: botões primários (`bg-accent text-on-accent`), foco de teclado, seleção de texto, barra do item ativo da sidebar e um brilho sutil no topo (`body`).
 - **Linguagens:** a cor PURA (`--color-html|css|js|sql`) só em pontos, bordas e fundos suaves. **Texto pequeno usa `text-<lang>-fg`** (mesmo matiz, tom ajustado para AA). Não mude as cores puras.
-- **Status/níveis:** pares `bg-ok-bg text-ok-fg`, `warn`, `err`, `info`, `boss` (cada par ≥ 4,5:1, verificado). Níveis: iniciante=ok, intermediário=info, avançado=warn, chefe=boss.
-- **Nunca** use cores soltas do Tailwind (`emerald-400`, `red-300`, `amber-500`…) sobre fundo do tema: foram pensadas para o escuro e ficam quase invisíveis no claro. Exceção: painéis escuros fixos (editor, console), onde o `-400` é o certo.
-- **Código:** Shiki `github-light-high-contrast` (claro) e `github-dark` com `colorReplacements` para os comentários (escuro). CodeMirror: One Dark com 4 cores ajustadas em `src/components/lab/Editor.tsx`.
-- **Meta de acessibilidade:** contraste WCAG AA (4,5:1; 3:1 para texto grande), medido por `a11y-audit.mjs`. Isentos: o logotipo "/" (identidade da linguagem) e controles desabilitados (ex.: "⬇ CSV" sem resultado).
-- **Definidos e ainda sem uso:** `--sky-soft`, `--blush-soft`, `--peach-soft` (reservados para tags/chips) e `--electric` fora do foco.
+- **Status/níveis:** pares `bg-ok-bg text-ok-fg`, `warn`, `err`, `info`, `boss` (cada par >= 4,5:1, verificado em fundos lisos e tingidos). Níveis: iniciante=ok, intermediário=info, avançado=warn, chefe=boss.
+- **Nunca** use cores soltas do Tailwind (`emerald-400`, `red-300`, `amber-500`...) sobre fundo do tema: foram pensadas para o escuro e ficam quase invisíveis no claro. Exceção: painéis escuros fixos (editor, console), onde o `-400` é o certo.
+- **Código:** `bg-code` (claro `#f8fafd`, escuro `#0a0c0f`); Shiki `github-light-high-contrast` (claro) e `github-dark` com `colorReplacements` nos comentários (escuro). CodeMirror: One Dark com 4 cores ajustadas em `src/components/lab/Editor.tsx`.
+- **Meta de acessibilidade:** contraste WCAG AA (4,5:1; 3:1 para texto grande), medido por `a11y-audit.mjs` e `a11y-states.mjs`. Isentos: o logotipo "/" (identidade da linguagem) e controles desabilitados.
+- **Ao trocar a paleta:** recalcule os pares de status e os tons `-fg` das linguagens contra os novos fundos (inclusive o fundo do item ativo da sidebar) e rode as duas auditorias nos 2 temas.
 
 ## 5. Mapa de pastas
 
@@ -236,6 +235,9 @@ Notas de execução (aprendidas em 09/10): ambientes com limite de ~300 s por co
 19. **Cores de status só aparecem após interagir** (acertar desafio, rodar SQL com erro). A varredura estática não as vê: use `a11y-states.mjs`.
 20. **Falsos positivos da auditoria**: texto `text-transparent` (o ✓ do checkbox não marcado) e captura no meio de `transition` de cor (espera de 700 ms resolve).
 21. **Ambiente de desenvolvimento**: processos em background (`next start`/`next build`) não sobrevivem entre comandos e builds interrompidos deixam órfãos (`Another next build process`, `ENOTEMPTY`). Mate por PID; `pkill -f "next build"` casa com a própria linha de comando e se mata. `cut -c` quebra caracteres acentuados (UTF-8): use Python.
+22. **`WebRunner` (Desafios)**: digitar e rodar em < 500 ms deixava o botão preso em "Testando…" (o `setTimeout` lia `running` velho e a pré-visualização recarregava o iframe no meio do teste). Corrigido com `runningRef` e sem recarregar durante a execução. Padrão a evitar: ler estado React dentro de `setTimeout`.
+23. **Roteiro de estados precisa de asserções**: um estado não alcançado é auditado como se fosse o certo (tela errada, "0 problemas"). `a11y-states.mjs` falha com `ESTADO NÃO ALCANÇADO` e mostra a tela. Nunca use `.catch(() => {})` em clique de roteiro.
+24. O botão "Solução" dos Desafios usa `confirm()`: em teste automatizado trate o diálogo (`page.on('dialog', d => d.accept())`) ou a página parece travada.
 
 ## 12. Chaves do `localStorage`
 
@@ -295,7 +297,7 @@ Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQ
 7. Mais comandos: CSS ainda está longe das 500+ propriedades; JS pode ganhar Web Workers, IndexedDB, Canvas, Web Components avançados.
 8. Seção de Git/terminal; OG image dinâmica por comando; versão em inglês; testes automatizados; GitHub Actions (lint + build).
 9. Sincronizar progresso (favoritos, Hub, Essencial) entre dispositivos com login (Supabase).
-10. **Terminar a aplicação da paleta** (09/10): usar azul-elétrico, céu, rosa e pêssego em chips/tags/botões secundários; trocar os emojis das abas do Essencial e dos títulos de página por ícones SVG (a sidebar já usa); incluir SQL Lab e Geradores na barra do topo; testar em Safari/iOS reais.
+10. Trocar os emojis das abas do Essencial e dos títulos de página por ícones SVG (a sidebar já usa); incluir SQL Lab e Geradores na barra do topo; testar em Safari/iOS reais; checar se o padrão de debounce + estado velho corrigido no `WebRunner` existe em `SqlRunner` e `Playground`.
 
 ## 13a. Histórico de atualizações (changelog)
 
@@ -310,9 +312,9 @@ Resumo por fase (os commits têm o detalhe; `git log --oneline`):
 | 04/10 | **PostgreSQL (PGlite)** no SQL Lab e nos comandos; categoria **PostgreSQL & Supabase** (RLS, JSONB, triggers...); aba **Dialetos** (17 receitas); trilha **Essencial** (53 passos) com etiqueta ★; banco de **58 desafios** com testes validados |
 | 05/10 | **Hub de desafios** (roleta, XP, patentes, sequência, desafio do dia); verificador de SQL compartilhado; **JavaScript** +25 comandos (datas, Map/Set, regex, event loop...) |
 | 06 a 07/10 | Doc mestre, plano de LinkedIn (14 posts) e README; scripts de validação versionados; correção de 3 links quebrados e do lint |
-| 09/10 | **Navegação e tema**: sidebar com ícones SVG uniformes e "Todos os comandos" no fim; paleta creme + verde-sálvia (claro) e oliva (escuro) com tokens; contraste AA em todas as telas e estados; 4 defeitos de layout corrigidos (barra do topo em 768–1023 px, painel Dialetos, Geradores no celular, títulos longos); auditoria de acessibilidade versionada |
+| 09 a 11/10 | **Navegação e tema**: sidebar com ícones SVG uniformes e "Todos os comandos" no fim; paleta creme+sálvia (09/10) substituída por escuro original + claro cinza-azulado com acento índigo (11/10); contraste AA em todas as telas e estados; 5 defeitos corrigidos (barra do topo em 768–1023 px, painel Dialetos, Geradores no celular, títulos longos, testes do Hub presos em "Testando…"); auditoria de acessibilidade versionada |
 
-Totais: 43 commits · 503 comandos · 58 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+Totais: 46 commits · 503 comandos · 58 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
 
 ## 13b. Backlog de ideias e aprofundamentos (por área)
 

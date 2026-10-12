@@ -33,14 +33,31 @@ const snap = async (label, shot = false) => {
     if (shot && shotsDir) await page.screenshot({ path: `${shotsDir}/${label.replace(/[^\w-]+/g, '_')}-${theme}-${width}.png` });
   } catch (e) { report.stepFails.push(`${label}: snap ${e.message.slice(0, 80)}`); }
 };
-const step = async (name, fn) => { cur = name; try { await fn(); } catch (e) { report.stepFails.push(`${name}: ${String(e.message).slice(0, 110)}`); } };
+const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null; // ex.: ONLY=desafios,lab
+const step = async (name, fn) => { if (ONLY && !ONLY.includes(name)) return; cur = name; try { await fn(); } catch (e) { report.stepFails.push(`${name}: ${String(e.message).slice(0, 110)}`); } };
 const go = async (path) => { await page.goto(BASE + path, { waitUntil: 'networkidle0', timeout: 30000 }); await sleep(500); };
+// Garante que o estado esperado apareceu de verdade (senão a auditoria estaria olhando a tela errada)
+const must = async (label, fn, arg = '') => {
+  const ok = await page.waitForFunction(fn, { timeout: 12000, polling: 250 }, arg).then(() => true).catch(() => false);
+  if (!ok) {
+    const t = await page.evaluate(() => {
+      const body = document.body.innerText.replace(/\s+/g, ' ');
+      const i = body.indexOf('Testes');
+      const ed = [...document.querySelectorAll('.cm-content')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => e.textContent.slice(0, 40));
+      const f = document.querySelector('iframe[title=Resultado]');
+      const btn = [...document.querySelectorAll('button')].filter((b) => /Testando|Rodar testes/.test(b.textContent)).map((b) => b.textContent.trim() + (b.disabled ? '(desabilitado)' : '')).join('|');
+      return `testes="${i >= 0 ? body.slice(i, i + 140) : '(sem painel)'}" botao=${btn || '(nenhum)'} editores=${JSON.stringify(ed)} iframeTemCodigo=${(f?.srcdoc || '').includes('return a + b')}`;
+    }).catch(() => '');
+    report.stepFails.push('ESTADO NÃO ALCANÇADO: ' + label + ' | ' + t);
+  }
+};
 const clickText = (text, sel = 'button') => page.evaluate((t, s) => { const el = [...document.querySelectorAll(s)].find((b) => b.textContent.trim().includes(t)); if (!el) throw new Error('sem botão: ' + t); el.click(); return true; }, text, sel);
 const setCm = async (txt) => {
   for (const h of await page.$$('.cm-content')) { if (await h.isIntersectingViewport()) { await h.click(); break; } }
   await page.keyboard.down('Control'); await page.keyboard.press('a'); await page.keyboard.up('Control');
   await page.keyboard.press('Backspace');
   await page.evaluate((t) => document.execCommand('insertText', false, t), txt);
+  await sleep(500);
 };
 
 // ---------- Essencial ----------
@@ -48,6 +65,7 @@ await step('essencial', async () => {
   await go('/essencial'); await snap('essencial:inicial', true);
   await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
   await page.evaluate(() => { const bs = [...document.querySelectorAll('[role=checkbox]')]; bs.slice(0, 3).forEach((b) => b.click()); });
+  await must('essencial marcado 3/53', () => document.body.innerText.includes('3/53'));
   await snap('essencial:aberto+marcado', true);
   const n = await page.evaluate(() => document.querySelectorAll('[role=tab]').length);
   for (let i = 1; i < n; i++) { await page.evaluate((k) => document.querySelectorAll('[role=tab]')[k].click(), i); await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true))); await snap(`essencial:trilha${i}`, i === 3); }
@@ -57,32 +75,43 @@ await step('essencial', async () => {
 await step('desafios', async () => {
   await go('/desafios'); await snap('desafios:inicial', true);
   await clickText('Girar a roleta'); for (let i = 0; i < 24; i++) { await sleep(500); if (await page.evaluate(() => document.body.innerText.includes('Sorteado:'))) break; }
+  await must('roleta sorteou', () => document.body.innerText.includes('Sorteado:'));
   await snap('desafios:roleta', true);
   const open = async (t) => { await page.evaluate((x) => [...document.querySelectorAll('section button')].find((b) => b.textContent.includes(x))?.click(), t); await sleep(1500); };
   await open('Função soma'); await snap('desafios:js', true);
-  await clickText('Rodar testes'); await sleep(2500); await snap('desafios:js-falha', true);
+  await clickText('Rodar testes'); await sleep(2500); await must('js falha (❌)', () => document.body.innerText.includes('❌'));
+  await snap('desafios:js-falha', true);
   await clickText('Dica'); await snap('desafios:js-dica');
   await clickText('Solução'); await snap('desafios:js-solucao');
-  await setCm(sol['js-soma'].js); await clickText('Rodar testes'); await sleep(2500); await snap('desafios:js-sucesso', true);
+  await setCm(sol['js-soma'].js); await clickText('Rodar testes'); await sleep(2500); await must('js sucesso (3/3)', () => document.body.innerText.includes('Todos os testes passaram'));
+  await snap('desafios:js-sucesso', true);
   const css = web.find((c) => c.lang === 'css'); 
   if (css) { await open(css.title); await clickText('Rodar testes'); await sleep(2500); await snap('desafios:css-falha'); }
   await open('Clientes de Natal'); await sleep(1500); await snap('desafios:sql', true);
-  await setCm("SELECT nome FROM clientes;"); await clickText('Verificar resposta'); await sleep(1500); await snap('desafios:sql-errado', true);
-  await setCm("SELEC nome FROM;"); await clickText('Verificar resposta'); await sleep(1500); await snap('desafios:sql-erro-sintaxe', true);
-  await setCm("SELECT nome, cidade FROM clientes WHERE cidade = 'Natal';"); await clickText('Verificar resposta'); await sleep(1500); await snap('desafios:sql-ok', true);
+  await setCm("SELECT nome FROM clientes;"); await clickText('Verificar resposta'); await sleep(1500); await must('sql errado (❌)', () => (document.querySelector('[role=status]')?.textContent || '').includes('❌'));
+  await snap('desafios:sql-errado', true);
+  await setCm("SELEC nome FROM;"); await clickText('Verificar resposta'); await sleep(1500); await must('sql erro de sintaxe', () => !!document.querySelector('.text-err-fg'));
+  await snap('desafios:sql-erro-sintaxe', true);
+  await setCm("SELECT nome, cidade FROM clientes WHERE cidade = 'Natal';"); await clickText('Verificar resposta'); await sleep(1500); await must('sql correto (🎉)', () => (document.querySelector('[role=status]')?.textContent || '').includes('🎉'));
+  await snap('desafios:sql-ok', true);
 });
 
 // ---------- SQL Lab ----------
 await step('sql-lab', async () => {
   await go('/sql-lab'); await sleep(1500); await snap('sqllab:inicial', true);
-  await clickText('▶ Rodar'); await sleep(2000); await snap('sqllab:resultado', true);
-  await setCm('SELEC x FROM;'); await clickText('▶ Rodar'); await sleep(1500); await snap('sqllab:erro', true);
+  await clickText('▶ Rodar'); await sleep(2000); await must('sqllab resultado', () => /linhas?/.test(document.body.innerText));
+  await snap('sqllab:resultado', true);
+  await setCm('SELEC x FROM;'); await clickText('▶ Rodar'); await sleep(1500); await must('sqllab erro', () => !!document.querySelector('.text-err-fg'));
+  await snap('sqllab:erro', true);
   for (const t of ['Aulas', 'Exerc.', 'Histórico', 'Dialetos']) { await clickText(t); await sleep(700); await snap('sqllab:aba-' + t.replace(/\W/g, ''), t === 'Exerc.' || t === 'Dialetos'); }
   await clickText('Exerc.'); await sleep(500);
-  await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.className.includes('w-full') && x.textContent.length > 3 && x.closest('aside, div')); });
-  await clickText('Verificar resposta').catch(() => {}); await sleep(1000); await snap('sqllab:exerc-veredito', true);
-  await clickText('Dica').catch(() => {}); await snap('sqllab:exerc-dica');
-  await clickText('Solução').catch(() => {}); await snap('sqllab:exerc-solucao');
+  // escolhe o primeiro exercício pendente (○) e roda uma consulta válida porém errada -> veredito ❌
+  await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim().startsWith('○')); if (!b) throw new Error('sem exercício pendente'); b.click(); });
+  await sleep(500); await setCm('SELECT 1;');
+  await clickText('Verificar resposta'); await sleep(1000); await must('sqllab veredito', () => !!document.querySelector('[role=status]'));
+  await snap('sqllab:exerc-veredito', true);
+  await clickText('Dica'); await snap('sqllab:exerc-dica');
+  await clickText('Solução'); await snap('sqllab:exerc-solucao');
   await clickText('Dialetos'); await sleep(500); await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.includes('Testar aqui')); b?.click(); }); await sleep(1500); await snap('sqllab:dialetos-testar', true);
   // motor PostgreSQL
   const pg = await page.evaluate(() => { const o = [...document.querySelectorAll('button, option')].find((x) => /PostgreSQL/.test(x.textContent)); if (!o) return false; if (o.tagName === 'OPTION') { const s = o.closest('select'); s.value = o.value; s.dispatchEvent(new Event('change', { bubbles: true })); } else o.click(); return true; });
@@ -94,7 +123,8 @@ await step('lab', async () => {
   await go('/lab'); await sleep(1200); await snap('lab:inicial', true);
   await clickText('JS'); await sleep(300);
   await setCm("console.log('ok', 1); console.warn('aviso'); console.error('erro'); 42");
-  await page.keyboard.down('Control'); await page.keyboard.press('Enter'); await page.keyboard.up('Control'); await sleep(1500); await snap('lab:console', true);
+  await page.keyboard.down('Control'); await page.keyboard.press('Enter'); await page.keyboard.up('Control'); await sleep(1500); await must('lab console (erro e aviso)', () => document.body.innerText.includes('aviso') && document.body.innerText.includes('erro'));
+  await snap('lab:console', true);
   await page.evaluate(() => { const s = [...document.querySelectorAll('select')].find((x) => [...x.options].some((o) => o.value === 'multi')); if (s) { s.value = 'multi'; s.dispatchEvent(new Event('change', { bubbles: true })); } }); await sleep(1200); await snap('lab:multitela', true);
   await clickText('Contornos').catch(() => {}); await sleep(400); await snap('lab:contornos');
 });
