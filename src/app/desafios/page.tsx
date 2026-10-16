@@ -3,9 +3,9 @@ import Hub from "@/components/hub/Hub";
 import { CHALLENGES } from "@/content/challenges";
 
 export const metadata: Metadata = {
-  title: "Desafios — roleta de treino de HTML, CSS, JavaScript e SQL",
+  title: "Desafios — trilhas e roleta de treino de HTML, CSS, JavaScript e SQL",
   description:
-    "Treine de verdade: gire a roleta e resolva desafios práticos de HTML, CSS, JavaScript e SQL do básico ao chefe, com testes automáticos, XP, patentes e sequência diária.",
+    "Aprenda praticando, do zero ao avançado: trilhas guiadas com mini-aulas e desafios de HTML, CSS, JavaScript e SQL, roleta personalizável, testes automáticos, XP, patentes e sequência diária.",
 };
 
 export default function DesafiosPage() {
@@ -14,7 +14,7 @@ export default function DesafiosPage() {
       <div className="max-w-3xl">
         <h1 className="font-display text-3xl font-bold text-foreground sm:text-4xl">🎲 Desafios</h1>
         <p className="mt-3 text-lg text-muted">
-          {CHALLENGES.length} desafios práticos para treinar HTML, CSS, JavaScript e SQL. Escreva o código, rode os testes automáticos e suba de patente, do básico até os desafios chefe.
+          {CHALLENGES.length} desafios práticos de HTML, CSS, JavaScript e SQL, organizados em trilhas do zero ao avançado. Cada passo tem uma mini-aula, testes automáticos e dica. Siga a trilha na ordem ou monte a sua roleta.
         </p>
       </div>
       <div className="mt-8 max-w-7xl"><Hub /></div>

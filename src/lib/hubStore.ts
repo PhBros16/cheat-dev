@@ -1,4 +1,5 @@
 import { CHALLENGES, CHALLENGE_BY_ID, LEVEL_XP, LEVELS, type Lang, type Level } from "@/content/challenges";
+import { TRACKS } from "@/content/tracks";
 
 export type Prog = { solved: Record<string, string>; tries: Record<string, number>; days: string[] };
 
@@ -30,11 +31,11 @@ export const xpOf = (p: Prog) => Object.keys(p.solved).reduce((n, id) => n + (CH
 
 export const RANKS = [
   { min: 0, name: "Aprendiz", emoji: "🌱" },
-  { min: 100, name: "Construtor", emoji: "🔨" },
-  { min: 300, name: "Desenvolvedor", emoji: "⚙️" },
-  { min: 700, name: "Pleno", emoji: "🚀" },
-  { min: 1400, name: "Sênior", emoji: "👑" },
-  { min: 2400, name: "Mestre", emoji: "🏆" },
+  { min: 150, name: "Construtor", emoji: "🔨" },
+  { min: 500, name: "Desenvolvedor", emoji: "⚙️" },
+  { min: 1200, name: "Pleno", emoji: "🚀" },
+  { min: 2400, name: "Sênior", emoji: "👑" },
+  { min: 3600, name: "Mestre", emoji: "🏆" }, // o total de XP dos desafios é 3905: dá para chegar lá resolvendo quase tudo
 ];
 
 export function rankOf(xp: number) {
@@ -60,6 +61,9 @@ export const BADGES: { id: string; emoji: string; name: string; desc: string; te
   { id: "five", emoji: "🔥", name: "Aquecendo", desc: "Resolva 5 desafios", test: (p) => Object.keys(p.solved).length >= 5 },
   { id: "twenty", emoji: "🏃", name: "Maratonista", desc: "Resolva 20 desafios", test: (p) => Object.keys(p.solved).length >= 20 },
   { id: "poly", emoji: "🌐", name: "Poliglota", desc: "Resolva ao menos 1 de cada linguagem", test: (p) => (["html", "css", "js", "sql"] as Lang[]).every((l) => CHALLENGES.some((c) => c.lang === l && p.solved[c.id])) },
+  { id: "track", emoji: "🛤️", name: "Trilheiro", desc: "Conclua uma trilha inteira", test: (p) => TRACKS.some((t) => t.ids.every((id) => p.solved[id])) },
+  { id: "tracks4", emoji: "🗺️", name: "Explorador", desc: "Conclua pelo menos uma trilha de cada linguagem", test: (p) => (["html", "css", "js", "sql"] as Lang[]).every((l) => TRACKS.some((t) => t.lang === l && t.ids.every((id) => p.solved[id]))) },
+  { id: "fifty", emoji: "⛰️", name: "Meio caminho", desc: "Resolva 50 desafios", test: (p) => Object.keys(p.solved).length >= 50 },
   { id: "base", emoji: "🧱", name: "Base sólida", desc: "Conclua todos os iniciantes", test: (p) => CHALLENGES.filter((c) => c.level === "iniciante").every((c) => p.solved[c.id]) },
   { id: "boss", emoji: "🐉", name: "Matador de chefes", desc: "Derrote 1 desafio chefe", test: (p) => CHALLENGES.some((c) => c.level === "chefe" && p.solved[c.id]) },
   { id: "s3", emoji: "📅", name: "Em chamas", desc: "3 dias seguidos", test: (_p, s) => s >= 3 },
