@@ -74,6 +74,22 @@ await step('essencial', async () => {
 // ---------- Desafios ----------
 await step('desafios', async () => {
   await go('/desafios'); await snap('desafios:inicial', true);
+  // --- estados novos: seleção individual, roleta manual, visão por nível e mini-aula ---
+  await clickText('Escolher um a um'); await sleep(300);
+  await must('modo seleção (caixas de seleção)', () => document.querySelectorAll('input[type=checkbox][aria-label^="Incluir"]').length > 100);
+  await snap('desafios:selecao', true);
+  for (const t of ['Olá, nome!', 'Faixa etária', 'Escolher colunas']) await page.evaluate((x) => [...document.querySelectorAll('input[type=checkbox]')].find((c) => c.getAttribute('aria-label') === 'Incluir "' + x + '" na roleta')?.click(), t);
+  await must('roleta manual de 3', () => /3 desafios na roleta \(sua seleção\)/.test(document.body.innerText));
+  await snap('desafios:roleta-manual', true);
+  await clickText('Limpar seleção'); await clickText('Pronto'); await sleep(300);
+  await clickText('Por nível'); await sleep(300);
+  await must('visão por nível', () => /XP cada/i.test(document.body.innerText));
+  await snap('desafios:por-nivel');
+  await clickText('Trilhas'); await sleep(300);
+  await page.evaluate(() => [...document.querySelectorAll('section button')].find((b) => b.textContent.includes('Olá, nome!'))?.click()); await sleep(1200);
+  await must('mini-aula visível', () => !!document.querySelector('#area-do-desafio details summary'));
+  await snap('desafios:mini-aula', true);
+  await go('/desafios');
   await clickText('Girar a roleta'); for (let i = 0; i < 24; i++) { await sleep(500); if (await page.evaluate(() => document.body.innerText.includes('Sorteado:'))) break; }
   await must('roleta sorteou', () => document.body.innerText.includes('Sorteado:'));
   await snap('desafios:roleta', true);
@@ -88,11 +104,11 @@ await step('desafios', async () => {
   const css = web.find((c) => c.lang === 'css'); 
   if (css) { await open(css.title); await clickText('Rodar testes'); await sleep(2500); await snap('desafios:css-falha'); }
   await open('Clientes de Natal'); await sleep(1500); await snap('desafios:sql', true);
-  await setCm("SELECT nome FROM clientes;"); await clickText('Verificar resposta'); await sleep(1500); await must('sql errado (❌)', () => (document.querySelector('[role=status]')?.textContent || '').includes('❌'));
+  await setCm("SELECT nome FROM clientes;"); await clickText('Verificar resposta'); await sleep(1500); await must('sql errado (❌)', () => (document.querySelector('#area-do-desafio [role=status]')?.textContent || '').includes('❌'));
   await snap('desafios:sql-errado', true);
   await setCm("SELEC nome FROM;"); await clickText('Verificar resposta'); await sleep(1500); await must('sql erro de sintaxe', () => !!document.querySelector('.text-err-fg'));
   await snap('desafios:sql-erro-sintaxe', true);
-  await setCm("SELECT nome, cidade FROM clientes WHERE cidade = 'Natal';"); await clickText('Verificar resposta'); await sleep(1500); await must('sql correto (🎉)', () => (document.querySelector('[role=status]')?.textContent || '').includes('🎉'));
+  await setCm("SELECT nome, cidade FROM clientes WHERE cidade = 'Natal';"); await clickText('Verificar resposta'); await sleep(1500); await must('sql correto (🎉)', () => (document.querySelector('#area-do-desafio [role=status]')?.textContent || '').includes('🎉'));
   await snap('desafios:sql-ok', true);
 });
 

@@ -3,7 +3,8 @@ import fs from "fs";
 const req = createRequire("/tmp/val/package.json");
 const puppeteer = req("puppeteer-core");
 const chromium = req("@sparticuz/chromium").default ?? req("@sparticuz/chromium");
-const list = JSON.parse(fs.readFileSync("/tmp/val/web-challenges.json", "utf8"));
+const only = process.env.ONLY ? new RegExp(process.env.ONLY) : null; // ex.: ONLY="^js-" roda só os desafios cujo id casa
+const list = JSON.parse(fs.readFileSync("/tmp/val/web-challenges.json", "utf8")).filter((c) => !only || only.test(c.id));
 const browser = await puppeteer.launch({ args: chromium.args, executablePath: await chromium.executablePath(), headless: true });
 const page = await browser.newPage();
 await page.setViewport({ width: 560, height: 420 });

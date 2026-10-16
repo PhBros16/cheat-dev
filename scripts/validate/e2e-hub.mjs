@@ -15,7 +15,7 @@ const setCm = async (txt) => { for (const h of await page.$$(".cm-content")) { i
 
 await page.goto("http://localhost:3111/desafios", { waitUntil: "networkidle0" });
 await sleep(800);
-out.inicial = await page.evaluate(() => ({ patente: document.body.innerText.match(/Aprendiz/)?.[0], total: document.body.innerText.match(/0\/58/)?.[0], desafioDoDia: document.body.innerText.includes("Desafio do dia") }));
+out.inicial = await page.evaluate(() => ({ patente: document.body.innerText.match(/Aprendiz/)?.[0], total: document.body.innerText.match(/0\/\d+/)?.[0], desafioDoDia: document.body.textContent.includes("Desafio do dia") }));
 
 // 1) roleta
 const t0 = Date.now();
@@ -48,7 +48,7 @@ out.sql = await page.evaluate(() => ({ correto: document.body.innerText.includes
 await sleep(600);
 out.progresso = await page.evaluate(() => ({ ls: JSON.parse(localStorage.getItem("cheatdev:hub:v1")), texto: document.body.innerText.match(/(\d+)\s*\nXP/)?.[1] }));
 await page.reload({ waitUntil: "networkidle0" }); await sleep(800);
-out.aposRecarregar = await page.evaluate(() => ({ resolvidos: document.body.innerText.match(/(\d+)\/58\s*\n?\s*resolvidos/)?.[0]?.replace(/\s+/g, " "), checks: (document.body.innerText.match(/✅/g) || []).length }));
+out.aposRecarregar = await page.evaluate(() => ({ resolvidos: document.body.innerText.match(/(\d+)\/\d+\s*\n?\s*resolvidos/)?.[0]?.replace(/\s+/g, " "), checks: (document.body.innerText.match(/✅/g) || []).length }));
 await page.screenshot({ path: "/tmp/val/hub.png" });
 console.log(JSON.stringify(out, null, 1)); console.log("ERROS:", JSON.stringify(errs.slice(0, 5)));
 await browser.close();
