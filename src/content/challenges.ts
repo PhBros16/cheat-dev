@@ -1,4 +1,10 @@
 import { SQL_EXERCISES } from "@/content/sql-exercises";
+import { E, page, q, cs, rect } from "@/content/challenge-kit";
+import { TRACKS } from "@/content/tracks";
+import { HTML_NEW } from "@/content/ch-html";
+import { CSS_NEW } from "@/content/ch-css";
+import { JS_NEW } from "@/content/ch-js";
+import { SQL_NEW } from "@/content/ch-sql";
 import type { DbId } from "@/lib/sqlDbs";
 
 export type Level = "iniciante" | "intermediário" | "avançado" | "chefe";
@@ -6,18 +12,12 @@ export type Lang = "html" | "css" | "js" | "sql";
 export type Code = { html: string; css: string; js: string };
 export type Test = { name: string; /** expressão JavaScript avaliada dentro da página do desafio; verdadeiro = passou (pode ser uma Promise) */ check: string };
 
-export type WebChallenge = { kind: "web"; id: string; lang: "html" | "css" | "js"; level: Level; title: string; brief: string; hint: string; starter: Code; solution: Code; tests: Test[] };
-export type SqlChallenge = { kind: "sql"; id: string; lang: "sql"; level: Level; title: string; brief: string; hint: string; db: DbId; solution: string };
+export type WebChallenge = { kind: "web"; id: string; lang: "html" | "css" | "js"; level: Level; title: string; brief: string; hint: string; /** mini-aula exibida antes do exercício (parágrafos separados por linha em branco; `código` e blocos ```) */ learn?: string; starter: Code; solution: Code; tests: Test[] };
+export type SqlChallenge = { kind: "sql"; id: string; lang: "sql"; level: Level; title: string; brief: string; hint: string; learn?: string; db: DbId; solution: string };
 export type Challenge = WebChallenge | SqlChallenge;
 
 export const LEVEL_XP: Record<Level, number> = { "iniciante": 10, "intermediário": 25, "avançado": 50, "chefe": 100 };
 export const LEVELS: Level[] = ["iniciante", "intermediário", "avançado", "chefe"];
-
-const E: Code = { html: "", css: "", js: "" };
-const page = (body: string, head = "") => `<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Minha página</title>${head}\n</head>\n<body>\n${body}\n</body>\n</html>`;
-const q = (sel: string) => `document.querySelector('${sel}')`;
-const cs = (sel: string, prop: string) => `getComputedStyle(${q(sel)}).${prop}`;
-const rect = (sel: string) => `${q(sel)}.getBoundingClientRect()`;
 
 /* ============================== JAVASCRIPT ============================== */
 const js = (id: string, level: Level, title: string, brief: string, hint: string, starter: string, solution: string, tests: Test[]): WebChallenge => ({
@@ -160,7 +160,11 @@ const SQL_EXTRA: SqlChallenge[] = [
   sqlNew("rh-6", "rh", "chefe", "Maior salário de cada departamento (e quem é)", "Para cada departamento (inclusive os vazios), mostre o nome do departamento, o funcionário de maior salário e o salário. Departamentos sem funcionários aparecem com valores vazios. Ordene pelo nome do departamento.", "Subconsulta com ROW_NUMBER por depto ordenada por salário DESC; depois LEFT JOIN de departamentos com essa subconsulta filtrando pos = 1 no ON.", "SELECT d.nome AS departamento, t.nome AS funcionario, t.salario FROM departamentos d LEFT JOIN (SELECT depto_id, nome, salario, ROW_NUMBER() OVER (PARTITION BY depto_id ORDER BY salario DESC) AS pos FROM funcionarios) t ON t.depto_id = d.id AND t.pos = 1 ORDER BY d.nome;"),
 ];
 
-export const CHALLENGES: Challenge[] = [...HTML, ...CSS, ...JS, ...sqlFromExercises, ...SQL_EXTRA];
+const ALL: Challenge[] = [...HTML, ...HTML_NEW, ...CSS, ...CSS_NEW, ...JS, ...JS_NEW, ...sqlFromExercises, ...SQL_EXTRA, ...SQL_NEW];
+
+/** Ordem de aprendizado: segue as trilhas (tracks.ts); o que não estiver em nenhuma trilha vai para o fim (o validador de integridade acusa). */
+const ORDER = new Map(TRACKS.flatMap((t) => t.ids).map((id, i) => [id, i]));
+export const CHALLENGES: Challenge[] = ALL.map((c, i) => ({ c, i })).sort((a, b) => (ORDER.get(a.c.id) ?? 1e9) - (ORDER.get(b.c.id) ?? 1e9) || a.i - b.i).map((x) => x.c);
 
 export const CHALLENGE_BY_ID = new Map(CHALLENGES.map((c) => [c.id, c]));
 export const LANG_META: Record<Lang, { label: string; color: string; emoji: string }> = {
