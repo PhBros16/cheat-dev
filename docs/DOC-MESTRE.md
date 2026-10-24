@@ -1,7 +1,7 @@
 # cheat/dev — Documento Mestre (handoff completo)
 
 > **Como usar:** cole este arquivo inteiro na primeira mensagem de uma nova conversa com o Claude e diga o que quer atacar.
-> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: 15/10/2026.
+> Ele contém tudo que é preciso para continuar sem reexplicar nada. Última atualização: 16/10/2026.
 
 ---
 
@@ -158,12 +158,12 @@ SQL de verdade no navegador, com **dois motores selecionáveis**:
 
 ### 7.4 Desafios (`/desafios`) — trilhas, mini-aulas e roleta
 - **Trilhas** (`src/content/tracks.ts`): 27 sequências do básico ao avançado (HTML 7, CSS 6, JS 8, SQL 6). A lista mostra o progresso de cada trilha, o "próximo passo" e um botão **▶ Continuar**; há também a visão **Por nível**. Dentro do desafio: "Trilha X · passo 3 de 6" e **Próximo passo →**.
-- **Mini-aula** (`learn`, componente `Learn.tsx`): "📘 Aprenda antes de praticar", com parágrafos, `código` em linha, **negrito** e blocos ```cercados```. Obrigatória nos 75 desafios novos (o validador de integridade exige >= 60 caracteres); os 58 originais ainda não têm.
+- **Mini-aula** (`learn`, componente `Learn.tsx`): "📘 Aprenda antes de praticar", com parágrafos, `código` em linha, **negrito** e blocos ```cercados```. Os **133 desafios têm mini-aula**: as dos 75 novos ficam no próprio desafio (`ch-*.ts`) e as dos 58 originais em `src/content/learn-extra.ts` (ligadas por id). O validador de integridade exige >= 60 caracteres em todos e `learn-render.mts` varre as 133 aulas procurando marcação sobrando. O interpretador do texto é `src/lib/learnParse.ts` (negrito pode conter código).
 - **Roleta configurável** (`wheelPool.ts`, persistida em `cheatdev:hub:wheel:v1`): escolha **linguagens** e **níveis**, "só os que ainda não resolvi" e/ou **marque desafios um a um** (modo "Escolher um a um": a seleção manual manda no filtro). Com até 12 desafios cada fatia é **um desafio**; acima disso as fatias são linguagens, depois trilhas, depois níveis. Com 1 desafio vira um botão "Abrir". Dentro do grupo sorteado o comportamento é **adaptativo** (nível mais baixo ainda pendente). Se tudo da seleção já foi resolvido, os resolvidos voltam à roleta (aviso na tela).
 - **Desafio do dia** continua. 4 níveis: iniciante (10 XP), intermediário (25), avançado (50), **chefe** (100).
 - Testes automáticos: HTML/CSS/JS rodam **dentro do iframe** do aluno (`challengeDoc.ts` injeta o executor; os `check` são expressões JS avaliadas por `eval` indireto; aceitam Promises, timeout de 3 s; a página de teste tem 560 px de largura). SQL compara o resultado com o da solução (`sqlCheck.ts`: ignora nomes de coluna; só considera a ordem se a solução tiver `ORDER BY`).
 - Gamificação: XP (total possível 3905), 6 patentes (Aprendiz 0, Construtor 150, Desenvolvedor 500, Pleno 1200, Sênior 2400, Mestre 3600), sequência diária, 11 conquistas (inclui Trilheiro, Explorador e Meio caminho), progresso por linguagem e por trilha. Tudo em `localStorage` (`cheatdev:hub:v1`).
-- **Como criar um desafio novo:** use os construtores de `challenge-kit.ts` num dos `ch-*.ts`, acrescente o id na trilha certa em `tracks.ts` e rode `integrity.mts` + `challenges-run.mjs`. A regra do validador: a **solução passa 100%** dos testes e o **código inicial não passa tudo**; prefira testes que o código inicial não satisfaça por acaso (um `<h1>` já tem 32px e negrito por padrão; "não altera o original" passa se a função devolve `undefined`: combine com o resultado esperado).
+- **Como criar um desafio novo:** use os construtores de `challenge-kit.ts` num dos `ch-*.ts`, acrescente o id na trilha certa em `tracks.ts` escreva a `learn` e 1 a 2 **soluções alternativas** em `src/content/alts.ts` (o validador exige que passem 100%: pega testes rígidos demais) e rode `integrity.mts`, `learn-render.mts` e `challenges-run.mjs`. A regra do validador: a **solução passa 100%** dos testes e o **código inicial não passa tudo**; prefira testes que o código inicial não satisfaça por acaso (um `<h1>` já tem 32px e negrito por padrão; "não altera o original" passa se a função devolve `undefined`: combine com o resultado esperado).
 
 ### 7.5 Essencial (`/essencial`)
 O conhecimento primordial em 6 trilhas (HTML, CSS, JS, SQL, Git/Deploy, Qualidade), 53 passos em ordem. Cada passo traz **por que importa**, **o que acontece se pular**, **tarefa prática** e links para comandos/guias/ferramentas. Progresso salvo (`cheatdev:essencial:v1`). Os links usam o formato `lang:slug` ou `/rota` e são resolvidos por `lib/essLinks.ts`.
@@ -207,6 +207,7 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 | `js-examples.mts` + `js-examples-run.mjs` | executa os exemplos de JavaScript e acusa erros |
 | `css-demos.mts` | demos de CSS sem efeito visível e declarações inúteis |
 | `e2e-hub.mjs`, `e2e-lab.mjs`, `e2e-roleta.mjs` | fluxos reais (roleta, testes, Emmet, multi-tela, ZIP, compartilhar; `e2e-roleta`: filtros, seleção um a um, persistência, sorteio, trilhas, próximo passo, mini-aula, conquistas) |
+| `e2e-links-backup.mjs`, `backup.mts`, `learn-render.mts` | ligações trilha↔guia/receita e link `#trilha-…`; backup (exportar, apagar, importar, arquivo inválido); mini-aulas dos originais e **uma única mini-aula ao trocar de desafio**; testes unitários do backup; varredura das 133 aulas |
 | `integrity.mts` | catálogo: ids únicos, toda trilha aponta para desafios que existem, todo desafio está em exatamente uma trilha, mini-aula nos novos, testes com nomes únicos |
 | `wheel.mts` | testes unitários da roleta (pool, fatias, sorteio adaptativo, localStorage adulterado) e da navegação por trilhas |
 | `a11y-audit.mjs` | por página: contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow horizontal |
@@ -217,6 +218,14 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 Preparação: `puppeteer-core` e `@sparticuz/chromium` em `/tmp/val` (o Chromium vem dentro do pacote npm, útil sem acesso à internet), `npm run build && npx next start -p 3111` para os e2e. Rode também `npm run lint` e `npm run build` antes de cada push. Rode `links.mts` **sempre que escrever um lote novo** (referências `r:` quebradas são descartadas em silêncio; já tivemos 3 assim).
 
 Notas de execução (aprendidas em 09/10): ambientes com limite de ~300 s por comando cortam `sql-all.mts` (cria um PGlite por consulta) **e ele sai sem imprimir nada**, o que parece sucesso: confira o código de saída (`exit=124` é timeout) ou divida em partes. Em 09/10 todas as 211 execuções foram validadas em 6 partes, 0 falhas. Rodadas completas de `a11y-states.mjs` levam ~4-5 min: uma por chamada.
+
+
+### Onde ficam os dados do usuário (e o que acontece se ele limpar, trocar de aparelho ou reinstalar)
+Tudo (progresso dos Desafios, Essencial, favoritos, projetos do Lab e do SQL Lab, tema) fica em **`localStorage` do navegador**, por aparelho e por navegador: **não há conta, banco nem sincronização**. Fatos verificados em 16/10/2026:
+- **Chrome desktop/Android:** o app instalado (PWA) usa o armazenamento do próprio navegador. Desinstalar o app **não** apaga os dados, a menos que se marque "Também apagar dados do Chrome". Limpar os dados do site ou do Chrome apaga tudo (inclusive do app instalado).
+- **Safari/iOS:** em abas do Safari, o armazenamento gravado por script (localStorage, IndexedDB) pode ser apagado após **7 dias de uso do Safari sem visitar o site** (ITP). Apps adicionados à tela inicial têm contagem própria e são tratados à parte.
+- Modo anônimo, "limpar dados do site" e falta de espaço também apagam. **Instalar de novo não restaura** o que foi apagado.
+- Mitigação atual: `BackupPanel` (Desafios, Essencial e Favoritos): **exportar/importar** um `.json` (só chaves `cheatdev:*` e `theme`; recusa arquivo de outro app, versão futura e valores que não são texto) e botão **"Proteger contra limpeza automática"** (`navigator.storage.persist()`). Solução definitiva = conta + banco (ver pendências).
 
 ## 11. Armadilhas já descobertas (não repetir)
 
@@ -248,6 +257,8 @@ Notas de execução (aprendidas em 09/10): ambientes com limite de ~300 s por co
 26. **`role="status"` na página do Hub**: há mais de um (o contador da roleta e o veredito dos desafios). Em testes, mire dentro de `#area-do-desafio`.
 27. **Patente "Mestre" era inalcançável** (pedia 2400 XP; o total possível era 2300). Ao mexer no número de desafios, recalcule os limites em `RANKS` (hubStore.ts) para que o topo seja alcançável.
 28. **Teste "que o código inicial já passa"** não ensina nada e o validador não reclama (só exige que NÃO passe tudo). Veja a coluna "inicial N/M" na saída de `challenges-run.mjs`: o ideal é 0.
+29. **Componente com `key` dentro de `{cond && <X key=.../>}` pode NÃO remontar** ao trocar de desafio: a mini-aula antiga ficava no DOM e a nova aparecia embaixo (duas caixas). A correção foi dar `key={sel.id}` ao contêiner do corpo inteiro. Sempre teste a troca A→B (e se a referência ao nó antigo ficou desconectada), não só o primeiro estado.
+30. **O ambiente de desenvolvimento pode ser reiniciado** (repositório e `/tmp` somem). Só o que está no GitHub sobrevive: commite a cada etapa concluída; a pasta `/tmp/val` (puppeteer, soluções exportadas) é refeita com `npm i puppeteer-core @sparticuz/chromium` e `npx tsx scripts/validate/challenges.mts`.
 
 ## 12. Chaves do `localStorage`
 
@@ -299,7 +310,7 @@ Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQ
 
 ### Pendências (por ordem de valor)
 1. **Mais variações de layout nos templates** (hoje a variação é de estilo visual, não de layout) e mais variações de snippets.
-2. **Ligar as trilhas ao resto do site**: guia → receita → comparativo → desafio (as trilhas de desafios existem desde 12/10; falta a ponte com os outros conteúdos).
+2. ~~Ligar as trilhas ao resto do site~~ **feito (16/10)**: mapa em `src/content/trilha-links.ts` (guias e receitas por trilha), bloco "Pratique isso nos Desafios" nas páginas de guia e receita e chips "Estude também" nas trilhas; falta ligar **comparativos** às trilhas.
 3. **Equivalente em Tailwind** e **compatibilidade de navegador** (caniuse) em cada comando CSS.
 4. **Auditoria de acessibilidade** dentro do Lab (axe-core).
 5. **Link curto para projetos do Lab** (exigiria salvar no Supabase; atenção a abuso, moderação e LGPD).
@@ -324,8 +335,9 @@ Resumo por fase (os commits têm o detalhe; `git log --oneline`):
 | 06 a 07/10 | Doc mestre, plano de LinkedIn (14 posts) e README; scripts de validação versionados; correção de 3 links quebrados e do lint |
 | 09 a 11/10 | **Navegação e tema**: sidebar com ícones SVG uniformes e "Todos os comandos" no fim; paleta creme+sálvia (09/10) substituída por escuro original + claro cinza-azulado com acento índigo (11/10); contraste AA em todas as telas e estados; 5 defeitos corrigidos (barra do topo em 768–1023 px, painel Dialetos, Geradores no celular, títulos longos, testes do Hub presos em "Testando…"); auditoria de acessibilidade versionada |
 | 12 a 15/10 | **Desafios turbinados**: 58 → 133 desafios (75 novos, todos com mini-aula e validados) em **27 trilhas** do zero ao avançado; roleta configurável (linguagens, níveis, só pendentes e seleção um a um; fatias de desafios individuais); visão por trilhas com Continuar/Próximo passo; 3 conquistas novas; patente Mestre alcançável; 3 validadores novos (integridade, roleta, e2e da roleta) |
+| 16/10 | **Qualidade dos Desafios**: mini-aulas nos 58 originais (133/133); renderizador de mini-aulas corrigido (negrito com código mostrava crases); 94 soluções alternativas corretas validadas; **backup** exportar/importar dos dados do usuário; ligação trilha ↔ guia/receita (bloco "Pratique" e chips "Estude também"); corrigida a mini-aula que duplicava ao trocar de desafio |
 
-Totais: 49 commits · 503 comandos · 133 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+Totais: 54 commits · 503 comandos · 133 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
 
 ## 13b. Backlog de ideias e aprofundamentos (por área)
 
@@ -342,7 +354,7 @@ Legenda: **valor** (A/M/B) · **esforço** (P/M/G).
 - Auditoria de acessibilidade do próprio site (axe) e orçamento de performance (M · M).
 
 ### Hub de desafios
-- **Continuar ampliando o catálogo** (hoje 133; HTML 26, CSS 28, JS 45, SQL 34): mini-aulas para os 58 originais, mais passos "do zero" em CSS/SQL e projetos guiados de vários passos (A · M). Meta: ~200, sempre com `integrity.mts` e `challenges-run.mjs`.
+- **Continuar ampliando o catálogo** (hoje 133; HTML 26, CSS 28, JS 45, SQL 34): mais passos "do zero" em CSS/SQL e projetos guiados de vários passos (A · M). Meta: ~200, sempre com `integrity.mts` e `challenges-run.mjs`.
 - **Selo e certificado por trilha concluída** (a conquista "Trilheiro" já existe; falta o selo por trilha) (M · M).
 - **Modo prova** com cronômetro e **modo entrevista** (algoritmos clássicos em JS, dicas de complexidade) (M · M).
 - **Revisão espaçada** (flashcards dos comandos que o usuário errou) (M · M).
@@ -391,7 +403,7 @@ Legenda: **valor** (A/M/B) · **esforço** (P/M/G).
 - Série "bug da semana" reaproveitando os aprendizados da seção 11 (M · P).
 
 ### Sugestão de ordem (próximos 3 ciclos)
-1. Mini-aulas nos 58 desafios originais + ponte trilhas ↔ guias/receitas (completa o "hub": estudar → treinar → comprovar).
+1. Ampliar o catálogo de desafios (mais passos "do zero" em CSS/SQL e projetos guiados) e ligar os **comparativos** às trilhas (completa o "hub": estudar → treinar → comprovar).
 2. **Analytics + CI** e **login Supabase** (medir, proteger e sincronizar).
 3. **pgvector/full-text** e **laboratório de performance** (diferencial no SQL) + auditoria de acessibilidade no Lab.
 
