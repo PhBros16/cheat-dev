@@ -1,6 +1,7 @@
 import { SQL_EXERCISES } from "@/content/sql-exercises";
 import { E, page, q, cs, rect } from "@/content/challenge-kit";
 import { TRACKS } from "@/content/tracks";
+import { LEARN } from "@/content/learn-extra";
 import { HTML_NEW } from "@/content/ch-html";
 import { CSS_NEW } from "@/content/ch-css";
 import { JS_NEW } from "@/content/ch-js";
@@ -160,7 +161,7 @@ const SQL_EXTRA: SqlChallenge[] = [
   sqlNew("rh-6", "rh", "chefe", "Maior salário de cada departamento (e quem é)", "Para cada departamento (inclusive os vazios), mostre o nome do departamento, o funcionário de maior salário e o salário. Departamentos sem funcionários aparecem com valores vazios. Ordene pelo nome do departamento.", "Subconsulta com ROW_NUMBER por depto ordenada por salário DESC; depois LEFT JOIN de departamentos com essa subconsulta filtrando pos = 1 no ON.", "SELECT d.nome AS departamento, t.nome AS funcionario, t.salario FROM departamentos d LEFT JOIN (SELECT depto_id, nome, salario, ROW_NUMBER() OVER (PARTITION BY depto_id ORDER BY salario DESC) AS pos FROM funcionarios) t ON t.depto_id = d.id AND t.pos = 1 ORDER BY d.nome;"),
 ];
 
-const ALL: Challenge[] = [...HTML, ...HTML_NEW, ...CSS, ...CSS_NEW, ...JS, ...JS_NEW, ...sqlFromExercises, ...SQL_EXTRA, ...SQL_NEW];
+const ALL: Challenge[] = [...HTML, ...HTML_NEW, ...CSS, ...CSS_NEW, ...JS, ...JS_NEW, ...sqlFromExercises, ...SQL_EXTRA, ...SQL_NEW].map((c) => (c.learn || !LEARN[c.id] ? c : { ...c, learn: LEARN[c.id] }));
 
 /** Ordem de aprendizado: segue as trilhas (tracks.ts); o que não estiver em nenhuma trilha vai para o fim (o validador de integridade acusa). */
 const ORDER = new Map(TRACKS.flatMap((t) => t.ids).map((id, i) => [id, i]));
