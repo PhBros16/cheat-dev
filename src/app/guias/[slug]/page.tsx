@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { guides, getGuide } from "@/content/guides";
 import CodeBlock from "@/components/CodeBlock";
 import Playground from "@/components/Playground";
+import PracticeBox from "@/components/PracticeBox";
+import { tracksForGuide } from "@/content/trilha-links";
 
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
@@ -64,6 +66,8 @@ export default async function GuidePage({ params }: P) {
             </div>
           </section>
         )}
+
+        <PracticeBox tracks={tracksForGuide(guide.slug)} />
       </div>
     </div>
   );

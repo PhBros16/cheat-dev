@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ESSENCIAL } from "@/content/essencial";
 import { resolveLink } from "@/lib/essLinks";
 import EssencialTracker from "@/components/EssencialTracker";
+import BackupPanel from "@/components/BackupPanel";
 
 export const metadata: Metadata = {
   title: "Essencial — o que você não pode deixar de aprender",
@@ -24,6 +25,7 @@ export default function EssencialPage() {
         <p className="mt-2 text-sm text-muted">Ordem sugerida: HTML → CSS → JavaScript → Git e deploy → SQL → Qualidade. Os comandos desta lista ganham a etiqueta ★ Essencial no site.</p>
       </div>
       <div className="mt-8 max-w-4xl"><EssencialTracker tracks={tracks} /></div>
+      <div className="mt-10 max-w-3xl"><BackupPanel /></div>
     </div>
   );
 }

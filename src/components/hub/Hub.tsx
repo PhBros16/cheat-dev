@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import Wheel from "@/components/hub/Wheel";
 import Learn from "@/components/hub/Learn";
 import { langStyles } from "@/lib/langStyles";
@@ -11,6 +12,10 @@ import { BADGES, addTry, dailyId, hubServerSnapshot, hubSnapshot, hubSubscribe, 
 import { ALL_LANGS, resolveSpin, sliceLabel, wheelPool, wheelSlices, type WheelCfg } from "@/lib/wheelPool";
 import { parseWheel, saveWheel, wheelServerSnapshot, wheelSnapshot, wheelSubscribe } from "@/lib/wheelStore";
 import { nextAfter, nextInLang, stepOf, trackProgress, tracksOf } from "@/lib/trilhas";
+import { TRACK_BY_ID } from "@/content/tracks";
+
+type Rel = { slug: string; title: string };
+export type TrackRelated = Record<string, { guias: Rel[]; receitas: Rel[] }>;
 
 const LEVEL_STYLE: Record<Level, string> = {
   "iniciante": "bg-ok-bg text-ok-fg",
@@ -24,7 +29,7 @@ const chip = (on: boolean, dim = false) =>
     : on ? "border-accent bg-accent text-on-accent" : "border-border text-muted hover:text-foreground"}`;
 const noop = () => () => {};
 
-export default function Hub() {
+export default function Hub({ links = {} }: { links?: TrackRelated }) {
   const raw = useSyncExternalStore(hubSubscribe, hubSnapshot, hubServerSnapshot);
   const prog = useMemo(() => parseProg(raw), [raw]);
   const rawWheel = useSyncExternalStore(wheelSubscribe, wheelSnapshot, wheelServerSnapshot);
@@ -36,6 +41,17 @@ export default function Hub() {
   const [picking, setPicking] = useState(false);
   const [spunKey, setSpunKey] = useState<string | null>(null);
   const [gain, setGain] = useState<string>("");
+
+  useEffect(() => {
+    const goto = () => {
+      const m = location.hash.match(/^#trilha-(.+)$/); const t = m ? TRACK_BY_ID.get(m[1]) : undefined;
+      if (!t) return;
+      setTab(t.lang); setView("trilhas");
+      setTimeout(() => document.getElementById("trilha-" + t.id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 250);
+    };
+    goto(); window.addEventListener("hashchange", goto);
+    return () => window.removeEventListener("hashchange", goto);
+  }, []);
 
   const { pool, relaxed, manual } = useMemo(() => wheelPool(cfg, prog.solved), [cfg, prog.solved]);
   const slices = useMemo(() => wheelSlices(pool), [pool]);
@@ -124,10 +140,11 @@ export default function Hub() {
               const done = lv.reduce((n, x) => n + x.done, 0), total = lv.reduce((n, x) => n + x.total, 0);
               const next = nextInLang(l, prog.solved);
               return (
-                <div key={l} className="rounded-lg border border-border bg-background p-2.5">
-                  <p className="text-xs font-semibold text-foreground">{LANG_META[l].emoji} {LANG_META[l].label} <span className="text-muted">{done}/{total}</span></p>
+                <div key={l} className="flex flex-col rounded-lg border border-border bg-background p-2.5">
+                  <p className="truncate text-xs font-semibold text-foreground">{LANG_META[l].emoji} {LANG_META[l].label}</p>
+                  <p className="mt-0.5 font-mono text-[11px] tabular-nums text-muted">{done}/{total}</p>
                   <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full" style={{ width: `${(done / total) * 100}%`, background: LANG_META[l].color }} /></div>
-                  {next ? <button onClick={() => open(next)} className="mt-2 text-xs font-semibold text-accent-fg hover:underline" aria-label={`Continuar ${LANG_META[l].label}: ${CHALLENGE_BY_ID.get(next)?.title}`}>▶ Continuar</button> : <p className="mt-2 text-xs font-semibold text-ok-fg">✅ Completo</p>}
+                  <div className="mt-auto pt-2">{next ? <button onClick={() => open(next)} className="text-xs font-semibold text-accent-fg hover:underline" aria-label={`Continuar ${LANG_META[l].label}: ${CHALLENGE_BY_ID.get(next)?.title}`}>▶ Continuar</button> : <p className="text-xs font-semibold text-ok-fg">✅ Completo</p>}</div>
                 </div>
               );
             })}
@@ -213,8 +230,8 @@ export default function Hub() {
                 <button onClick={() => setSelId(null)} className="rounded-lg px-3 py-2 text-sm text-muted hover:text-foreground">fechar ✕</button>
               </div>
             </div>
-            <div className="p-4">
-              {sel.learn && <Learn key={sel.id} text={sel.learn} />}
+            <div key={sel.id} className="p-4">
+              {sel.learn && <Learn text={sel.learn} />}
               {gain && <p role="status" className="mb-3 rounded-lg bg-ok-bg p-3 text-center text-sm font-bold text-ok-fg">🎉 Desafio concluído! {gain}</p>}
               {sel.kind === "web"
                 ? <WebRunner key={sel.id} challenge={sel} onAttempt={attempt} onSolved={solvedNow} />
@@ -266,7 +283,7 @@ export default function Hub() {
                 {trs.map((t) => {
                   const tp = trackProgress(t, prog.solved);
                   return (
-                    <div key={t.id} className="mt-5">
+                    <div key={t.id} id={`trilha-${t.id}`} className="mt-5 scroll-mt-24">
                       <div className="flex flex-wrap items-end justify-between gap-2">
                         <div className="min-w-0">
                           <h4 className="font-semibold text-foreground">{t.title}</h4>
@@ -277,6 +294,13 @@ export default function Hub() {
                           {tp.next ? <button onClick={() => open(tp.next!)} aria-label={`Continuar a trilha ${t.title}`} className="rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-accent-fg hover:border-muted">▶ Continuar</button> : <span className="text-xs font-semibold text-ok-fg">✅ Trilha concluída</span>}
                         </div>
                       </div>
+                      {(links[t.id]?.guias.length || links[t.id]?.receitas.length) ? (
+                        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                          <span>Estude também:</span>
+                          {links[t.id].guias.map((g) => <Link key={g.slug} href={`/guias/${g.slug}`} className="font-medium text-css-fg hover:underline">📖 {g.title}</Link>)}
+                          {links[t.id].receitas.map((r) => <Link key={r.slug} href={`/receitas/${r.slug}`} className="font-medium text-css-fg hover:underline">🍳 {r.title}</Link>)}
+                        </p>
+                      ) : null}
                       <div className="mt-2 h-1 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full" style={{ width: `${(tp.done / tp.total) * 100}%`, background: LANG_META[l].color }} /></div>
                       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         {t.ids.map((id, i) => card(CHALLENGE_BY_ID.get(id)!, i + 1, id === tp.next))}

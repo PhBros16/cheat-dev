@@ -1,0 +1,24 @@
+// Testes unitários do backup (exportar/importar). Uso: npx tsx scripts/validate/backup.mts
+const B = await import("@/lib/backup");
+let fails = 0; const ok = (n: string, c: boolean, x = "") => { if (!c) fails++; console.log(c ? "✓" : "✗", n, c ? "" : x); };
+const mk = (o: Record<string, string>) => { const m = new Map(Object.entries(o)); return { get length() { return m.size; }, key: (i: number) => [...m.keys()][i] ?? null, getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => { m.set(k, v); }, m }; };
+const src = mk({ "cheatdev:hub:v1": '{"solved":{"js-ola":"x"}}', "cheatdev:favs": "[1]", "theme": "dark", "cheatdev:lab:running": "1", "cheatdev:lab:inbox": "x", "cheatdev:sqllab:inbox": "x", "outro-site": "segredo", "pwa-install-dismissed": "1" });
+const b = B.buildBackup(src, new Date("2026-10-16T12:00:00Z"));
+ok("exporta só as chaves do site (hub, favs, theme)", Object.keys(b.data).sort().join() === "cheatdev:favs,cheatdev:hub:v1,theme", Object.keys(b.data).join());
+ok("não exporta chaves temporárias nem de outros sites", !("cheatdev:lab:running" in b.data) && !("cheatdev:lab:inbox" in b.data) && !("outro-site" in b.data));
+ok("cabeçalho do backup", b.app === "cheat-dev" && b.version === 1 && b.exportedAt.startsWith("2026-10-16"));
+const dst = mk({ "cheatdev:hub:v1": "velho" });
+const r = B.applyBackup(JSON.stringify(b), dst);
+ok("ida e volta restaura os dados (3 itens)", r.ok && r.keys === 3 && dst.m.get("cheatdev:hub:v1") === '{"solved":{"js-ola":"x"}}' && dst.m.get("theme") === "dark");
+ok("recusa JSON inválido", !B.applyBackup("{nao é json", mk({})).ok);
+ok("recusa arquivo de outro app", !B.applyBackup(JSON.stringify({ app: "outro", version: 1, data: { "cheatdev:x": "1" } }), mk({})).ok);
+ok("recusa versão futura", !B.applyBackup(JSON.stringify({ app: "cheat-dev", version: 99, data: { "cheatdev:x": "1" } }), mk({})).ok);
+ok("recusa backup sem dados", !B.applyBackup(JSON.stringify({ app: "cheat-dev", version: 1, data: {} }), mk({})).ok);
+const hostile = mk({}); const rh = B.applyBackup(JSON.stringify({ app: "cheat-dev", version: 1, data: { "cheatdev:hub:v1": "ok", "outro-site": "x", "cheatdev:lab:inbox": "x", "cheatdev:favs": 5 } }), hostile);
+ok("ignora chaves de fora, temporárias e valores que não são texto", rh.ok && rh.keys === 1 && hostile.m.size === 1 && hostile.m.has("cheatdev:hub:v1"));
+ok("recusa arquivo gigante", !B.applyBackup("x".repeat(6 * 1024 * 1024), mk({})).ok);
+ok("não grava nada quando o arquivo é inválido", (() => { const s = mk({ a: "1" }); B.applyBackup("lixo", s); return s.m.size === 1; })());
+const full = { length: 0, key: () => null, getItem: () => null, setItem: () => { throw new Error("quota"); } };
+ok("erro de gravação vira mensagem (sem quebrar)", (() => { const x = B.applyBackup(JSON.stringify(b), full); return !x.ok && /gravar/.test((x as any).error); })());
+ok("nome do arquivo com a data", B.backupFileName(new Date("2026-10-16T12:00:00Z")) === "cheat-dev-backup-2026-10-16.json");
+console.log(fails ? `\n${fails} FALHA(S)` : "\ntodos os testes passaram"); process.exit(fails ? 1 : 0);

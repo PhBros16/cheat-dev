@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import FavoritesBrowser from "@/components/FavoritesBrowser";
+import BackupPanel from "@/components/BackupPanel";
 
 export const metadata: Metadata = {
   title: "Favoritos",
@@ -19,6 +20,7 @@ export default function FavoritosPage() {
       <div className="mt-8 max-w-5xl">
         <FavoritesBrowser />
       </div>
+      <div className="mt-10 max-w-3xl"><BackupPanel /></div>
     </div>
   );
 }

@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import Hub from "@/components/hub/Hub";
 import { CHALLENGES } from "@/content/challenges";
+import BackupPanel from "@/components/BackupPanel";
+import { guides } from "@/content/guides";
+import { recipes } from "@/content/recipes";
+import { TRACK_LINKS } from "@/content/trilha-links";
 
 export const metadata: Metadata = {
   title: "Desafios — trilhas e roleta de treino de HTML, CSS, JavaScript e SQL",
   description:
     "Aprenda praticando, do zero ao avançado: trilhas guiadas com mini-aulas e desafios de HTML, CSS, JavaScript e SQL, roleta personalizável, testes automáticos, XP, patentes e sequência diária.",
 };
+
+const guideTitle = new Map(guides.map((g) => [g.slug, g.title]));
+const recipeTitle = new Map(recipes.map((r) => [r.slug, r.title]));
+/** Guias e receitas relacionados a cada trilha (só títulos e slugs: o Hub roda no cliente e não deve carregar o conteúdo inteiro). */
+const links = Object.fromEntries(Object.entries(TRACK_LINKS).map(([id, l]) => [id, {
+  guias: (l.guias ?? []).map((slug) => ({ slug, title: guideTitle.get(slug) ?? slug })),
+  receitas: (l.receitas ?? []).map((slug) => ({ slug, title: recipeTitle.get(slug) ?? slug })),
+}]));
 
 export default function DesafiosPage() {
   return (
@@ -17,7 +29,8 @@ export default function DesafiosPage() {
           {CHALLENGES.length} desafios práticos de HTML, CSS, JavaScript e SQL, organizados em trilhas do zero ao avançado. Cada passo tem uma mini-aula, testes automáticos e dica. Siga a trilha na ordem ou monte a sua roleta.
         </p>
       </div>
-      <div className="mt-8 max-w-7xl"><Hub /></div>
+      <div className="mt-8 max-w-7xl"><Hub links={links} /></div>
+      <div className="mt-10 max-w-3xl"><BackupPanel /></div>
     </div>
   );
 }

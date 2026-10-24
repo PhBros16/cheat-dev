@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { getRecipe, recipeDoc, recipes } from "@/content/recipes";
 import CodeBlock from "@/components/CodeBlock";
 import Live from "@/components/Live";
+import PracticeBox from "@/components/PracticeBox";
+import { tracksForRecipe } from "@/content/trilha-links";
 
 export function generateStaticParams() {
   return recipes.map((r) => ({ slug: r.slug }));
@@ -43,6 +45,8 @@ export default async function RecipePage({ params }: P) {
           <CodeBlock code={css} lang="css" caption="CSS" />
           {js.trim() && <CodeBlock code={js} lang="js" caption="JavaScript" />}
         </div>
+
+        <PracticeBox tracks={tracksForRecipe(r.slug)} />
       </div>
     </div>
   );
