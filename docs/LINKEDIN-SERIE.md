@@ -44,7 +44,8 @@ Direto, honesto e didático. Mostre o **processo e os erros**, não só o result
 | Atalhos de VS Code (`cd-`) | 40 |
 | Motores SQL no navegador | SQLite e PostgreSQL (o do Supabase) |
 | Dispositivos no simulador de tela | 17 |
-| Commits atômicos no repositório | 30+ |
+| Commits atômicos no repositório | 50+ |
+| Mini-aulas (uma por desafio) · soluções alternativas validadas | 133 · 94 |
 
 ### 1.7 Cadência
 - **4 semanas, 14 posts principais** (3 a 4 por semana) + microposts nos dias vazios.
@@ -89,6 +90,16 @@ Dica de formato: vídeo vertical ou quadrado, com legenda queimada (a maioria as
 - [ ] Todas as mídias M1 a M9 prontas.
 - [ ] Textos revisados (números conferidos com a tabela 1.6).
 - [ ] Planilha de métricas criada (Parte 6).
+- [ ] **Analytics instalado ANTES do Post 1** (hoje não há; sem ele a Parte 6 fica cega). Vercel Web Analytics ou Plausible: ambos sem cookies.
+- [ ] Rodar `npx tsx scripts/validate/inventory.mts --check`: ele confere se os números deste plano e do doc mestre batem com o código.
+- [ ] Testar no celular o painel "Seus dados e backup" (exportar e importar) e as ligações guia/receita → trilha.
+
+### 2.4 Pontos de atenção (atualizado em 16/10/2026)
+- **Post 3 (Lab):** o Lab é a próxima página a ser revisada. Se for mudar, **segure o Post 3** até terminar, ou confira cada afirmação do texto contra a versão final.
+- **"Sem cadastro" (Post 4 e pitches):** hoje é verdade. Se o login chegar, ele deve ser **opcional** (o site continua útil sem conta); caso contrário, troque essa frase em todo o plano.
+- **Dados do usuário:** o progresso fica só no navegador. Quem perguntar tem a resposta pronta na seção 5.1 ("Meus dados ficam salvos?").
+- **Links profundos:** dá para linkar direto numa trilha (ex.: `[LINK]/desafios#trilha-css-layout`) nos primeiros comentários.
+- **Números:** nunca digite números de cabeça; copie da tabela 1.6 e rode o `--check` acima.
 
 ---
 
@@ -291,11 +302,11 @@ São 133 desafios em 27 trilhas e 4 níveis, do "zero" ao "chefe" (implementar u
 
 Cada passo começa com uma mini-aula, e você pode montar a sua roleta (linguagens, níveis ou desafios escolhidos um a um). No modo adaptativo, você sempre recebe o nível mais baixo que ainda não completou. XP, patentes e sequência diária para criar o hábito.
 
-O detalhe de engenharia: validei TODOS em navegador real. A solução precisa passar em 100% dos testes e o código inicial precisa falhar. Teste ruim é pior que nenhum teste.
+O detalhe de engenharia: validei todos os desafios em navegador real. A solução precisa passar em 100% dos testes, o código inicial não pode passar em todos e eu escrevi soluções alternativas (outro jeito de resolver) para provar que os testes não rejeitam quem acerta de outro jeito. Teste ruim é pior que nenhum teste.
 
 Qual você acha que seria o "chefe" mais difícil?
 ```
-**Primeiro comentário:** `Gire a roleta: [LINK]/desafios`
+**Primeiro comentário:** `Gire a roleta: [LINK]/desafios` (ou aponte uma trilha: `[LINK]/desafios#trilha-js-basico`)
 **Hashtags:** `#javascript #css #sql #aprenderprogramar #gamificacao`
 
 ---
@@ -356,6 +367,37 @@ Qual foi o bug mais bobo que já te ensinou algo importante?
 ```
 **Primeiro comentário:** `Código e histórico de commits: [REPO]`
 **Hashtags:** `#buildinpublic #engenhariadesoftware #testes #aprendizado`
+
+---
+
+### POST 9-B — Bastidores 2: "testei os meus testes" (alternativa ou bônus do Post 9)
+**Objetivo:** mostrar rigor com material mais recente. Use no lugar do Post 9 se quiser contar a história dos Desafios, ou como post extra.
+**Mídia:** print do validador (`challenges-run`) mostrando "inicial 0/4 · alternativas 2/2".
+
+**Texto:**
+```
+Cinco bugs que só apareceram quando comecei a testar os meus próprios testes:
+
+1. A patente máxima era impossível de alcançar.
+Causa: ela exigia 2400 XP, mas o total possível era 2300. Lição: confira a conta do seu próprio jogo.
+
+2. Um teste de CSS passava sem o aluno fazer nada.
+Causa: um título já tem 32px e negrito por padrão. Lição: o código inicial não pode passar em testes que o navegador já satisfaz.
+
+3. O botão ficava preso em "Testando…" para sempre.
+Causa: um timeout lia um valor velho e a pré-visualização recarregava no meio do teste. Lição: estado dentro de setTimeout é armadilha.
+
+4. A aula do desafio anterior continuava na tela ao trocar de desafio.
+Causa: a troca não remontava o componente. Lição: teste a transição A para B, não só o primeiro estado.
+
+5. O menu do topo estourava a largura no tablet, em TODAS as páginas.
+Causa: o menu aparecia a partir de 768px, mas só cabia a partir de 1024px. Lição: meça várias larguras.
+
+Meu relatório de testes chegou a dizer "0 problemas" porque o servidor tinha caído e nenhuma página carregou. Aprendi a desconfiar de teste que passa fácil demais.
+```
+**Primeiro comentário:** `O repositório com os scripts de teste: [LINK_REPO]`
+**Hashtags:** `#qualidade #testes #javascript #webdev #aprendizado`
+**Dica de interação:** pergunte "qual foi o teste mais enganador que você já escreveu?".
 
 ---
 
@@ -522,6 +564,8 @@ Formato curto (5 a 8 linhas), imagem opcional com o código. Cada um aponta para
 - **"Roda MySQL?"** → "Hoje não: SQLite e PostgreSQL rodam no navegador; MySQL aparece como referência na aba Dialetos. Expliquei o motivo no post [link do Post 12]."
 - **"Como você fez X?"** → Responda com 2 linhas + convide: "Posso detalhar num próximo post se tiver interesse. Reaja com 👍 se quiser."
 - **Crítica / bug encontrado** → "Boa pegada, obrigado! Vou corrigir. Abre uma issue com o passo a passo? Assim fica registrado." (e agradeça publicamente depois da correção).
+
+**"Meus dados ficam salvos?"** → "Ficam só no navegador do seu aparelho (não tem conta nem servidor), então outro aparelho ou outro navegador começa do zero. Tem o botão de exportar e importar backup nas páginas Desafios, Essencial e Favoritos. No Chrome, desinstalar o app não apaga os dados, a menos que você marque para apagar; no Safari do iPhone o navegador pode limpar dados de sites que você não abre há 7 dias."
 
 ### 5.2 Mensagens diretas (quando alguém demonstra interesse)
 **Recrutador/líder:**

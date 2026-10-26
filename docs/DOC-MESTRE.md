@@ -210,6 +210,7 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 | `e2e-links-backup.mjs`, `backup.mts`, `learn-render.mts` | ligações trilha↔guia/receita e link `#trilha-…`; backup (exportar, apagar, importar, arquivo inválido); mini-aulas dos originais e **uma única mini-aula ao trocar de desafio**; testes unitários do backup; varredura das 133 aulas |
 | `integrity.mts` | catálogo: ids únicos, toda trilha aponta para desafios que existem, todo desafio está em exatamente uma trilha, mini-aula nos novos, testes com nomes únicos |
 | `wheel.mts` | testes unitários da roleta (pool, fatias, sorteio adaptativo, localStorage adulterado) e da navegação por trilhas |
+| `inventory.mts` | **inventário real** do produto (comandos, desafios por linguagem, trilhas, snippets, templates e estilos, comparativos, receitas, guias, atalhos, dispositivos, commits) gerado do código; com `--check` falha se os números escritos neste doc ou no plano do LinkedIn estiverem errados |
 | `a11y-audit.mjs` | por página: contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow horizontal |
 | `a11y-states.mjs` | o mesmo, em ~90 **estados interativos** (desafios com erro/sucesso, SQL nos 2 motores, console do Lab, abas dos Geradores…). Rode nos 2 temas e em 390, 768 e 1440 px |
 | `overflow-all.mjs` | overflow horizontal em TODAS as rotas numa largura (rápido); rode em 320, 390, 768 e 1024 |
@@ -259,6 +260,7 @@ Tudo (progresso dos Desafios, Essencial, favoritos, projetos do Lab e do SQL Lab
 28. **Teste "que o código inicial já passa"** não ensina nada e o validador não reclama (só exige que NÃO passe tudo). Veja a coluna "inicial N/M" na saída de `challenges-run.mjs`: o ideal é 0.
 29. **Componente com `key` dentro de `{cond && <X key=.../>}` pode NÃO remontar** ao trocar de desafio: a mini-aula antiga ficava no DOM e a nova aparecia embaixo (duas caixas). A correção foi dar `key={sel.id}` ao contêiner do corpo inteiro. Sempre teste a troca A→B (e se a referência ao nó antigo ficou desconectada), não só o primeiro estado.
 30. **O ambiente de desenvolvimento pode ser reiniciado** (repositório e `/tmp` somem). Só o que está no GitHub sobrevive: commite a cada etapa concluída; a pasta `/tmp/val` (puppeteer, soluções exportadas) é refeita com `npm i puppeteer-core @sparticuz/chromium` e `npx tsx scripts/validate/challenges.mts`.
+31. **Números escritos à mão envelhecem** (o "58 desafios" ficou em 3 arquivos quando o catálogo passou de 133). Nunca digite contagens de cabeça: rode `npx tsx scripts/validate/inventory.mts --check` e copie dele. Cuidado ao "corrigir" um número que o `--check` acusar: confira a definição antes (o "43 estilos" estava certo; o erro era do inventário).
 
 ## 12. Chaves do `localStorage`
 
@@ -305,8 +307,35 @@ Mudar o formato de uma chave exige migração (ou trocar para `:v2`).
 
 ## 13. Estado atual e próximos passos sugeridos
 
+### Plano de etapas (ordem de execução, definida em 16/10/2026)
+
+**Etapa 1 — Catálogo "completão" de Desafios (PRIMEIRA, antes de seguir).** Por que vale: hoje são 133 desafios; para ser um guia do zero ao avançado tipo Coddy faltam passos "do zero" em CSS e SQL, tópicos intermediários e **projetos guiados** (vários passos que se constroem). Meta: **~225** (+92), com as 4 linguagens crescendo juntas.
+
+| Linguagem | Hoje | Meta | O que falta (lacunas conhecidas) |
+|---|---|---|---|
+| HTML | 26 | 43 (+17) | entidades (`&lt;` `&amp;`), citações e `<abbr>`, `colspan`/`rowspan`, tipos de `input` (date, range, color, tel), `<iframe>`, menu com `<nav>`, botão vs link, `<time>`/`<address>`/`<mark>`, atributos `data-*`, `<head>` completo + **Projeto: página de perfil (5 passos)** |
+| CSS | 28 | 55 (+27) | pseudo-classes (`:first-child`, `:nth-child`), **especificidade**, `flex-direction: column`, `text-overflow: ellipsis`, `list-style`, estilizar botão, `object-fit` + `aspect-ratio`, `grid-column: span`, combinadores (`>`, `+`, descendente), `:focus-visible`, `position: fixed` + `z-index`, `overflow`, `scroll-snap`, filtros, variáveis para tema + **Projeto: landing page responsiva (5 passos)** |
+| JavaScript | 45 | 70 (+25) | `includes`/`find`/`some`/`every`, `Set`, closure (contador), `try/catch` + `throw`, `while`/`break`, `class`, regex (e-mail), datas, `compose`, formulário (submit + `preventDefault`), `localStorage` simulado, `fetch` simulado, ordenação por vários campos + **Projeto: lista de tarefas no DOM (5 passos)** |
+| SQL | 34 | 57 (+23) | alias (`AS`), `AND`/`OR` com parênteses, `LIMIT`/`OFFSET` (paginação), `UPPER`/`LENGTH`, `COALESCE`, `UNION`, `EXISTS`, `IN` com subconsulta, JOIN de 3 tabelas, `COUNT(DISTINCT …)`, datas + **Projeto: relatório de vendas (5 passos)** |
+
+*Regras de qualidade (todas obrigatórias, já cobertas pelos validadores):* mini-aula (`learn`) >= 60 caracteres; solução passa 100%, **código inicial passa 0 testes**; **1 a 2 soluções alternativas** em `alts.ts` (JS e CSS pedem 2); id na trilha certa em `tracks.ts`; ligar a trilha a guia/receita em `trilha-links.ts` quando existir assunto equivalente; `integrity.mts`, `learn-render.mts`, `challenges-run.mjs` e `wheel.mts` limpos.
+*Como executar:* 4 lotes (um por linguagem, ~23 desafios cada), validando e **commitando ao fim de cada lote**. Ordem sugerida: SQL e CSS (mais curtos) → JS → HTML. Projetos guiados por último, em cada linguagem.
+*Atenção ao que muda sozinho:* (1) **recalcular `RANKS`** em `hubStore.ts` (o total de XP vai a ~6,5 mil; "Mestre" deve ficar em ~92% do total, senão fica inalcançável); (2) os e2e `e2e-roleta.mjs` e `e2e-links-backup.mjs` têm **números fixos** (133, 107, 34, "1/133"): trocar por valores lidos de `inventory.mts` antes de começar; (3) rodar `inventory.mts --check` e atualizar os números do doc e do plano do LinkedIn; (4) revisar a etapa Desafios do `a11y-states.mjs` nos 3 tamanhos (a lista fica maior).
+
+**Etapa 2 — Conta, banco e sincronização (Supabase).** Hoje os dados ficam só no navegador (ver "Onde ficam os dados do usuário"). Princípios: **login OPCIONAL** (o site segue 100% útil sem conta, o que preserva a promessa "sem cadastro"), **offline-first** (o `localStorage` continua sendo a fonte local; a conta só sincroniza), coleta mínima de dados (LGPD) com **exportar e excluir conta**.
+- *Decisões pendentes do dono:* (a) provedores de login — recomendo **e-mail com link mágico + Google + GitHub** (público dev); (b) em qual conta/projeto Supabase criar (há conector disponível; confirmar organização, região e o plano — o gratuito tem limites de armazenamento e de usuários ativos que precisam ser conferidos na hora); (c) **importar o progresso que já está no navegador** ao criar a conta (recomendo sim, com mesclagem); (d) URL final de redirecionamento (domínio da Vercel) e e-mail remetente dos links mágicos.
+- *Modelo proposto:* tabela `user_data(user_id uuid, key text, value jsonb, version int, updated_at timestamptz, primary key (user_id, key))` espelhando as chaves `cheatdev:*` (hub, wheel, favs, essencial, lab, sqllab) + `profiles(id → auth.users, display_name, created_at)`. **RLS** em tudo: `user_id = auth.uid()` para select/insert/update/delete, **sem acesso anônimo**; testar com 2 usuários.
+- *Mesclagem (conflito entre aparelhos):* hub `solved` = união (vale a data mais antiga), `tries` = máximo, `days` = união; favoritos e Essencial = união; projetos do Lab/SQL Lab = última gravação vence **por projeto**. Cada chave carrega `version` do formato para migrar dados antigos.
+- *Estabilidade:* migrações versionadas em `supabase/migrations/` (nunca alterar produção pelo painel), ambientes dev e produção separados, **captcha/limite de taxa** no cadastro (ex.: Cloudflare Turnstile), backup agendado (exportação diária como mitigação enquanto não houver recuperação pontual), monitoramento de erros e de disponibilidade, limite de tamanho por chave (ex.: 256 KB), fila com nova tentativa quando a rede cair, política de privacidade e termos, **exclusão de conta em cascata**, chave de serviço **nunca** no cliente, CSP.
+- *Testes:* unitários da mesclagem (puros, como `wheel.mts`), e2e com Supabase local (`supabase start`), teste de RLS com dois usuários, e o fluxo "importar progresso ao criar conta".
+- *Entregáveis de interface:* botão "Entrar" no topo, página `/conta`, indicador de sincronização, aviso de conflito simples. Só depois disso trocar o texto do `BackupPanel` e do doc/LinkedIn.
+
+**Etapa 3 — Próxima página: Lab.** Mesma abordagem aplicada a Desafios: revisão de cores e acessibilidade em todos os estados, testes ponta a ponta (já existe `e2e-lab.mjs`), depois os itens do backlog "Lab" (vários arquivos, formatar código, axe-core). **O Post 3 do LinkedIn depende desta etapa** (ver `docs/LINKEDIN-SERIE.md`, seção 2.4).
+
+**Etapa 4 — LinkedIn.** A análise do plano está feita (16/10): números conferidos por `inventory.mts --check`, Post 9-B novo, FAQ de dados, e **instalar analytics antes do Post 1**. A publicação é conduzida pelo dono em outra conversa.
+
 ### Já entregue
-Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQL; Hub de desafios; Essencial; Geradores; Receitas; Comparativos; Guias; Snippets e Templates organizados; VS Code; Favoritos; busca ampla; documentos mestre e do LinkedIn.
+Comandos de HTML/CSS/JS/SQL em 4 lotes cada; Lab; SQL Lab com SQLite + PostgreSQL; Hub de desafios (133 desafios em 27 trilhas, com mini-aulas, roleta configurável e backup); Essencial; Geradores; Receitas; Comparativos; Guias; Snippets e Templates organizados; VS Code; Favoritos; busca ampla; documentos mestre e do LinkedIn.
 
 ### Pendências (por ordem de valor)
 1. **Mais variações de layout nos templates** (hoje a variação é de estilo visual, não de layout) e mais variações de snippets.
@@ -403,7 +432,8 @@ Legenda: **valor** (A/M/B) · **esforço** (P/M/G).
 - Série "bug da semana" reaproveitando os aprendizados da seção 11 (M · P).
 
 ### Sugestão de ordem (próximos 3 ciclos)
-1. Ampliar o catálogo de desafios (mais passos "do zero" em CSS/SQL e projetos guiados) e ligar os **comparativos** às trilhas (completa o "hub": estudar → treinar → comprovar).
+Ver o **Plano de etapas** no início desta seção (Etapa 1 catálogo → Etapa 2 conta e banco → Etapa 3 Lab → Etapa 4 LinkedIn). Dentro dele:
+1. Ampliar o catálogo de desafios e ligar os **comparativos** às trilhas (completa o "hub": estudar → treinar → comprovar).
 2. **Analytics + CI** e **login Supabase** (medir, proteger e sincronizar).
 3. **pgvector/full-text** e **laboratório de performance** (diferencial no SQL) + auditoria de acessibilidade no Lab.
 
