@@ -1,6 +1,9 @@
 // E2E: ligações trilha <-> guia/receita, link direto #trilha-..., mini-aula dos originais e backup (exportar/importar). Requer o servidor em :3111.
 import { createRequire } from "module";
 import fs from "fs";
+import { execSync } from "child_process";
+// Números do catálogo vêm do inventário do código (nada fixo aqui): ampliar o catálogo não quebra este teste.
+const INV = JSON.parse(execSync("npx tsx scripts/validate/inventory.mts", { encoding: "utf8" }));
 const req = createRequire("/tmp/val/package.json");
 const puppeteer = req("puppeteer-core");
 const chromium = req("@sparticuz/chromium").default ?? req("@sparticuz/chromium");
@@ -17,7 +20,7 @@ const go = async (p) => { await page.goto("http://localhost:3111" + p, { waitUnt
 
 // guia -> trilha
 await go("/guias/flexbox-do-zero");
-ok("guia: bloco 'Pratique isso nos Desafios' com a trilha Layout", /Pratique isso nos Desafios/.test(await text()) && /Layout · CSS · 7 desafios/.test(await text()), (await text()).match(/Pratique[^.]{0,120}/)?.[0]);
+ok("guia: bloco 'Pratique isso nos Desafios' com a trilha Layout", /Pratique isso nos Desafios/.test(await text()) && new RegExp(`Layout · CSS · ${INV.tamanhoTrilha["css-layout"]} desafios`).test(await text()), (await text()).match(/Pratique[^.]{0,120}/)?.[0]);
 await page.evaluate(() => [...document.querySelectorAll("aside a")].find((a) => a.textContent.includes("Layout"))?.click()); await sleep(2500);
 ok("o link abre /desafios na trilha (#trilha-css-layout)", page.url().endsWith("/desafios#trilha-css-layout"), page.url());
 const top = await page.evaluate(() => document.getElementById("trilha-css-layout")?.getBoundingClientRect().top ?? 9999);
@@ -28,7 +31,7 @@ const rel = await page.evaluate(() => { const t = document.getElementById("trilh
 ok("a trilha Layout lista os 2 guias e 3 receitas relacionados", rel.guias.join() === "/guias/flexbox-do-zero,/guias/layout-com-grid" && rel.receitas.join() === "/receitas/centralizar-div,/receitas/menu-fixo-no-topo,/receitas/galeria-de-cards-responsiva", JSON.stringify(rel));
 // receita -> trilha
 await go("/receitas/modo-escuro-com-botao");
-ok("receita: bloco Pratique com a trilha 'DOM e eventos'", /DOM e eventos · JavaScript · 5 desafios/.test(await text()), (await text()).match(/Pratique[^.]{0,140}/)?.[0]);
+ok("receita: bloco Pratique com a trilha 'DOM e eventos'", new RegExp(`DOM e eventos · JavaScript · ${INV.tamanhoTrilha["js-dom"]} desafios`).test(await text()), (await text()).match(/Pratique[^.]{0,140}/)?.[0]);
 await go("/guias/publicar-site-github-vercel"); ok("guia de publicação leva à trilha 'Primeiros passos' de HTML", /Primeiros passos · HTML/.test(await text()));
 
 // mini-aula dos originais
@@ -60,7 +63,7 @@ await input.uploadFile("/tmp/val/backup-ok.json"); await sleep(2500);
 const back = await page.evaluate(() => ({ hub: JSON.parse(localStorage.getItem("cheatdev:hub:v1") || "{}"), favs: localStorage.getItem("cheatdev:favs") }));
 ok("importar restaura o progresso e os favoritos", back.hub?.solved?.["js-ola"] === "2026-10-16T10:00:00Z" && back.favs === JSON.stringify(["css/layout/display-flex"]), JSON.stringify(back).slice(0, 140));
 await sleep(500);
-ok("depois de importar, o painel do Hub já mostra 1 desafio resolvido (página recarregou)", /1\/133\s*resolvidos/.test(await text()), (await text()).match(/\d+\/133 resolvidos/)?.[0]);
+ok("depois de importar, o painel do Hub já mostra 1 desafio resolvido (página recarregou)", new RegExp(`1/${INV.desafios}\\s*resolvidos`).test(await text()), (await text()).match(/\d+\/133 resolvidos/)?.[0]);
 ok("sem erros de JavaScript", errs.length === 0, errs.join(" | "));
 await browser.close();
 console.log(fails ? `\n${fails} FALHA(S)` : "\ntodos os testes passaram"); process.exit(fails ? 1 : 0);

@@ -11,6 +11,7 @@ const ch = (l: string) => C.CHALLENGES.filter((c: any) => c.lang === l).length;
 let commits = 0; try { commits = +execSync("git rev-list --count HEAD", { encoding: "utf8" }).trim(); } catch {}
 const inv = {
   comandos: L.totalEntries(), cmdHtml: cmd.html, cmdCss: cmd.css, cmdJs: cmd.js, cmdSql: cmd.sql,
+  trilhasPorLang: Object.fromEntries(["html", "css", "js", "sql"].map((l) => [l, T.TRACKS.filter((t: any) => t.lang === l).length])), tamanhoTrilha: Object.fromEntries(T.TRACKS.map((t: any) => [t.id, t.ids.length])),
   desafios: C.CHALLENGES.length, chHtml: ch("html"), chCss: ch("css"), chJs: ch("js"), chSql: ch("sql"), trilhas: T.TRACKS.length, comMiniAula: C.CHALLENGES.filter((c: any) => c.learn).length,
   essencial: ESS.ESSENCIAL.reduce((n: number, t: any) => n + t.steps.length, 0), snippets: SN.snippets.length, templates: TP.templates.length, estilos: TP.templates.reduce((n: number, t: any) => n + (t.themes?.length || 1), 0), // cada template conta 1 estilo se não tiver variações
   comparativos: CM.comparisons.length, receitas: RC.recipes.length, guias: GD.guides.length, atalhosVscode: VS.vscodeSnippets.length, dispositivos: DV.DEVICES.length, commits,
