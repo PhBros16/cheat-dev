@@ -1,5 +1,5 @@
 // Inventário REAL do produto, gerado do código. Uso: npx tsx scripts/validate/inventory.mts [--check]
-// Com --check, confere se os números escritos em docs/DOC-MESTRE.md e docs/LINKEDIN-SERIE.md batem (falha se algum contar errado).
+// Com --fix, regenera os números dessas linhas a partir do código (rode antes de commitar um lote). Com --check, confere se os números escritos em docs/DOC-MESTRE.md e docs/LINKEDIN-SERIE.md batem (falha se algum contar errado).
 import fs from "fs";
 import { execSync } from "child_process";
 const L: any = await import("@/lib/content"); const C: any = await import("@/content/challenges"); const T: any = await import("@/content/tracks");
@@ -16,7 +16,33 @@ const inv = {
   essencial: ESS.ESSENCIAL.reduce((n: number, t: any) => n + t.steps.length, 0), snippets: SN.snippets.length, templates: TP.templates.length, estilos: TP.templates.reduce((n: number, t: any) => n + (t.themes?.length || 1), 0), // cada template conta 1 estilo se não tiver variações
   comparativos: CM.comparisons.length, receitas: RC.recipes.length, guias: GD.guides.length, atalhosVscode: VS.vscodeSnippets.length, dispositivos: DV.DEVICES.length, commits,
 };
-console.log(JSON.stringify(inv, null, 1));
+if (!process.argv.includes("--fix") && !process.argv.includes("--check")) console.log(JSON.stringify(inv, null, 1));
+const FIX = process.argv.includes("--fix");
+if (FIX) {
+  const A: any = await import("@/content/alts"); const webAlts = Object.values(A.ALTS).reduce((n: number, a: any) => n + a.length, 0), sqlAlts = Object.values(A.SQL_ALTS).reduce((n: number, a: any) => n + a.length, 0);
+  const xp = C.CHALLENGES.reduce((n: number, c: any) => n + C.LEVEL_XP[c.level], 0);
+  const tl = inv.trilhas, pl = `HTML ${inv.trilhasPorLang.html}, CSS ${inv.trilhasPorLang.css}, JS ${inv.trilhasPorLang.js}, SQL ${inv.trilhasPorLang.sql}`;
+  // doc mestre
+  let m = fs.readFileSync("docs/DOC-MESTRE.md", "utf8");
+  m = m.replace(/Totais: \d+ commits · \d+ comandos · \d+ desafios · \d+ snippets · \d+ templates \(\d+ estilos\) · \d+ comparativos · \d+ receitas · \d+ guias · \d+ passos Essenciais\./, `Totais: ${commits + 1} commits · ${inv.comandos} comandos · ${inv.desafios} desafios · ${inv.snippets} snippets · ${inv.templates} templates (${inv.estilos} estilos) · ${inv.comparativos} comparativos · ${inv.receitas} receitas · ${inv.guias} guias · ${inv.essencial} passos Essenciais.`);
+  m = m.replace(/\| Desafios do Hub \|[^\n]*\n/, `| Desafios do Hub | ${inv.desafios} em ${tl} trilhas (HTML ${inv.chHtml} · CSS ${inv.chCss} · JS ${inv.chJs} · SQL ${inv.chSql}); ${inv.comMiniAula} com mini-aula |\n`);
+  m = m.replace(/\d+ sequências do básico ao avançado \(HTML \d+, CSS \d+, JS \d+, SQL \d+\)/, `${tl} sequências do básico ao avançado (${pl})`);
+  m = m.replace(/XP \(total possível \d+\)/, `XP (total possível ${xp})`);
+  const base: Record<string, [number, number]> = { HTML: [26, 43], CSS: [28, 55], JS: [45, 70], SQL: [34, 57] }; const now: Record<string, number> = { HTML: inv.chHtml, CSS: inv.chCss, JS: inv.chJs, SQL: inv.chSql };
+  const rows = Object.entries(base).map(([l, [b, t]]) => `| ${l} | ${b} | ${now[l]} | ${t} | ${Math.max(0, Math.min(100, Math.round(((now[l] - b) / (t - b)) * 100)))}% |`).join("\n");
+  const tab = `<!-- progresso-etapa1:inicio (gerado por inventory.mts --fix) -->\n| Linguagem | Início (16/10) | Agora | Meta | Feito |\n|---|---|---|---|---|\n${rows}\n| **Total** | 133 | **${inv.desafios}** | 225 | ${Math.round(((inv.desafios - 133) / (225 - 133)) * 100)}% |\n<!-- progresso-etapa1:fim -->`;
+  if (/<!-- progresso-etapa1:inicio/.test(m)) m = m.replace(/<!-- progresso-etapa1:inicio[\s\S]*?progresso-etapa1:fim -->/, tab);
+  fs.writeFileSync("docs/DOC-MESTRE.md", m);
+  // plano do LinkedIn
+  let l = fs.readFileSync("docs/LINKEDIN-SERIE.md", "utf8");
+  l = l.replace(/(\|\s*Desafios pr[^|]*\|\s*)\*{0,2}\d+\*{0,2}( \(em )\d+( trilhas\))/, `$1**${inv.desafios}**$2${tl}$3`);
+  l = l.replace(/(Mini-aulas \(uma por desafio\)[^|]*\|\s*)\d+ · \d+/, `$1${inv.comMiniAula} · ${webAlts + sqlAlts}`);
+  l = l.replace(/\b\d{3} desafios\b/g, `${inv.desafios} desafios`).replace(/em \d+ trilhas e 4 níveis/g, `em ${tl} trilhas e 4 níveis`);
+  fs.writeFileSync("docs/LINKEDIN-SERIE.md", l);
+  // readme
+  let r = fs.readFileSync("README.md", "utf8"); r = r.replace(/\d+ desafios em \d+ trilhas/, `${inv.desafios} desafios em ${tl} trilhas`); fs.writeFileSync("README.md", r);
+  console.log(`\ndocumentos atualizados (${inv.desafios} desafios, ${tl} trilhas).`);
+}
 if (!process.argv.includes("--check")) process.exit(0);
 
 let bad = 0; const fail = (m: string) => { bad++; console.log("✗", m); }; const pass = (m: string) => console.log("✓", m);

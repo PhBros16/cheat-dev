@@ -126,7 +126,7 @@ src/
 | Receitas "como fazer X" | 13 |
 | Comparativos | 18 |
 | Guias e tutoriais | 6 (inclui "Do zero ao site no ar: GitHub + Vercel") |
-| Desafios do Hub | 133 em 27 trilhas (HTML 26 · CSS 28 · JS 45 · SQL 34); 75 deles com mini-aula |
+| Desafios do Hub | 156 em 28 trilhas (HTML 26 · CSS 28 · JS 45 · SQL 57); 156 com mini-aula |
 | Passos da trilha Essencial | 53 (6 trilhas) |
 | Gatilhos VS Code (`cd-`) | 40 |
 | Receitas de dialetos SQL | 17 |
@@ -157,12 +157,12 @@ SQL de verdade no navegador, com **dois motores selecionáveis**:
 - **MySQL não roda** no navegador (não existe motor WebAssembly maduro; verificado). Seria preciso um servidor real (decisão pendente).
 
 ### 7.4 Desafios (`/desafios`) — trilhas, mini-aulas e roleta
-- **Trilhas** (`src/content/tracks.ts`): 27 sequências do básico ao avançado (HTML 7, CSS 6, JS 8, SQL 6). A lista mostra o progresso de cada trilha, o "próximo passo" e um botão **▶ Continuar**; há também a visão **Por nível**. Dentro do desafio: "Trilha X · passo 3 de 6" e **Próximo passo →**.
+- **Trilhas** (`src/content/tracks.ts`): 28 sequências do básico ao avançado (HTML 7, CSS 6, JS 8, SQL 7). A lista mostra o progresso de cada trilha, o "próximo passo" e um botão **▶ Continuar**; há também a visão **Por nível**. Dentro do desafio: "Trilha X · passo 3 de 6" e **Próximo passo →**.
 - **Mini-aula** (`learn`, componente `Learn.tsx`): "📘 Aprenda antes de praticar", com parágrafos, `código` em linha, **negrito** e blocos ```cercados```. Os **133 desafios têm mini-aula**: as dos 75 novos ficam no próprio desafio (`ch-*.ts`) e as dos 58 originais em `src/content/learn-extra.ts` (ligadas por id). O validador de integridade exige >= 60 caracteres em todos e `learn-render.mts` varre as 133 aulas procurando marcação sobrando. O interpretador do texto é `src/lib/learnParse.ts` (negrito pode conter código).
 - **Roleta configurável** (`wheelPool.ts`, persistida em `cheatdev:hub:wheel:v1`): escolha **linguagens** e **níveis**, "só os que ainda não resolvi" e/ou **marque desafios um a um** (modo "Escolher um a um": a seleção manual manda no filtro). Com até 12 desafios cada fatia é **um desafio**; acima disso as fatias são linguagens, depois trilhas, depois níveis. Com 1 desafio vira um botão "Abrir". Dentro do grupo sorteado o comportamento é **adaptativo** (nível mais baixo ainda pendente). Se tudo da seleção já foi resolvido, os resolvidos voltam à roleta (aviso na tela).
 - **Desafio do dia** continua. 4 níveis: iniciante (10 XP), intermediário (25), avançado (50), **chefe** (100).
 - Testes automáticos: HTML/CSS/JS rodam **dentro do iframe** do aluno (`challengeDoc.ts` injeta o executor; os `check` são expressões JS avaliadas por `eval` indireto; aceitam Promises, timeout de 3 s; a página de teste tem 560 px de largura). SQL compara o resultado com o da solução (`sqlCheck.ts`: ignora nomes de coluna; só considera a ordem se a solução tiver `ORDER BY`).
-- Gamificação: XP (total possível 3905), 6 patentes (Aprendiz 0, Construtor 150, Desenvolvedor 500, Pleno 1200, Sênior 2400, Mestre 3600), sequência diária, 11 conquistas (inclui Trilheiro, Explorador e Meio caminho), progresso por linguagem e por trilha. Tudo em `localStorage` (`cheatdev:hub:v1`).
+- Gamificação: XP (total possível 4460), 6 patentes (Aprendiz 0, Construtor 150, Desenvolvedor 500, Pleno 1200, Sênior 2400, Mestre 3600), sequência diária, 11 conquistas (inclui Trilheiro, Explorador e Meio caminho), progresso por linguagem e por trilha. Tudo em `localStorage` (`cheatdev:hub:v1`).
 - **Como criar um desafio novo:** use os construtores de `challenge-kit.ts` num dos `ch-*.ts`, acrescente o id na trilha certa em `tracks.ts` escreva a `learn` e 1 a 2 **soluções alternativas** em `src/content/alts.ts` (o validador exige que passem 100%: pega testes rígidos demais) e rode `integrity.mts`, `learn-render.mts` e `challenges-run.mjs`. A regra do validador: a **solução passa 100%** dos testes e o **código inicial não passa tudo**; prefira testes que o código inicial não satisfaça por acaso (um `<h1>` já tem 32px e negrito por padrão; "não altera o original" passa se a função devolve `undefined`: combine com o resultado esperado).
 
 ### 7.5 Essencial (`/essencial`)
@@ -210,7 +210,8 @@ Não há suíte de testes unitários; a validação é feita com **navegador hea
 | `e2e-links-backup.mjs`, `backup.mts`, `learn-render.mts` | ligações trilha↔guia/receita e link `#trilha-…`; backup (exportar, apagar, importar, arquivo inválido); mini-aulas dos originais e **uma única mini-aula ao trocar de desafio**; testes unitários do backup; varredura das 133 aulas |
 | `integrity.mts` | catálogo: ids únicos, toda trilha aponta para desafios que existem, todo desafio está em exatamente uma trilha, mini-aula nos novos, testes com nomes únicos |
 | `wheel.mts` | testes unitários da roleta (pool, fatias, sorteio adaptativo, localStorage adulterado) e da navegação por trilhas |
-| `inventory.mts` | **inventário real** do produto (comandos, desafios por linguagem, trilhas, snippets, templates e estilos, comparativos, receitas, guias, atalhos, dispositivos, commits) gerado do código; com `--check` falha se os números escritos neste doc ou no plano do LinkedIn estiverem errados |
+| `inventory.mts [--fix\|--check]` | **inventário real** do produto (comandos, desafios por linguagem, trilhas, snippets, templates e estilos, comparativos, receitas, guias, atalhos, dispositivos, commits) gerado do código; com `--check` falha se os números escritos neste doc ou no plano do LinkedIn estiverem errados |
+| `sql-alts.mts` | SQL: o corretor **aceita** consultas alternativas corretas (`SQL_ALTS` em `alts.ts`) e **recusa** erros plausíveis (`SQL_WRONG`); roda no SQLite com o mesmo `sameResult` do Hub |
 | `a11y-audit.mjs` | por página: contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow horizontal |
 | `a11y-states.mjs` | o mesmo, em ~90 **estados interativos** (desafios com erro/sucesso, SQL nos 2 motores, console do Lab, abas dos Geradores…). Rode nos 2 temas e em 390, 768 e 1440 px |
 | `overflow-all.mjs` | overflow horizontal em TODAS as rotas numa largura (rápido); rode em 320, 390, 768 e 1024 |
@@ -309,14 +310,26 @@ Mudar o formato de uma chave exige migração (ou trocar para `:v2`).
 
 ### Plano de etapas (ordem de execução, definida em 16/10/2026)
 
-**Etapa 1 — Catálogo "completão" de Desafios (PRIMEIRA, antes de seguir).** Por que vale: hoje são 133 desafios; para ser um guia do zero ao avançado tipo Coddy faltam passos "do zero" em CSS e SQL, tópicos intermediários e **projetos guiados** (vários passos que se constroem). Meta: **~225** (+92), com as 4 linguagens crescendo juntas.
+**Etapa 1 — Catálogo "completão" de Desafios (PRIMEIRA, antes de seguir).** Por que vale: o catálogo de 16/10 tinha 133 desafios; para ser um guia do zero ao avançado tipo Coddy faltam passos "do zero" em CSS e SQL, tópicos intermediários e **projetos guiados** (vários passos que se constroem). Meta: **~225** (+92), com as 4 linguagens crescendo juntas.
 
-| Linguagem | Hoje | Meta | O que falta (lacunas conhecidas) |
+| Linguagem | Início (16/10) | Meta | O que falta (lacunas conhecidas) |
 |---|---|---|---|
 | HTML | 26 | 43 (+17) | entidades (`&lt;` `&amp;`), citações e `<abbr>`, `colspan`/`rowspan`, tipos de `input` (date, range, color, tel), `<iframe>`, menu com `<nav>`, botão vs link, `<time>`/`<address>`/`<mark>`, atributos `data-*`, `<head>` completo + **Projeto: página de perfil (5 passos)** |
 | CSS | 28 | 55 (+27) | pseudo-classes (`:first-child`, `:nth-child`), **especificidade**, `flex-direction: column`, `text-overflow: ellipsis`, `list-style`, estilizar botão, `object-fit` + `aspect-ratio`, `grid-column: span`, combinadores (`>`, `+`, descendente), `:focus-visible`, `position: fixed` + `z-index`, `overflow`, `scroll-snap`, filtros, variáveis para tema + **Projeto: landing page responsiva (5 passos)** |
 | JavaScript | 45 | 70 (+25) | `includes`/`find`/`some`/`every`, `Set`, closure (contador), `try/catch` + `throw`, `while`/`break`, `class`, regex (e-mail), datas, `compose`, formulário (submit + `preventDefault`), `localStorage` simulado, `fetch` simulado, ordenação por vários campos + **Projeto: lista de tarefas no DOM (5 passos)** |
 | SQL | 34 | 57 (+23) | alias (`AS`), `AND`/`OR` com parênteses, `LIMIT`/`OFFSET` (paginação), `UPPER`/`LENGTH`, `COALESCE`, `UNION`, `EXISTS`, `IN` com subconsulta, JOIN de 3 tabelas, `COUNT(DISTINCT …)`, datas + **Projeto: relatório de vendas (5 passos)** |
+
+**Progresso da Etapa 1 (atualizado automaticamente; rode `npx tsx scripts/validate/inventory.mts --fix` antes de commitar cada lote):**
+
+<!-- progresso-etapa1:inicio (gerado por inventory.mts --fix) -->
+| Linguagem | Início (16/10) | Agora | Meta | Feito |
+|---|---|---|---|---|
+| HTML | 26 | 26 | 43 | 0% |
+| CSS | 28 | 28 | 55 | 0% |
+| JS | 45 | 45 | 70 | 0% |
+| SQL | 34 | 57 | 57 | 100% |
+| **Total** | 133 | **156** | 225 | 25% |
+<!-- progresso-etapa1:fim -->
 
 *Regras de qualidade (todas obrigatórias, já cobertas pelos validadores):* mini-aula (`learn`) >= 60 caracteres; solução passa 100%, **código inicial passa 0 testes**; **1 a 2 soluções alternativas** em `alts.ts` (JS e CSS pedem 2); id na trilha certa em `tracks.ts`; ligar a trilha a guia/receita em `trilha-links.ts` quando existir assunto equivalente; `integrity.mts`, `learn-render.mts`, `challenges-run.mjs` e `wheel.mts` limpos.
 *Como executar:* 4 lotes (um por linguagem, ~23 desafios cada), validando e **commitando ao fim de cada lote**. Ordem sugerida: SQL e CSS (mais curtos) → JS → HTML. Projetos guiados por último, em cada linguagem.
@@ -366,7 +379,7 @@ Resumo por fase (os commits têm o detalhe; `git log --oneline`):
 | 12 a 15/10 | **Desafios turbinados**: 58 → 133 desafios (75 novos, todos com mini-aula e validados) em **27 trilhas** do zero ao avançado; roleta configurável (linguagens, níveis, só pendentes e seleção um a um; fatias de desafios individuais); visão por trilhas com Continuar/Próximo passo; 3 conquistas novas; patente Mestre alcançável; 3 validadores novos (integridade, roleta, e2e da roleta) |
 | 16/10 | **Qualidade dos Desafios**: mini-aulas nos 58 originais (133/133); renderizador de mini-aulas corrigido (negrito com código mostrava crases); 94 soluções alternativas corretas validadas; **backup** exportar/importar dos dados do usuário; ligação trilha ↔ guia/receita (bloco "Pratique" e chips "Estude também"); corrigida a mini-aula que duplicava ao trocar de desafio |
 
-Totais: 54 commits · 503 comandos · 133 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+Totais: 56 commits · 503 comandos · 156 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
 
 ## 13b. Backlog de ideias e aprofundamentos (por área)
 
@@ -383,7 +396,7 @@ Legenda: **valor** (A/M/B) · **esforço** (P/M/G).
 - Auditoria de acessibilidade do próprio site (axe) e orçamento de performance (M · M).
 
 ### Hub de desafios
-- **Continuar ampliando o catálogo** (hoje 133; HTML 26, CSS 28, JS 45, SQL 34): mais passos "do zero" em CSS/SQL e projetos guiados de vários passos (A · M). Meta: ~200, sempre com `integrity.mts` e `challenges-run.mjs`.
+- **Continuar ampliando o catálogo** (ver "Progresso da Etapa 1"): mais passos "do zero" em CSS/SQL e projetos guiados de vários passos (A · M). Meta: ~200, sempre com `integrity.mts` e `challenges-run.mjs`.
 - **Selo e certificado por trilha concluída** (a conquista "Trilheiro" já existe; falta o selo por trilha) (M · M).
 - **Modo prova** com cronômetro e **modo entrevista** (algoritmos clássicos em JS, dicas de complexidade) (M · M).
 - **Revisão espaçada** (flashcards dos comandos que o usuário errou) (M · M).

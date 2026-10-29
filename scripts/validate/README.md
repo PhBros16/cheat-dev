@@ -20,7 +20,8 @@ npm run build && npx next start -p 3111      # só para os scripts e2e (precisa 
 | `npx tsx scripts/validate/js-examples.mts` + `node scripts/validate/js-examples-run.mjs` | Executa os exemplos de JavaScript e acusa erros |
 | `npx tsx scripts/validate/css-demos.mts` | Acha demos de CSS sem efeito visível |
 | `node scripts/validate/e2e-hub.mjs` · `e2e-lab.mjs` | Fluxos reais (roleta, testes, Emmet, multi-tela, ZIP, compartilhar). Exigem o servidor na porta 3111 |
-| `npx tsx scripts/validate/inventory.mts [--check]` | Inventário real do produto, gerado do código. Com `--check`, confere os números do doc mestre e do plano do LinkedIn |
+| `npx tsx scripts/validate/inventory.mts [--fix\|--check]` | Inventário real do produto, gerado do código. `--fix` regenera os números dos documentos (rode antes de commitar um lote); `--check` confere se batem |
+| `npx tsx scripts/validate/sql-alts.mts` | O corretor de SQL aceita alternativas corretas e recusa erros plausíveis |
 | `npx tsx scripts/validate/integrity.mts` · `wheel.mts` · `backup.mts` · `learn-render.mts` | Catálogo e trilhas · roleta e navegação · backup de dados · varredura das mini-aulas |
 | `node scripts/validate/e2e-roleta.mjs` · `e2e-links-backup.mjs` | Roleta configurável e trilhas · ligações guia/receita, mini-aulas e backup (exportar/importar) |
 | `node scripts/validate/a11y-audit.mjs <light\|dark> <largura> <rotas.txt> <saida.json> [conc]` | Contraste WCAG de todo texto visível, erros de console, requisições com falha e overflow, por página |

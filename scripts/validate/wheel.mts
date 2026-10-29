@@ -10,7 +10,7 @@ let r = W.wheelPool(W.DEFAULT_WHEEL, none);
 ok("padrão: pool tem todos os desafios", r.pool.length === CHALLENGES.length && !r.manual && !r.relaxed);
 let s = W.wheelSlices(r.pool); ok("padrão: 4 fatias, uma por linguagem", s.length === 4 && s.every((x) => x.key.startsWith("l:")), JSON.stringify(s.map((x) => x.key)));
 r = W.wheelPool({ ...W.DEFAULT_WHEEL, langs: ["sql"] }, none);
-s = W.wheelSlices(r.pool); ok("só SQL: pool só de SQL e fatias por trilha (6)", r.pool.every((c) => c.lang === "sql") && s.length === 6 && s.every((x) => x.key.startsWith("t:")), `${r.pool.length} ${s.map((x) => x.key)}`);
+s = W.wheelSlices(r.pool); ok("só SQL: pool só de SQL e uma fatia por trilha", r.pool.every((c) => c.lang === "sql") && s.length === T.tracksOf("sql").length && s.every((x) => x.key.startsWith("t:")), `${r.pool.length} ${s.map((x) => x.key)}`);
 r = W.wheelPool({ ...W.DEFAULT_WHEEL, langs: ["js"], levels: ["avançado"] }, none);
 s = W.wheelSlices(r.pool); ok("JS avançado: poucas opções viram fatias de desafios", r.pool.length >= 2 && r.pool.length <= W.MAX_SLICES && s.length === r.pool.length && s.every((x) => x.key.startsWith("c:")), `${r.pool.length}`);
 const three = ["js-ola", "css-azul", "sql-colunas"];

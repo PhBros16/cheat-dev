@@ -36,7 +36,7 @@ Direto, honesto e didático. Mostre o **processo e os erros**, não só o result
 | Item | Quantidade |
 |---|---|
 | Comandos (HTML 135 · CSS 196 · JS 86 · SQL 86) | **503** |
-| Desafios práticos com testes automáticos | **133** (em 27 trilhas) |
+| Desafios práticos com testes automáticos | **156** (em 28 trilhas) |
 | Passos da trilha "Essencial" | **53** |
 | Snippets de componentes | **65** |
 | Templates de site (combinações de estilo) | **11** (**43**) |
@@ -45,7 +45,7 @@ Direto, honesto e didático. Mostre o **processo e os erros**, não só o result
 | Motores SQL no navegador | SQLite e PostgreSQL (o do Supabase) |
 | Dispositivos no simulador de tela | 17 |
 | Commits atômicos no repositório | 50+ |
-| Mini-aulas (uma por desafio) · soluções alternativas validadas | 133 · 94 |
+| Mini-aulas (uma por desafio) · soluções alternativas validadas | 156 · 117 |
 
 ### 1.7 Cadência
 - **4 semanas, 14 posts principais** (3 a 4 por semana) + microposts nos dias vazios.
@@ -66,7 +66,7 @@ Direto, honesto e didático. Mostre o **processo e os erros**, não só o result
 - **Seção "Em destaque":** fixe o link do site, o repositório e o Post 1 (depois que publicar).
 - **Seção "Projetos":** adicione o cheat/dev com este texto:
 
-> **cheat/dev** — Hub de consulta e treino para desenvolvedores. 503 comandos de HTML, CSS, JavaScript e SQL, todos explicados e testáveis no próprio navegador (inclusive PostgreSQL rodando em WebAssembly). Inclui editor ao vivo com simulador de telas, SQL Lab, 133 desafios com testes automáticos, trilha de conhecimentos essenciais e 11 templates de site. Next.js, TypeScript, CodeMirror, sql.js e PGlite. [LINK]
+> **cheat/dev** — Hub de consulta e treino para desenvolvedores. 503 comandos de HTML, CSS, JavaScript e SQL, todos explicados e testáveis no próprio navegador (inclusive PostgreSQL rodando em WebAssembly). Inclui editor ao vivo com simulador de telas, SQL Lab, 156 desafios com testes automáticos, trilha de conhecimentos essenciais e 11 templates de site. Next.js, TypeScript, CodeMirror, sql.js e PGlite. [LINK]
 
 ### 2.2 Mídias para produzir (grave tudo antes; reutilize nos posts)
 | ID | O que gravar/capturar | Duração/tamanho | Usado em |
@@ -125,7 +125,7 @@ Em vez de copiar um exemplo e torcer para funcionar, você:
 → resolve desafios com testes automáticos
 → entende o PORQUÊ, não só a sintaxe
 
-São 133 desafios em trilhas do zero ao avançado, 65 snippets, 11 templates de site, simulador com 17 dispositivos e uma trilha com os 53 passos que ninguém deveria pular.
+São 156 desafios em trilhas do zero ao avançado, 65 snippets, 11 templates de site, simulador com 17 dispositivos e uma trilha com os 53 passos que ninguém deveria pular.
 
 Foi um projeto grande, feito em público e com muito teste de verdade. Nos próximos dias vou contar como cada parte funciona e o que deu errado no caminho.
 
@@ -137,7 +137,7 @@ O link está no primeiro comentário. Me conta: qual linguagem você mais gostar
 
 **Variações de gancho (teste A/B em outro dia):**
 - A: "Cansei de cheatsheet que só mostra código e não deixa testar."
-- B: "503 comandos. 133 desafios. Zero instalação. Tudo roda no navegador."
+- B: "503 comandos. 156 desafios. Zero instalação. Tudo roda no navegador."
 - C: "Rodei PostgreSQL dentro de uma aba do navegador. Foi assim."
 
 ---
@@ -298,7 +298,7 @@ Você gira, sorteia HTML, CSS, JavaScript ou SQL, e recebe um desafio prático. 
 • JavaScript: o teste executa as suas funções (inclusive assíncronas)
 • SQL: o teste compara o seu resultado com o da solução
 
-São 133 desafios em 27 trilhas e 4 níveis, do "zero" ao "chefe" (implementar um cache LRU, o seu próprio Promise.all, um organograma com CTE recursiva).
+São 156 desafios em 28 trilhas e 4 níveis, do "zero" ao "chefe" (implementar um cache LRU, o seu próprio Promise.all, um organograma com CTE recursiva).
 
 Cada passo começa com uma mini-aula, e você pode montar a sua roleta (linguagens, níveis ou desafios escolhidos um a um). No modo adaptativo, você sempre recebe o nível mais baixo que ainda não completou. XP, patentes e sequência diária para criar o hábito.
 
@@ -598,8 +598,8 @@ Depois do Post 5, identifique qual formato foi melhor (carrossel, vídeo ou text
 
 ## PARTE 7 — Pitches reutilizáveis
 
-- **30 segundos (fala):** "Criei o cheat/dev, um hub para desenvolvedores em que todo comando de HTML, CSS, JavaScript e SQL é explicado e pode ser testado na hora, dentro da página. Roda até PostgreSQL no navegador. Tem 133 desafios com testes automáticos e uma trilha com o que não dá para pular."
-- **2 linhas (bio/projeto):** "Hub com 503 comandos testáveis na hora (HTML, CSS, JS, SQL), SQL Lab com PostgreSQL no navegador e 133 desafios com testes automáticos."
+- **30 segundos (fala):** "Criei o cheat/dev, um hub para desenvolvedores em que todo comando de HTML, CSS, JavaScript e SQL é explicado e pode ser testado na hora, dentro da página. Roda até PostgreSQL no navegador. Tem 156 desafios com testes automáticos e uma trilha com o que não dá para pular."
+- **2 linhas (bio/projeto):** "Hub com 503 comandos testáveis na hora (HTML, CSS, JS, SQL), SQL Lab com PostgreSQL no navegador e 156 desafios com testes automáticos."
 - **1 linha (assinatura de e-mail):** "cheat/dev: aprenda testando — [LINK]"
 
 ## PARTE 8 — Cuidados finais

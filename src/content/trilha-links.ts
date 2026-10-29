@@ -18,6 +18,7 @@ export const TRACK_LINKS: Record<string, TrackLinks> = {
   "sql-selecionar": { guias: ["sql-da-tabela-ao-relatorio"] },
   "sql-filtrar": { guias: ["sql-da-tabela-ao-relatorio"] },
   "sql-agregar": { guias: ["sql-da-tabela-ao-relatorio"] },
+  "sql-projeto": { guias: ["sql-da-tabela-ao-relatorio"] },
 };
 
 export const tracksForGuide = (slug: string): Track[] => TRACKS.filter((t) => TRACK_LINKS[t.id]?.guias?.includes(slug));

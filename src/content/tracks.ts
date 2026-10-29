@@ -52,17 +52,19 @@ export const TRACKS: Track[] = [
 
   /* ============================== SQL ============================== */
   { id: "sql-selecionar", lang: "sql", title: "Selecionar dados", desc: "SELECT, DISTINCT, LIMIT e CASE.",
-    ids: ["sql-colunas", "sql-distinct", "loja-2", "sql-case"] },
+    ids: ["sql-colunas", "sql-alias", "sql-distinct", "loja-2", "sql-order-multi", "sql-limit-offset", "sql-upper-length", "sql-coalesce", "sql-case"] },
   { id: "sql-filtrar", lang: "sql", title: "Filtrar", desc: "WHERE, LIKE, BETWEEN, IN e valores nulos.",
-    ids: ["loja-1", "sql-like", "sql-between", "sql-in", "loja-3", "loja-4", "escola-1", "rh-1", "sql-nulos"] },
+    ids: ["loja-1", "sql-not", "sql-like", "sql-between", "sql-between-datas", "sql-in", "sql-and-or", "loja-3", "loja-4", "escola-1", "rh-1", "sql-datas-texto", "sql-nulos"] },
   { id: "sql-agregar", lang: "sql", title: "Contar, somar e agrupar", desc: "COUNT, AVG, MIN, MAX, GROUP BY e HAVING.",
-    ids: ["sql-count", "escola-2", "rh-2", "sql-minmax", "sql-having", "escola-3", "escola-4", "loja-10"] },
+    ids: ["sql-count", "sql-agregacoes-multiplas", "escola-2", "rh-2", "sql-minmax", "sql-soma-por", "sql-count-distinct", "sql-having", "escola-3", "sql-case-agg", "escola-4", "loja-10"] },
   { id: "sql-juntar", lang: "sql", title: "Juntar tabelas", desc: "INNER JOIN, LEFT JOIN e auto-junção.",
-    ids: ["loja-5", "loja-6", "loja-7", "loja-8", "rh-4"] },
+    ids: ["loja-5", "loja-6", "sql-join-tres", "loja-7", "loja-8", "rh-4", "sql-union"] },
   { id: "sql-subconsultas", lang: "sql", title: "Subconsultas", desc: "Consultas dentro de consultas.",
-    ids: ["loja-9", "rh-3", "loja-11"] },
+    ids: ["sql-subquery-escalar", "sql-in-subquery", "rh-3", "sql-exists", "loja-9", "loja-11"] },
   { id: "sql-avancado", lang: "sql", title: "CTE e funções de janela", desc: "WITH, RECURSIVE e OVER: o nível dos chefes.",
     ids: ["loja-12", "escola-5", "rh-5", "loja-13", "rh-6"] },
+  { id: "sql-projeto", lang: "sql", title: "Projeto: relatório de vendas", desc: "Monte um relatório de vendas completo em 5 passos que se constroem.",
+    ids: ["sql-proj-1", "sql-proj-2", "sql-proj-3", "sql-proj-4", "sql-proj-5"] },
 ];
 
 export const TRACK_BY_ID = new Map(TRACKS.map((t) => [t.id, t]));
