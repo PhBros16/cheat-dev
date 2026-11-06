@@ -21,7 +21,7 @@ A maioria dos materiais mostra o **código**, não o **comportamento**. Aqui, ca
 | **Comandos** (503) | HTML 135 · CSS 196 · JavaScript 86 · SQL 86. Sintaxe, explicação do porquê, armadilha comum e playground ao vivo |
 | **Lab** `/lab` | Editor HTML/CSS/JS com resultado ao vivo, Emmet, 17 dispositivos, multi-tela, console, link compartilhável e exportar/importar ZIP |
 | **SQL Lab** `/sql-lab` | SQLite e **PostgreSQL** (o motor do Supabase) rodando no navegador; 3 bancos de exemplo, aulas, exercícios com correção e dialetos lado a lado |
-| **Desafios** `/desafios` | 133 desafios em 27 trilhas, do zero ao avançado, com mini-aulas, testes automáticos, roleta configurável, XP, patentes e sequência diária |
+| **Desafios** `/desafios` | 156 desafios em 28 trilhas, do zero ao avançado, com mini-aulas, testes automáticos, roleta configurável, XP, patentes e sequência diária |
 | **Essencial** `/essencial` | 53 passos que não dá para pular, com o risco de pular cada um e uma tarefa prática |
 | **Geradores** `/geradores` | Sombra, gradiente, flexbox, grid, curva de animação e border-radius |
 | **Receitas · Comparativos · Guias** | 13 "como fazer X", 18 comparativos lado a lado (let/const/var, JOINs...) e 6 tutoriais |
