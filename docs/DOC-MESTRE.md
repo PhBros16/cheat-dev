@@ -149,10 +149,10 @@ Regra: **uma página por vez**, na ordem abaixo, cada uma com a "Definição de 
 | Linguagem | Início (16/10) | Agora | Meta | Feito |
 |---|---|---|---|---|
 | HTML | 26 | 26 | 43 | 0% |
-| CSS | 28 | 37 | 55 | 33% |
+| CSS | 28 | 45 | 55 | 63% |
 | JS | 45 | 45 | 70 | 0% |
 | SQL | 34 | 57 | 57 | 100% |
-| **Total** | 133 | **165** | 225 | 35% |
+| **Total** | 133 | **173** | 225 | 43% |
 <!-- progresso-etapa1:fim -->
 
 **Regras de qualidade de TODO desafio novo (todas validadas por scripts):**
@@ -351,7 +351,7 @@ src/
 | Receitas "como fazer X" | 13 |
 | Comparativos | 18 |
 | Guias e tutoriais | 6 (inclui "Do zero ao site no ar: GitHub + Vercel") |
-| Desafios do Hub | 165 em 29 trilhas (HTML 26 · CSS 37 · JS 45 · SQL 57); 165 com mini-aula |
+| Desafios do Hub | 173 em 29 trilhas (HTML 26 · CSS 45 · JS 45 · SQL 57); 173 com mini-aula |
 | Passos da trilha Essencial | 53 (6 trilhas) |
 | Gatilhos VS Code (`cd-`) | 40 |
 | Receitas de dialetos SQL | 17 |
@@ -387,7 +387,7 @@ SQL de verdade no navegador, com **dois motores selecionáveis**:
 - **Roleta configurável** (`wheelPool.ts`, persistida em `cheatdev:hub:wheel:v1`): escolha **linguagens** e **níveis**, "só os que ainda não resolvi" e/ou **marque desafios um a um** (modo "Escolher um a um": a seleção manual manda no filtro). Com até 12 desafios cada fatia é **um desafio**; acima disso as fatias são linguagens, depois trilhas, depois níveis. Com 1 desafio vira um botão "Abrir". Dentro do grupo sorteado o comportamento é **adaptativo** (nível mais baixo ainda pendente). Se tudo da seleção já foi resolvido, os resolvidos voltam à roleta (aviso na tela).
 - **Desafio do dia** continua. 4 níveis: iniciante (10 XP), intermediário (25), avançado (50), **chefe** (100).
 - Testes automáticos: HTML/CSS/JS rodam **dentro do iframe** do aluno (`challengeDoc.ts` injeta o executor; os `check` são expressões JS avaliadas por `eval` indireto; aceitam Promises, timeout de 3 s; a página de teste tem 560 px de largura). SQL compara o resultado com o da solução (`sqlCheck.ts`: ignora nomes de coluna; só considera a ordem se a solução tiver `ORDER BY`).
-- Gamificação: XP (total possível 4650), 6 patentes (Aprendiz 0, Construtor 150, Desenvolvedor 500, Pleno 1200, Sênior 2400, Mestre 3600), sequência diária, 11 conquistas (inclui Trilheiro, Explorador e Meio caminho), progresso por linguagem e por trilha. Tudo em `localStorage` (`cheatdev:hub:v1`).
+- Gamificação: XP (total possível 4860), 6 patentes (Aprendiz 0, Construtor 150, Desenvolvedor 500, Pleno 1200, Sênior 2400, Mestre 3600), sequência diária, 11 conquistas (inclui Trilheiro, Explorador e Meio caminho), progresso por linguagem e por trilha. Tudo em `localStorage` (`cheatdev:hub:v1`).
 - **Como criar um desafio novo:** use os construtores de `challenge-kit.ts` num dos `ch-*.ts`, acrescente o id na trilha certa em `tracks.ts` escreva a `learn` e 1 a 2 **soluções alternativas** em `src/content/alts.ts` (o validador exige que passem 100%: pega testes rígidos demais) e rode `integrity.mts`, `learn-render.mts` e `challenges-run.mjs`. A regra do validador: a **solução passa 100%** dos testes e o **código inicial não passa tudo**; prefira testes que o código inicial não satisfaça por acaso (um `<h1>` já tem 32px e negrito por padrão; "não altera o original" passa se a função devolve `undefined`: combine com o resultado esperado).
 
 ### 7.5 Essencial (`/essencial`)
@@ -569,7 +569,7 @@ Resumo por fase (os commits têm o detalhe; `git log --oneline`):
 | 16/10 | **Qualidade dos Desafios**: mini-aulas nos 58 originais (133/133); renderizador de mini-aulas corrigido (negrito com código mostrava crases); 94 soluções alternativas corretas validadas; **backup** exportar/importar dos dados do usuário; ligação trilha ↔ guia/receita (bloco "Pratique" e chips "Estude também"); corrigida a mini-aula que duplicava ao trocar de desafio |
 | 17 a 29/10 | **Etapa 1, lote 1 (SQL +23)**: 18 lacunas e projeto guiado "relatório de vendas" (5 passos); validador de alternativas de SQL (`sql-alts.mts`); `inventory.mts --fix`/`--check` mantém números dos documentos; e2e leem contagens do inventário. **O dono adicionou licença MIT e reescreveu o README (29/10)**; o rebase preservou ambos. Doc mestre reescrito como manual de passagem (seção 0) |
 
-Totais: 60 commits · 503 comandos · 165 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
+Totais: 62 commits · 503 comandos · 173 desafios · 65 snippets · 11 templates (43 estilos) · 18 comparativos · 13 receitas · 6 guias · 53 passos Essenciais.
 
 ## 13b. Backlog de ideias e aprofundamentos (por área)
 
