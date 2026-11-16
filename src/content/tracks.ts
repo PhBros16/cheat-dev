@@ -21,7 +21,9 @@ export const TRACKS: Track[] = [
 
   /* ============================== CSS ============================== */
   { id: "css-comecando", lang: "css", title: "Primeiros passos", desc: "Seletores, cores, fontes, texto e bordas.",
-    ids: ["css-azul", "css-seletores", "css-cores-fundo", "css-fonte", "css-texto", "css-borda"] },
+    ids: ["css-azul", "css-seletores", "css-cores-fundo", "css-fonte", "css-texto", "css-borda", "css-listas", "css-botao"] },
+  { id: "css-seletores", lang: "css", title: "Seletores e cascata", desc: "Combinadores, pseudo-classes, atributos, herança, especificidade, :not() e :has().",
+    ids: ["css-combinadores", "css-pseudo-classes", "css-atributo", "css-not", "css-heranca", "css-especificidade", "css-has"] },
   { id: "css-caixa", lang: "css", title: "Modelo de caixa", desc: "Tamanho, margem, espaçamento e sombras.",
     ids: ["css-card", "css-margem", "css-display", "css-sombra"] },
   { id: "css-layout", lang: "css", title: "Layout", desc: "Posicionamento, Flexbox e Grid.",
