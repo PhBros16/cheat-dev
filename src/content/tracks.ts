@@ -29,9 +29,11 @@ export const TRACKS: Track[] = [
   { id: "css-layout", lang: "css", title: "Layout", desc: "Posicionamento, Flexbox e Grid.",
     ids: ["css-centro", "css-position", "css-position-fixed", "css-navbar", "css-flex-coluna", "css-flex-justify", "css-flex-grow", "css-flex-wrap", "css-grid3", "css-grid-span", "css-grid-auto", "css-sticky"] },
   { id: "css-responsivo", lang: "css", title: "Responsivo", desc: "Unidades relativas, media queries e tipografia fluida.",
-    ids: ["css-unidades", "css-media", "css-clamp"] },
+    ids: ["css-unidades", "css-imagens-responsivas", "css-media", "css-mobile-first", "css-clamp"] },
   { id: "css-efeitos", lang: "css", title: "Efeitos e animação", desc: "Hover, transformações, gradientes, variáveis e animações.",
-    ids: ["css-hover", "css-transform", "css-gradiente", "css-pseudo", "css-vars", "css-flip", "css-anim"] },
+    ids: ["css-hover", "css-transform", "css-filtros", "css-gradiente", "css-pseudo", "css-vars", "css-tema-variaveis", "css-flip", "css-scroll-snap", "css-anim"] },
+  { id: "css-projeto-landing", lang: "css", title: "Projeto: landing page responsiva", desc: "Monte uma landing page completa em 5 passos que se constroem: cabeçalho, hero, cartões, variáveis e responsivo.",
+    ids: ["css-proj-1", "css-proj-2", "css-proj-3", "css-proj-4", "css-proj-5"] },
   { id: "css-projeto", lang: "css", title: "Projeto final", desc: "Um layout completo com Grid.", ids: ["css-areas"] },
 
   /* ============================== JAVASCRIPT ============================== */

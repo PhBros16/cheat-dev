@@ -12,6 +12,7 @@ export const TRACK_LINKS: Record<string, TrackLinks> = {
   "css-layout": { guias: ["flexbox-do-zero", "layout-com-grid"], receitas: ["centralizar-div", "menu-fixo-no-topo", "galeria-de-cards-responsiva"] },
   "css-responsivo": { receitas: ["galeria-de-cards-responsiva", "carrossel-com-scroll-snap"] },
   "css-efeitos": { receitas: ["card-com-hover", "tooltip-so-com-css", "skeleton-loading", "revelar-ao-rolar"] },
+  "css-projeto-landing": { guias: ["layout-com-grid"] },
   "css-projeto": { guias: ["layout-com-grid"] },
   "js-dom": { guias: ["formulario-de-login"], receitas: ["modo-escuro-com-botao", "botao-com-loading", "abas-tabs", "modal-com-dialog"] },
   "js-assincrono": { guias: ["consumindo-api-com-fetch"], receitas: ["botao-com-loading"] },
